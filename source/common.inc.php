@@ -109,6 +109,18 @@ trait CommonCode
         return $ip;
     }
 
+    protected function getTimestamp()
+    {
+        $dt          = microtime(true);
+        $miliSeconds = floor((gettimeofday()['usec'] / 1000));
+        $l           = strlen($miliSeconds);
+        if ($l < 3) {
+            $miliSeconds = str_repeat('0', (3 - $l)) . $miliSeconds;
+        }
+        return ('<span style="color:black!important;font-weight:bold;">['
+            . date('Y-m-d H:i:s.', $dt) . $miliSeconds . ']</span> ');
+    }
+
     /**
      * Builds a <select> based on a given array
      *
@@ -268,14 +280,27 @@ trait CommonCode
     }
 
     /**
+     * Returns css codes
+     *
+     * @param string $cssContent
+     * @return string
+     */
+    protected function setCssContent($cssContent)
+    {
+        return '<style>' . $cssContent . '</style>';
+    }
+
+    /**
      * Returns css link to a given file
      *
      * @param string $cssFile
      * @return string
      */
-    protected function setCssFile($cssFile)
+    protected function setCssFile($cssFileName)
     {
-        return '<link rel="stylesheet" type="text/css" href="' . $cssFile . '" />';
+        return '<link rel="stylesheet" type="text/css" href="'
+            . filter_var($cssFileName, FILTER_SANITIZE_STRING)
+            . '" />';
     }
 
     /**
@@ -348,7 +373,9 @@ trait CommonCode
      */
     protected function setJavascriptFile($content)
     {
-        return '<script type="text/javascript" src="' . $content . '"></script>';
+        return '<script type="text/javascript" src="'
+            . filter_var($jsFileName, FILTER_SANITIZE_STRING)
+            . '"></script>';
     }
 
     /**
