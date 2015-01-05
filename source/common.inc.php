@@ -34,7 +34,10 @@ trait CommonCode
     protected function getContentFromUrlThroughCurl($fullURL, $features = null)
     {
         if (!function_exists('curl_init')) {
-            return 'CURL extension is not available... therefore the informations to be obtained by funtion named ' . __FUNCTION__ . ' from ' . __FILE__ . ' could not be obtained!';
+            return 'CURL extension is not available...'
+                . 'therefore the informations to be obtained by funtion named '
+                . __FUNCTION__ . ' from ' . __FILE__
+                . ' could not be obtained!';
         }
         $aReturn = [];
         $ch      = curl_init();
@@ -324,6 +327,28 @@ trait CommonCode
         header("Cache-Control: no-store, no-cache, must-revalidate");
         header("Cache-Control: post-check=0, pre-check=0", false);
         header("Pragma: no-cache");
+    }
+
+    /**
+     * Returns javascript codes
+     *
+     * @param string $javascriptContent
+     * @return string
+     */
+    protected function setJavascriptContent($javascriptContent)
+    {
+        return '<script type="text/javascript">' . $javascriptContent . '</script>';
+    }
+
+    /**
+     * Returns javascript link to a given file
+     *
+     * @param string $content
+     * @return string
+     */
+    protected function setJavascriptFile($content)
+    {
+        return '<script type="text/javascript" src="' . $content . '"></script>';
     }
 
     /**
