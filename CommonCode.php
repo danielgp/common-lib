@@ -31,6 +31,27 @@ namespace danielgp\common_lib;
 trait CommonCode
 {
 
+    private function calculateSelectOptionsSize($aElements, $features_array = [])
+    {
+        if (!is_array($aElements)) {
+            return '';
+        } else {
+            if (in_array('size', array_keys($features_array))) {
+                if ($features_array['size'] == 0) {
+                    $selectSize = count($aElements);
+                } else {
+                    $selectSize = min(count($aElements), $features_array['size']);
+                }
+            } else {
+                $selectSize = 1;
+            }
+            if ((in_array('include_null', $features_array)) && ($selectSize != '1')) {
+                $selectSize++;
+            }
+            return $selectSize;
+        }
+    }
+
     /**
      * Returns the IP of the client
      *
@@ -120,31 +141,11 @@ trait CommonCode
      */
     protected function setArray2Select($aElements, $sDefaultValue, $select_name, $features_array = null)
     {
-        if (in_array($aElements, [null, '', '??'])) {
-            return "";
+        if (!is_array($aElements)) {
+            return '';
         }
-        if (isset($features_array['id_no'])) {
-            $select_id = str_replace(['[', ']'], ['', ''], $select_name) . $features_array['id_no'];
-        } else {
-            $select_id = str_replace(['[', ']'], ['', ''], $select_name);
-        }
-        $select_id = '" id="' . $select_id;
-        if (isset($features_array['id_no'])) {
-            unset($features_array['id_no']);
-        }
-        $temporary_string = '1';
-        if (is_array($features_array)) {
-            if (in_array('size', array_keys($features_array))) {
-                if ($features_array['size'] == 0) {
-                    $temporary_string = count($aElements);
-                } else {
-                    $temporary_string = min(count($aElements), $features_array['size']);
-                }
-            }
-            if ((in_array('include_null', $features_array)) && ($temporary_string != '1')) {
-                $temporary_string += 1;
-            }
-        }
+        $select_id = '" id="' . str_replace(['[', ']'], ['', ''], $select_name)
+            . (isset($features_array['id_no']) ? $features_array['id_no'] : '');
         if (isset($features_array['readonly'])) {
             return $this->setStringIntoShortTag('input', [
                     'name'     => $select_name,
@@ -152,10 +153,13 @@ trait CommonCode
                     'readonly' => 'readonly',
                     'class'    => 'input_readonly',
                     'value'    => $sDefaultValue,
-                ])
-                . $aElements[$sDefaultValue];
+                ]) . $aElements[$sDefaultValue];
         }
-        $string2return = '<select name="' . $select_name . $select_id . '" size="' . $temporary_string . '"';
+        if (isset($features_array['id_no'])) {
+            unset($features_array['id_no']);
+        }
+        $string2return = '<select name="' . $select_name . $select_id
+            . '" size="' . $this->calculateSelectOptionsSize($aElements, $features_array) . '"';
         if (is_array($features_array)) {
             if (in_array('additional_javascript_action', array_keys($features_array))) {
                 $temporary_string = $features_array['additional_javascript_action'];
@@ -179,53 +183,7 @@ trait CommonCode
                 $string2return .= ' multiple="multiple"';
             }
         }
-        $string2return .= '>';
-        if (is_array($features_array)) {
-            if (in_array('include_null', $features_array)) {
-                $string2return .= '<option value="">&nbsp;</option>';
-            }
-            if (isset($features_array['defaultValue_isSubstring'])) {
-                $default_value_array = explode($features_array['defaultValue_isSubstring'], $sDefaultValue);
-            }
-        }
-        $current_group = null;
-        foreach ($aElements as $key => $value) {
-            if (isset($features_array['grouping'])) {
-                $temporary_string = substr($value, 0, strpos($value, $features_array['grouping']) + 1);
-                if ($current_group != $temporary_string) {
-                    if ($current_group != '') {
-                        $string2return .= '</optgroup>';
-                    }
-                    $current_group = $temporary_string;
-                    $string2return .= '<optgroup label="'
-                        . str_replace($features_array['grouping'], '', $current_group) . '">';
-                }
-            } else {
-                $current_group = '';
-            }
-            $string2return .= '<option value="' . $key . '"';
-            if (is_array($sDefaultValue)) {
-                if (in_array($key, $sDefaultValue)) {
-                    $string2return .= ' selected="selected"';
-                }
-            } else {
-                if (strcasecmp($key, $sDefaultValue) === 0) {
-                    $string2return .= ' selected="selected"';
-                }
-                if (isset($default_value_array) && is_array($default_value_array)) {
-                    if (in_array($key, $default_value_array)) {
-                        $string2return .= ' selected="selected"';
-                    }
-                }
-            }
-            $string2return .= '>' . str_replace(['&', $current_group], ['&amp;', ''], $value) . '</option>';
-        }
-        if (isset($features_array['grouping'])) {
-            if ($current_group != '') {
-                $string2return .= '</optgroup>';
-            }
-        }
-        $string2return .= '</select>';
+        $string2return .= '>' . $this->setOptionsForSelect($aElements, $features_array) . '</select>';
         return $string2return;
     }
 
@@ -368,7 +326,7 @@ trait CommonCode
      * @param string $jsFileName
      * @return string
      */
-    public function setJavascriptFileContent($jsFileName)
+    protected function setJavascriptFileContent($jsFileName)
     {
         $sReturn[] = '<script type="text/javascript"><!-- ';
         $sReturn[] = $this->getExternalFileContent($jsFileName);
@@ -393,6 +351,56 @@ trait CommonCode
             $sReturn = null;
         }
         return $sReturn;
+    }
+
+    private function setOptionsForSelect($aElements, $features_array = [])
+    {
+        if (is_array($features_array)) {
+            if (in_array('include_null', $features_array)) {
+                $string2return .= '<option value="">&nbsp;</option>';
+            }
+            if (isset($features_array['defaultValue_isSubstring'])) {
+                $default_value_array = explode($features_array['defaultValue_isSubstring'], $sDefaultValue);
+            }
+        }
+        $current_group = null;
+        foreach ($aElements as $key => $value) {
+            if (isset($features_array['grouping'])) {
+                $temporary_string = substr($value, 0, strpos($value, $features_array['grouping']) + 1);
+                if ($current_group != $temporary_string) {
+                    if ($current_group != '') {
+                        $string2return .= '</optgroup>';
+                    }
+                    $current_group = $temporary_string;
+                    $string2return .= '<optgroup label="'
+                        . str_replace($features_array['grouping'], '', $current_group) . '">';
+                }
+            } else {
+                $current_group = '';
+            }
+            $string2return .= '<option value="' . $key . '"';
+            if (is_array($sDefaultValue)) {
+                if (in_array($key, $sDefaultValue)) {
+                    $string2return .= ' selected="selected"';
+                }
+            } else {
+                if (strcasecmp($key, $sDefaultValue) === 0) {
+                    $string2return .= ' selected="selected"';
+                }
+                if (isset($default_value_array) && is_array($default_value_array)) {
+                    if (in_array($key, $default_value_array)) {
+                        $string2return .= ' selected="selected"';
+                    }
+                }
+            }
+            $string2return .= '>' . str_replace(['&', $current_group], ['&amp;', ''], $value) . '</option>';
+        }
+        if (isset($features_array['grouping'])) {
+            if ($current_group != '') {
+                $string2return .= '</optgroup>';
+            }
+        }
+        return $string2return;
     }
 
     /**
