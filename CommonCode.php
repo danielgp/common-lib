@@ -53,15 +53,20 @@ trait CommonCode
     protected function getContentFromUrlThroughCurl($fullURL, $features = null)
     {
         if (!function_exists('curl_init')) {
-            return 'CURL extension is not available...'
+            $aReturn['info']     = 'CURL extension is not available...'
                 . 'therefore the informations to be obtained by funtion named '
                 . __FUNCTION__ . ' from ' . __FILE__
                 . ' could not be obtained!';
+            $aReturn['response'] = '';
         }
-        $aReturn = [];
-        $fullURL = filter_var($fullURL, FILTER_VALIDATE_URL);
-        $ch      = curl_init();
-        curl_setopt($ch, CURLOPT_USERAGENT, $_SERVER['HTTP_USER_AGENT']);
+        if (!filter_var($fullURL, FILTER_VALIDATE_URL)) {
+            $aReturn['info']     = 'URL is not valid...';
+            $aReturn['response'] = '';
+        }
+        $aReturn          = [];
+        $ch               = curl_init();
+        $currentUserAgent = filter_input(INPUT_SERVER, $_SERVER['HTTP_USER_AGENT'], FILTER_SANITIZE_STRING);
+        curl_setopt($ch, CURLOPT_USERAGENT, $currentUserAgent);
         if ((strpos($fullURL, "https") !== false) || (isset($features['forceSSLverification']))) {
             curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
@@ -73,41 +78,18 @@ trait CommonCode
         curl_setopt($ch, CURLOPT_FAILONERROR, true);
         $responseJsonFromClientOriginal = curl_exec($ch);
         if (curl_errno($ch)) {
-            $aReturn['error_CURL'] = [
+            $aReturn['info']     = [
                 '#'           => curl_errno($ch),
                 'description' => curl_error($ch)
             ];
-            $aReturn['response']   = [''];
-            $aReturn['info']       = [''];
+            $aReturn['response'] = '';
         } else {
+            $aReturn['info']     = curl_getinfo($ch);
             $aReturn['response'] = (json_decode($responseJsonFromClientOriginal, true));
-            switch (json_last_error()) {
-                case JSON_ERROR_NONE:
-                    $aReturn['error_JSON_encode'] = '';
-                    break;
-                case JSON_ERROR_DEPTH:
-                    $aReturn['error_JSON_encode'] = 'Maximum stack depth exceeded';
-                    break;
-                case JSON_ERROR_STATE_MISMATCH:
-                    $aReturn['error_JSON_encode'] = 'Underflow or the modes mismatch';
-                    break;
-                case JSON_ERROR_CTRL_CHAR:
-                    $aReturn['error_JSON_encode'] = 'Unexpected control character found';
-                    break;
-                case JSON_ERROR_SYNTAX:
-                    $aReturn['error_JSON_encode'] = 'Syntax error, malformed JSON';
-                    break;
-                case JSON_ERROR_UTF8:
-                    $aReturn['error_JSON_encode'] = 'Malformed UTF-8 characters, possibly incorrectly encoded';
-                    break;
-                default:
-                    $aReturn['error_JSON_encode'] = 'Unknown error';
-                    break;
-            }
             if (is_array($aReturn['response'])) {
                 ksort($aReturn['response']);
             }
-            $aReturn['info'] = curl_getinfo($ch);
+            $aReturn['info']['error_JSON_encode'] = $this->setJsonErrorInPlainEnglish();
             ksort($aReturn['info']);
         }
         curl_close($ch);
@@ -176,7 +158,7 @@ trait CommonCode
         $string2return = '<select name="' . $select_name . $select_id . '" size="' . $temporary_string . '"';
         if (is_array($features_array)) {
             if (in_array('additional_javascript_action', array_keys($features_array))) {
-                $temporary_string = @$features_array['additional_javascript_action'];
+                $temporary_string = $features_array['additional_javascript_action'];
             } else {
                 $temporary_string = '';
             }
@@ -199,9 +181,6 @@ trait CommonCode
         }
         $string2return .= '>';
         if (is_array($features_array)) {
-            /* if (in_array('grouping', $features_array)) {
-              $current_group = '';
-              } */
             if (in_array('include_null', $features_array)) {
                 $string2return .= '<option value="">&nbsp;</option>';
             }
@@ -233,7 +212,7 @@ trait CommonCode
                 if (strcasecmp($key, $sDefaultValue) === 0) {
                     $string2return .= ' selected="selected"';
                 }
-                if (is_array(@$default_value_array)) {
+                if (isset($default_value_array) && is_array($default_value_array)) {
                     if (in_array($key, $default_value_array)) {
                         $string2return .= ' selected="selected"';
                     }
@@ -397,6 +376,25 @@ trait CommonCode
         return implode(PHP_EOL, $sReturn);
     }
 
+    private function setJsonErrorInPlainEnglish()
+    {
+        $knownErrors  = [
+            JSON_ERROR_NONE           => null,
+            JSON_ERROR_DEPTH          => 'Maximum stack depth exceeded',
+            JSON_ERROR_STATE_MISMATCH => 'Underflow or the modes mismatch',
+            JSON_ERROR_CTRL_CHAR      => 'Unexpected control character found',
+            JSON_ERROR_SYNTAX         => 'Syntax error, malformed JSON',
+            JSON_ERROR_UTF8           => 'Malformed UTF-8 characters, possibly incorrectly encoded',
+        ];
+        $currentError = json_last_error();
+        if (in_array($currentError, $knownErrors)) {
+            $sReturn = $knownErrors[$currentError];
+        } else {
+            $sReturn = null;
+        }
+        return $sReturn;
+    }
+
     /**
      * Puts a given string into a specific short tag
      *
@@ -407,7 +405,7 @@ trait CommonCode
     protected function setStringIntoShortTag($sTag, $features = null)
     {
         $attributes = '';
-        if ($features != null) {
+        if (!is_null($features)) {
             foreach ($features as $key => $value) {
                 if ($key != 'dont_close') {
                     $attributes .= ' ' . $key . '="';
@@ -441,7 +439,7 @@ trait CommonCode
     protected function setStringIntoTag($sString, $sTag, $features = null)
     {
         $attributes = '';
-        if ($features != null) {
+        if (!is_null($features)) {
             foreach ($features as $key => $value) {
                 $attributes .= ' ' . $key . '="';
                 if (is_array($value)) {

@@ -1,7 +1,6 @@
 {
     "name": "danielgp/common-lib",
     "description": "Common functions to be used where needed",
-    "time": "2015-01-05 17:21:00",
     "type": "library",
     "license": "MIT",
     "authors": [
