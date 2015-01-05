@@ -31,6 +31,25 @@ namespace danielgp\common_lib;
 trait CommonCode
 {
 
+    /**
+     * Returns the IP of the client
+     *
+     * @return string
+     */
+    protected function getClientRealIpAddress()
+    {
+        //check ip from share internet
+        if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
+            $ip = $_SERVER['HTTP_CLIENT_IP'];
+        } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+            //to check ip is pass from proxy
+            $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+        } else {
+            $ip = $_SERVER['REMOTE_ADDR'];
+        }
+        return $ip;
+    }
+
     protected function getContentFromUrlThroughCurl($fullURL, $features = null)
     {
         if (!function_exists('curl_init')) {
@@ -40,6 +59,7 @@ trait CommonCode
                 . ' could not be obtained!';
         }
         $aReturn = [];
+        $fullURL = filter_var($fullURL, FILTER_VALIDATE_URL);
         $ch      = curl_init();
         curl_setopt($ch, CURLOPT_USERAGENT, $_SERVER['HTTP_USER_AGENT']);
         if ((strpos($fullURL, "https") !== false) || (isset($features['forceSSLverification']))) {
@@ -53,13 +73,17 @@ trait CommonCode
         curl_setopt($ch, CURLOPT_FAILONERROR, true);
         $responseJsonFromClientOriginal = curl_exec($ch);
         if (curl_errno($ch)) {
-            $aReturn['error_CURL'] = ['#' => curl_errno($ch), 'description' => curl_error($ch)];
+            $aReturn['error_CURL'] = [
+                '#'           => curl_errno($ch),
+                'description' => curl_error($ch)
+            ];
             $aReturn['response']   = [''];
             $aReturn['info']       = [''];
         } else {
             $aReturn['response'] = (json_decode($responseJsonFromClientOriginal, true));
             switch (json_last_error()) {
                 case JSON_ERROR_NONE:
+                    $aReturn['error_JSON_encode'] = '';
                     break;
                 case JSON_ERROR_DEPTH:
                     $aReturn['error_JSON_encode'] = 'Maximum stack depth exceeded';
@@ -88,25 +112,6 @@ trait CommonCode
         }
         curl_close($ch);
         return $aReturn;
-    }
-
-    /**
-     * Returns the IP of the client
-     *
-     * @return string
-     */
-    protected function getRealIpAddress()
-    {
-        //check ip from share internet
-        if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
-            $ip = $_SERVER['HTTP_CLIENT_IP'];
-        } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-            //to check ip is pass from proxy
-            $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
-        } else {
-            $ip = $_SERVER['REMOTE_ADDR'];
-        }
-        return $ip;
     }
 
     protected function getTimestamp()
@@ -368,7 +373,7 @@ trait CommonCode
     /**
      * Returns javascript link to a given file
      *
-     * @param string $content
+     * @param string $jsFileName
      * @return string
      */
     protected function setJavascriptFile($jsFileName)
@@ -376,6 +381,20 @@ trait CommonCode
         return '<script type="text/javascript" src="'
             . filter_var($jsFileName, FILTER_SANITIZE_STRING)
             . '"></script>';
+    }
+
+    /**
+     * Returns javascript codes from given file
+     *
+     * @param string $jsFileName
+     * @return string
+     */
+    public function setJavascriptFileContent($jsFileName)
+    {
+        $sReturn[] = '<script type="text/javascript"><!-- ';
+        $sReturn[] = $this->getExternalFileContent($jsFileName);
+        $sReturn[] = ' //--></script>';
+        return implode(PHP_EOL, $sReturn);
     }
 
     /**

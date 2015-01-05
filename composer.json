@@ -1,7 +1,7 @@
 {
     "name": "danielgp/common-lib",
-    "description": "Informations about environment served via web",
-    "time": "2015-01-05 02:21:00",
+    "description": "Common functions to be used where needed",
+    "time": "2015-01-05 15:21:00",
     "type": "library",
     "license": "MIT",
     "authors": [
@@ -13,8 +13,12 @@
     ],
     "require": {
         "php": ">=5.4",
-        "ext-curl": "*",
-        "ext-mysqli": "*"
+        "ext-curl": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "": "source/"
+        }
     },
     "minimum-stability": "stable",
     "prefer-stable":    true,
