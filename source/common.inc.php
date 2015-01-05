@@ -371,7 +371,7 @@ trait CommonCode
      * @param string $content
      * @return string
      */
-    protected function setJavascriptFile($content)
+    protected function setJavascriptFile($jsFileName)
     {
         return '<script type="text/javascript" src="'
             . filter_var($jsFileName, FILTER_SANITIZE_STRING)
