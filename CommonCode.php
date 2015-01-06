@@ -185,7 +185,9 @@ trait CommonCode
                 $string2return .= ' multiple="multiple"';
             }
         }
-        $string2return .= '>' . $this->setOptionsForSelect($aElements, $features_array) . '</select>';
+        $string2return .= '>'
+            . $this->setOptionsForSelect($aElements, $sDefaultValue, $features_array)
+            . '</select>';
         return $string2return;
     }
 
@@ -355,8 +357,9 @@ trait CommonCode
         return $sReturn;
     }
 
-    private function setOptionsForSelect($aElements, $features_array = [])
+    private function setOptionsForSelect($aElements, $sDefaultValue, $features_array = [])
     {
+        $string2return = '';
         if (is_array($features_array)) {
             if (in_array('include_null', $features_array)) {
                 $string2return .= '<option value="">&nbsp;</option>';
