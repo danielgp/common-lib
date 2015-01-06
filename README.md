@@ -1,3 +1,3 @@
-common-lib
+common-lib = Common functions to be used where needed 
 ==========
-Since January 5th, 2015 this package is scanned by: https://insight.sensiolabs.com/ and after few corrections code is compliant 100%!
+[![SensioLabsInsight](https://insight.sensiolabs.com/projects/f824c5da-de46-446b-91ea-68a493abdf6a/small.png)](https://insight.sensiolabs.com/projects/f824c5da-de46-446b-91ea-68a493abdf6a)

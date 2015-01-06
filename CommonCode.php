@@ -31,6 +31,8 @@ namespace danielgp\common_lib;
 trait CommonCode
 {
 
+    use RomanianHolidays;
+
     private function calculateSelectOptionsSize($aElements, $features_array = [])
     {
         if (!is_array($aElements)) {
