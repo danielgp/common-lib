@@ -132,8 +132,12 @@ trait CommonCode
 
     protected function isJson($inputJson)
     {
-        json_decode($inputJson);
-        return (json_last_error() == JSON_ERROR_NONE);
+        if (is_string($inputJson)) {
+            json_decode($inputJson);
+            return (json_last_error() == JSON_ERROR_NONE);
+        } else {
+            return 'Given input in ' . __FUNCTION__ . ' is not a json string...';
+        }
     }
 
     /**
