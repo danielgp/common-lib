@@ -86,10 +86,9 @@ trait CommonCode
             $aReturn['info']     = 'URL is not valid...';
             $aReturn['response'] = '';
         }
-        $aReturn          = [];
-        $ch               = curl_init();
-        $currentUserAgent = filter_input(INPUT_SERVER, $_SERVER['HTTP_USER_AGENT'], FILTER_SANITIZE_STRING);
-        curl_setopt($ch, CURLOPT_USERAGENT, $currentUserAgent);
+        $aReturn = [];
+        $ch      = curl_init();
+        curl_setopt($ch, CURLOPT_USERAGENT, $this->getUserAgent());
         if ((strpos($fullURL, "https") !== false) || (isset($features['forceSSLverification']))) {
             curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
@@ -128,6 +127,18 @@ trait CommonCode
         }
         return ('<span style="color:black!important;font-weight:bold;">['
             . date('Y-m-d H:i:s.', $dt) . $miliSeconds . ']</span> ');
+    }
+
+    protected function getUserAgent()
+    {
+        if (filter_has_var(INPUT_SERVER, "HTTP_USER_AGENT")) {
+            $currentUserAgent = filter_input(INPUT_SERVER, "HTTP_USER_AGENT", FILTER_UNSAFE_RAW, FILTER_NULL_ON_FAILURE);
+        } elseif (isset($_SERVER["HTTP_USER_AGENT"])) {
+            $currentUserAgent = filter_var($_SERVER["HTTP_USER_AGENT"], FILTER_UNSAFE_RAW, FILTER_NULL_ON_FAILURE);
+        } else {
+            $currentUserAgent = null;
+        }
+        return $currentUserAgent;
     }
 
     protected function isJson($inputJson)
