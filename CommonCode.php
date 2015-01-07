@@ -260,6 +260,24 @@ trait CommonCode
     }
 
     /**
+     * Returns a div tag that clear any float
+     *
+     * @param integer $height
+     */
+    protected function setClearBoth1px($height = 1)
+    {
+        return $this->setStringIntoTag('&nbsp;', 'div', [
+                'style' => implode('', [
+                    'height:' . $height . 'px;',
+                    'line-height:' . $height . 'px;',
+                    'float:none;',
+                    'clear:both;',
+                    'margin:0px;'
+                ])
+        ]);
+    }
+
+    /**
      * Returns css codes
      *
      * @param string $cssContent
