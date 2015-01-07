@@ -233,7 +233,7 @@ trait CommonCode
     protected function setArray2json($inputArray)
     {
         if (!is_array($inputArray)) {
-            return 'Given input is not an array...' . var_dump($inputArray);
+            return 'Given input is not an array...';
         }
         $sReturn   = utf8_encode(json_encode($inputArray, JSON_FORCE_OBJECT | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
         $jsonError = $this->setJsonErrorInPlainEnglish();
@@ -359,8 +359,8 @@ trait CommonCode
 
     protected function setJson2array($inputJson)
     {
-        if (!isJson($inputJson)) {
-            return ['error' => 'Given input is not an array...' . var_dump($inputJson)];
+        if (!$this->isJson($inputJson)) {
+            return ['error' => 'Given input is not an json...'];
         }
         $sReturn   = (json_decode($inputJson, true));
         $jsonError = $this->setJsonErrorInPlainEnglish();
