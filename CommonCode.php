@@ -108,11 +108,10 @@ trait CommonCode
             $aReturn['response'] = '';
         } else {
             $aReturn['info']     = curl_getinfo($ch);
-            $aReturn['response'] = (json_decode($responseJsonFromClientOriginal, true));
+            $aReturn['response'] = $responseJsonFromClientOriginal;
             if (is_array($aReturn['response'])) {
                 ksort($aReturn['response']);
             }
-            $aReturn['info']['error_JSON_encode'] = $this->setJsonErrorInPlainEnglish();
             ksort($aReturn['info']);
         }
         curl_close($ch);
@@ -129,6 +128,12 @@ trait CommonCode
         }
         return ('<span style="color:black!important;font-weight:bold;">['
             . date('Y-m-d H:i:s.', $dt) . $miliSeconds . ']</span> ');
+    }
+
+    protected function isJson($inputJson)
+    {
+        json_decode($inputJson);
+        return (json_last_error() == JSON_ERROR_NONE);
     }
 
     /**
@@ -223,6 +228,20 @@ trait CommonCode
             }
         }
         return implode($sSeparator, $sReturn);
+    }
+
+    protected function setArray2json($inputArray)
+    {
+        if (!is_array($inputArray)) {
+            return 'Given input is not an array...' . var_dump($inputArray);
+        }
+        $sReturn   = utf8_encode(json_encode($inputArray, JSON_FORCE_OBJECT | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+        $jsonError = $this->setJsonErrorInPlainEnglish();
+        if ($jsonError == '') {
+            return $sReturn;
+        } else {
+            return $jsonError;
+        }
     }
 
     /**
@@ -336,6 +355,20 @@ trait CommonCode
         $sReturn[] = $this->getExternalFileContent($jsFileName);
         $sReturn[] = ' //--></script>';
         return implode(PHP_EOL, $sReturn);
+    }
+
+    protected function setJson2array($inputJson)
+    {
+        if (!isJson($inputJson)) {
+            return ['error' => 'Given input is not an array...' . var_dump($inputJson)];
+        }
+        $sReturn   = (json_decode($inputJson, true));
+        $jsonError = $this->setJsonErrorInPlainEnglish();
+        if ($jsonError == '') {
+            return $sReturn;
+        } else {
+            return ['error' => $jsonError];
+        }
     }
 
     private function setJsonErrorInPlainEnglish()
