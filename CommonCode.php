@@ -250,7 +250,11 @@ trait CommonCode
         if (!is_array($inputArray)) {
             return 'Given input is not an array...';
         }
-        $sReturn   = utf8_encode(json_encode($inputArray, JSON_FORCE_OBJECT | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+        if (version_compare(phpversion(), "5.4.0", ">=")) {
+            $sReturn = utf8_encode(json_encode($inputArray, JSON_FORCE_OBJECT | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+        } else {
+            $sReturn = json_encode($inputArray);
+        }
         $jsonError = $this->setJsonErrorInPlainEnglish();
         if ($jsonError == '') {
             return $sReturn;
