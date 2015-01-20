@@ -16,6 +16,7 @@
     },
     "autoload": {
         "classmap": [
+            "MySQLiByDanielGP.php",
             "RomanianHolidays.php",
             "CommonCode.php"
         ]

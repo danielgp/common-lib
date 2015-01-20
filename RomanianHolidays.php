@@ -29,12 +29,14 @@
 namespace danielgp\common_lib;
 
 /**
- * Description of RomanianHolidays
+ * Return a list of all Romanian Holidays between 2001 and 2020
  *
- * @author E303778
+ * @author Daniel Popiniuc
  */
 trait RomanianHolidays
 {
+
+    use MySQLiByDanielGP;
 
     /**
      * List of legal holidays

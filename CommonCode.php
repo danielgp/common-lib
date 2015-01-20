@@ -28,10 +28,30 @@
 
 namespace danielgp\common_lib;
 
+/**
+ * usefull functions to get quick results
+ *
+ * @author Daniel Popiniuc
+ */
 trait CommonCode
 {
 
     use RomanianHolidays;
+
+    protected $applicationFlags;
+
+    public function __construct()
+    {
+        $this->applicationFlags = [
+            'available_languages' => [
+                'en_US' => 'EN',
+                'ro_RO' => 'RO',
+            ],
+            'default_language'    => 'en_US',
+            'localization_domain' => 'common-locale'
+        ];
+        $this->handleLocalizationCommon();
+    }
 
     private function calculateSelectOptionsSize($aElements, $features_array = [])
     {
@@ -132,13 +152,34 @@ trait CommonCode
     protected function getUserAgent()
     {
         if (filter_has_var(INPUT_SERVER, "HTTP_USER_AGENT")) {
-            $currentUserAgent = filter_input(INPUT_SERVER, "HTTP_USER_AGENT", FILTER_UNSAFE_RAW, FILTER_NULL_ON_FAILURE);
+            $crtUserAgent = filter_input(INPUT_SERVER, "HTTP_USER_AGENT", FILTER_UNSAFE_RAW, FILTER_NULL_ON_FAILURE);
         } elseif (isset($_SERVER["HTTP_USER_AGENT"])) {
-            $currentUserAgent = filter_var($_SERVER["HTTP_USER_AGENT"], FILTER_UNSAFE_RAW, FILTER_NULL_ON_FAILURE);
+            $crtUserAgent = filter_var($_SERVER["HTTP_USER_AGENT"], FILTER_UNSAFE_RAW, FILTER_NULL_ON_FAILURE);
         } else {
-            $currentUserAgent = null;
+            $crtUserAgent = null;
         }
-        return $currentUserAgent;
+        return $crtUserAgent;
+    }
+
+    private function handleLocalizationCommon()
+    {
+        if (isset($_GET['lang'])) {
+            $_SESSION['lang'] = filter_var($_GET['lang'], FILTER_SANITIZE_STRING);
+        } elseif (!isset($_SESSION['lang'])) {
+            $_SESSION['lang'] = $this->applicationFlags['default_language'];
+        }
+        /* to avoid potential language injections from other applications that do not applies here */
+        if (!in_array($_SESSION['lang'], array_keys($this->applicationFlags['available_languages']))) {
+            $_SESSION['lang'] = $this->applicationFlags['default_language'];
+        }
+        T_setlocale(LC_MESSAGES, $_SESSION['lang']);
+        if (function_exists('bindtextdomain')) {
+            bindtextdomain($this->applicationFlags['localization_domain'], realpath('./locale'));
+            bind_textdomain_codeset($this->applicationFlags['localization_domain'], 'UTF-8');
+            textdomain($this->applicationFlags['localization_domain']);
+        } else {
+            echo 'No gettext extension is active in current PHP configuration!';
+        }
     }
 
     protected function isJson($inputJson)
@@ -245,19 +286,19 @@ trait CommonCode
         return implode($sSeparator, $sReturn);
     }
 
-    protected function setArray2json($inputArray)
+    protected function setArray2json($inArray)
     {
-        if (!is_array($inputArray)) {
+        if (!is_array($inArray)) {
             return 'Given input is not an array...';
         }
         if (version_compare(phpversion(), "5.4.0", ">=")) {
-            $sReturn = utf8_encode(json_encode($inputArray, JSON_FORCE_OBJECT | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+            $rtrn = utf8_encode(json_encode($inArray, JSON_FORCE_OBJECT | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
         } else {
-            $sReturn = json_encode($inputArray);
+            $rtrn = json_encode($inArray);
         }
         $jsonError = $this->setJsonErrorInPlainEnglish();
         if ($jsonError == '') {
-            return $sReturn;
+            return $rtrn;
         } else {
             return $jsonError;
         }
