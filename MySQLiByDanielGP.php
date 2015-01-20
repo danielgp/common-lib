@@ -81,7 +81,7 @@ trait MySQLiByDanielGP
         if (!in_array($_SESSION['lang'], array_keys($this->commonLibFlags['available_languages']))) {
             $_SESSION['lang'] = $this->commonLibFlags['default_language'];
         }
-        T_setlocale(LC_MESSAGES, $_SESSION['lang']);
+        setlocale(LC_MESSAGES, $_SESSION['lang']);
         if (function_exists('bindtextdomain')) {
             bindtextdomain($this->commonLibFlags['localization_domain'], realpath('./locale'));
             bind_textdomain_codeset($this->commonLibFlags['localization_domain'], 'UTF-8');
