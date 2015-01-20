@@ -138,6 +138,29 @@ trait CommonCode
     }
 
     /**
+     * returns the details about Communicator (current) file
+     *
+     * @return array
+     */
+    protected function getFileDetails($fileGiven)
+    {
+        if (!file_exists($fileGiven)) {
+            return null;
+        }
+        return [
+            'Name'                      => $fileGiven,
+            'Size'                      => filesize($fileGiven),
+            'Sha1'                      => sha1_file($fileGiven),
+            'TimestampAccessed'         => fileatime($fileGiven),
+            'TimestampAccessedReadable' => date('Y-m-d H:i:s', fileatime($fileGiven)),
+            'TimestampChanged'          => filectime(__FILE__),
+            'TimestampChangedReadable'  => date('Y-m-d H:i:s', filectime($fileGiven)),
+            'TimestampModified'         => filemtime(__FILE__),
+            'TimestampModifiedReadable' => date('Y-m-d H:i:s', filemtime($fileGiven)),
+        ];
+    }
+
+    /**
      * returns a multi-dimensional array with list of file details within a given path
      * @param  string $pathAnalised
      * @return array
