@@ -25,8 +25,17 @@ msgstr "There is no MySQL connection at this moment, please check your code and 
 msgid "i18n_MySQL_QueryError"
 msgstr "Query error (no.: %d, message from server: %s)"
 
+msgid "i18n_MySQL_QueryInvalidReturnTypeSpecified"
+msgstr "The provided return type (%s) is not among the values the function %s knows how to handle"
+
+msgid "i18n_MySQL_QueryNoReturnTypeSpecified"
+msgstr "There is no return type specified when calling function %s"
+
 msgid "i18n_MySQL_QueryResultExpected1ResultedOther"
 msgstr "The MySQL query returned %d records although 1 single value was expected..."
+
+msgid "i18n_MySQL_QueryResultExpected1RowManyColumnsResultedOther"
+msgstr "The MySQL query returned %d records and %d columns, although a single record with multiple columns was expected..."
 
 msgid "i18n_MySQL_QueryResultExpected2ColumnsResultedOther"
 msgstr "The MySQL query returned %d columns although 2 were expected..."

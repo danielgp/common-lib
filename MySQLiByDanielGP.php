@@ -76,51 +76,120 @@ trait MySQLiByDanielGP
      */
     protected function setMySQLquery2Server($sQuery, $sReturnType = null, $ftrs = null)
     {
-        if (is_null($sReturnType)) {
-            return '';
-        }
-        if (is_null($this->mySQLconnection)) {
-            die(sprintf(_('i18n_Feedback_ConnectionError'), $erNo, $erMsg, $host, $port, $username, $database));
-        }
         $aReturn = [
             'customError' => '',
             'result'      => null
         ];
-        $result  = $this->mySQLconnection->query($sQuery);
-        if ($result) {
-            $iNoOfRows    = $result->num_rows;
-            $iNoOfColumns = $result->field_count;
-            switch (strtolower($sReturnType)) {
-                case 'array_key_value':
-                    switch ($iNoOfColumns) {
-                        case 2:
-                            for ($counter = 0; $counter < $iNoOfRows; $counter++) {
-                                $line                        = $result->fetch_row();
-                                $aReturn['result'][$line[0]] = $line[1];
-                            }
-                            break;
-                        default:
-                            $msg = _('i18n_MySQL_QueryResultExpected2ColumnsResultedOther');
-                            $aReturn['customError'] = sprintf($msg, $iNoOfRows);
-                            break;
-                    }
-                    break;
-                case 'value':
-                    if (($iNoOfRows == 1) && ($iNoOfColumns == 1)) {
-                        $aReturn['result']      = $result->fetch_row()[0];
-                    } else {
-                        $msg = _('i18n_MySQL_QueryResultExpected1ResultedOther');
-                        $aReturn['customError'] = sprintf($msg, $iNoOfRows);
-                    }
-                    break;
-                default:
-                    break;
-            }
-            $result->close();
+        if (is_null($sReturnType)) {
+            $aReturn['customError'] = sprintf(_('i18n_MySQL_QueryNoReturnSpecified'), __FUNCTION__);
+        } elseif (is_null($this->mySQLconnection)) {
+            $aReturn['customError'] = _('i18n_MySQL_ConnectionNotExisting');
         } else {
-            $erNo                   = $this->mySQLconnection->connect_errno;
-            $erMsg                  = $this->mySQLconnection->connect_error;
-            $aReturn['customError'] = sprintf(_('i18n_MySQL_QueryError'), $erNo, $erMsg);
+            $result = $this->mySQLconnection->query($sQuery);
+            if ($result) {
+                $iNoOfRows = $result->num_rows;
+                $iNoOfCols = $result->field_count;
+                switch (strtolower($sReturnType)) {
+                    case 'array_key_value':
+                    case 'array_key_value2':
+                    case 'array_key2_value':
+                    case 'array_numbered':
+                    case 'array_pairs_key_value':
+                        $aReturn           = $this->setMySQLquery2ServerByPattern([
+                            'NoOfColumns' => $iNoOfCols,
+                            'NoOfRows'    => $iNoOfRows,
+                            'QueryResult' => $result,
+                            'returnType'  => $sReturnType,
+                            'return'      => $aReturn
+                        ]);
+                        break;
+                    case 'id':
+                        $aReturn['result'] = $this->mySQLconnection->insert_id;
+                        break;
+                    case 'lines':
+                        $aReturn['result'] = $iNoOfRows;
+                        break;
+                    case 'value':
+                        if (($iNoOfRows == 1) && ($iNoOfCols == 1)) {
+                            $aReturn['result'] = $result->fetch_row()[0];
+                        } else {
+                            $msg                    = _('i18n_MySQL_QueryResultExpected1ResultedOther');
+                            $aReturn['customError'] = sprintf($msg, $iNoOfRows);
+                        }
+                        break;
+                    default:
+                        $msg                    = _('i18n_MySQL_QueryInvalidReturnTypeSpecified');
+                        $aReturn['customError'] = sprintf($msg, $sReturnType, __FUNCTION__);
+                        break;
+                }
+                $result->close();
+            } else {
+                $erNo                   = $this->mySQLconnection->connect_errno;
+                $erMsg                  = $this->mySQLconnection->connect_error;
+                $aReturn['customError'] = sprintf(_('i18n_MySQL_QueryError'), $erNo, $erMsg);
+            }
+        }
+        return $aReturn;
+    }
+
+    private function setMySQLquery2ServerByPattern($parameters)
+    {
+        $aReturn    = $parameters['return'];
+        $buildArray = false;
+        switch ($parameters['returnType']) {
+            case 'array_key_value':
+            case 'array_key_value2':
+            case 'array_key2_value':
+                if ($parameters['NoOfColumns'] == 2) {
+                    $buildArray = true;
+                } else {
+                    $msg                    = _('i18n_MySQL_QueryResultExpected2ColumnsResultedOther');
+                    $aReturn['customError'] = sprintf($msg, $parameters['NoOfColumns']);
+                }
+                break;
+            case 'array_numbered':
+                if ($parameters['NoOfColumns'] == 1) {
+                    $buildArray = true;
+                } else {
+                    $msg                    = _('i18n_MySQL_QueryResultExpected1ColumnResultedOther');
+                    $aReturn['customError'] = sprintf($msg, $parameters['NoOfColumns']);
+                }
+                break;
+            case 'array_pairs_key_value':
+                if (($parameters['NoOfRows'] == 1) && ($parameters['NoOfColumns'] > 1)) {
+                    $buildArray = true;
+                } else {
+                    $msg                    = _('i18n_MySQL_QueryResultExpected1RowManyColumnsResultedOther');
+                    $aReturn['customError'] = sprintf($msg, $parameters['NoOfRows'], $parameters['NoOfColumns']);
+                }
+                break;
+        }
+        if ($buildArray) {
+            for ($counter = 0; $counter < $parameters['NoOfRows']; $counter++) {
+                $line = $parameters['QueryResult']->fetch_row();
+                switch ($parameters['returnType']) {
+                    case 'array_key_value':
+                        $aReturn['result'][$line[0]]                  = $line[1];
+                        break;
+                    case 'array_key_value2':
+                        $aReturn['result'][$line[0]][]                = $line[1];
+                        break;
+                    case 'array_key2_value':
+                        $aReturn['result'][$line[0] . '@' . $line[1]] = $line[1];
+                        break;
+                    case 'array_numbered':
+                        $aReturn['result'][]                          = $line[0];
+                        break;
+                    case 'array_pairs_key_value':
+                        $finfo                                        = $parameters['QueryResult']->fetch_fields();
+                        $columnCounter                                = 0;
+                        foreach ($finfo as $value) {
+                            $aReturn['result'][$value->name] = $line[$columnCounter];
+                            $columnCounter++;
+                        }
+                        break;
+                }
+            }
         }
         return $aReturn;
     }

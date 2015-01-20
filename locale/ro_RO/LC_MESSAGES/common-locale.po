@@ -23,10 +23,23 @@ msgid "i18n_MySQL_ConnectionNotExisting"
 msgstr "În acest moment nu conexiunea MySQL nu există! Verificați, vă rog, dacă această conexiune a fost corect inițalizată și deasemenea verificați dacă serverul MySQL folosit rulează în parametrii normali."
 
 msgid "i18n_MySQL_QueryError"
-msgstr "Eroare interogare MzSQL (nr.: %d, mesajul primit de la server este: %s)"
+msgstr "Eroare interogare MySQL (nr.: %d, mesajul primit de la server este: %s)"
+
+msgid "i18n_MySQL_QueryInvalidReturnTypeSpecified"
+msgstr "Tipul de returnare specificat (%s) nu este definit în funcţia %s"
+
+msgid "i18n_MySQL_QueryNoReturnTypeSpecified"
+msgstr "Nu s-a specificat nici un fel de tip de returnare la apelarea funcţiei %s"
+
+msgid "i18n_MySQL_QueryResultExpected1ColumnResultedOther"
+msgstr "Interogarea MySQL a returnat %d coloane deşi se aşteptau una singură..."
 
 msgid "i18n_MySQL_QueryResultExpected1ResultedOther"
 msgstr "Interogarea MySQL a returnat %d înregistrări deşi se aştepta o singură valoare..."
+
+msgid "i18n_MySQL_QueryResultExpected1RowManyColumnsResultedOther"
+msgstr "Interogarea MySQL a returnat %d înregistrări şi %d coloane deşi se aştepta o singură înregistrare cu coloane multiple..."
+
 
 msgid "i18n_MySQL_QueryResultExpected2ColumnsResultedOther"
 msgstr "Interogarea MySQL a returnat %d coloane deşi se aşteptau 2 coloane..."
