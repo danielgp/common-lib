@@ -12,7 +12,8 @@
     ],
     "require": {
         "php": ">=5.4",
-        "ext-curl": "*"
+        "ext-curl": "*",
+        "inetsys/phpgettext":">=1.0.11"
     },
     "autoload": {
         "classmap": [

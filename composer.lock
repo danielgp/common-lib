@@ -1,0 +1,69 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "This file is @generated automatically"
+    ],
+    "hash": "4c2d6abfa883d195366e79082d190498",
+    "packages": [
+        {
+            "name": "inetsys/phpgettext",
+            "version": "1.0.11",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/inetsys/phpgettext.git",
+                "reference": "cc8b5b65b8392ef4efe73705d2bde7bc114649e1"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/inetsys/phpgettext/zipball/cc8b5b65b8392ef4efe73705d2bde7bc114649e1",
+                "reference": "cc8b5b65b8392ef4efe73705d2bde7bc114649e1",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.0.0"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "gettext.php",
+                    "streams.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "GNU GPL v2"
+            ],
+            "authors": [
+                {
+                    "name": "Danilo Segan",
+                    "homepage": "https://launchpad.net/php-gettext/",
+                    "role": "Developer"
+                },
+                {
+                    "name": "Pablo Banderas",
+                    "homepage": "http://www.inetsys.es/",
+                    "role": "Wrapper"
+                }
+            ],
+            "description": "PHP implementation of gettext",
+            "homepage": "https://github.com/inetsys/phpgettext",
+            "keywords": [
+                "gettext",
+                "phpgettext"
+            ],
+            "time": "2014-02-07 10:24:48"
+        }
+    ],
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "stable",
+    "stability-flags": [],
+    "prefer-stable": true,
+    "prefer-lowest": false,
+    "platform": {
+        "php": ">=5.4",
+        "ext-curl": "*"
+    },
+    "platform-dev": []
+}
