@@ -74,7 +74,7 @@ trait MySQLiByDanielGP
      * @param array $ftrs
      * @return boolean|array|string
      */
-    protected function setMySQLquery2Server($sQuery, $sReturnType = null, $ftrs = null)
+    protected function setMySQLquery2Server($sQuery, $sReturnType = null)
     {
         $aReturn = [
             'customError' => '',
