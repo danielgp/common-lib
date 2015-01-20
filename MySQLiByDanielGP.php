@@ -181,7 +181,7 @@ trait MySQLiByDanielGP
         return $aReturn;
     }
 
-    private function setMySQLquery2ServerByPattern($parameters)
+    protected function setMySQLquery2ServerByPattern($parameters)
     {
         $aReturn    = $parameters['return'];
         $buildArray = false;
