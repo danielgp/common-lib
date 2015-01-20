@@ -39,6 +39,7 @@ trait CommonCode
     use RomanianHolidays;
 
     protected $applicationFlags;
+    protected $filesFromDir;
 
     public function __construct()
     {
