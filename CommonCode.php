@@ -137,6 +137,55 @@ trait CommonCode
         return $aReturn;
     }
 
+    /**
+     * returns a multi-dimensional array with list of file details within a given path
+     * @param  string $pathAnalised
+     * @return array
+     */
+    protected function getListOfFiles($pathAnalised)
+    {
+        if (!file_exists($pathAnalised)) {
+            return null;
+        }
+        $dir                = dir($pathAnalised);
+        $this->filesFromDir = 0;
+        $fileDetails        = null;
+        while ($file               = $dir->read()) {
+            clearstatcache();
+            $fName     = $pathAnalised . '/' . $file;
+            $fileParts = pathinfo($fName);
+            switch ($fileParts['basename']) {
+                case '.':
+                case '..':
+                    break;
+                default:
+                    if (is_dir($fName)) {
+                        $fileDetails[$fName] = $this->getListOfFiles($fName);
+                    } else {
+                        $this->filesFromDir += 1;
+                        $xt                  = (isset($fileParts['extension']) ? $fileParts['extension'] : '-');
+                        $fileDetails[$fName] = [
+                            'Folder'                    => $fileParts['dirname'],
+                            'BaseName'                  => $fileParts['basename'],
+                            'Extension'                 => $xt,
+                            'FileName'                  => $fileParts['filename'],
+                            'Size'                      => filesize($fName),
+                            'Sha1'                      => sha1_file($fName),
+                            'TimestampAccessed'         => fileatime($fName),
+                            'TimestampAccessedReadable' => date('Y-m-d H:i:s', fileatime($fName)),
+                            'TimestampChanged'          => filectime($fName),
+                            'TimestampChangedReadable'  => date('Y-m-d H:i:s', filectime($fName)),
+                            'TimestampModified'         => filemtime($fName),
+                            'TimestampModifiedReadable' => date('Y-m-d H:i:s', filemtime($fName)),
+                        ];
+                    }
+                    break;
+            }
+        }
+        $dir->close();
+        return $fileDetails;
+    }
+
     protected function getTimestamp()
     {
         $dt          = microtime(true);
