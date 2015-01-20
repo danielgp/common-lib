@@ -36,6 +36,7 @@ namespace danielgp\common_lib;
 trait MySQLiByDanielGP
 {
 
+    protected $commonLibFlags  = null;
     protected $mySQLconnection = null;
 
     /**
@@ -53,6 +54,9 @@ trait MySQLiByDanielGP
     protected function connectToMySql($mySQLconfig)
     {
         if (is_null($this->mySQLconnection)) {
+            if (is_null($this->commonLibFlags)) {
+                $this->initCommomLibParameters();
+            }
             extract($mySQLconfig);
             $this->mySQLconnection = new \mysqli($host, $username, $password, $database, $port);
             if ($this->mySQLconnection->connect_error) {
@@ -64,6 +68,40 @@ trait MySQLiByDanielGP
                 return '';
             }
         }
+    }
+
+    private function handleLocalizationCommon()
+    {
+        if (isset($_GET['lang'])) {
+            $_SESSION['lang'] = filter_var($_GET['lang'], FILTER_SANITIZE_STRING);
+        } elseif (!isset($_SESSION['lang'])) {
+            $_SESSION['lang'] = $this->commonLibFlags['default_language'];
+        }
+        /* to avoid potential language injections from other applications that do not applies here */
+        if (!in_array($_SESSION['lang'], array_keys($this->commonLibFlags['available_languages']))) {
+            $_SESSION['lang'] = $this->commonLibFlags['default_language'];
+        }
+        T_setlocale(LC_MESSAGES, $_SESSION['lang']);
+        if (function_exists('bindtextdomain')) {
+            bindtextdomain($this->commonLibFlags['localization_domain'], realpath('./locale'));
+            bind_textdomain_codeset($this->commonLibFlags['localization_domain'], 'UTF-8');
+            textdomain($this->commonLibFlags['localization_domain']);
+        } else {
+            echo 'No gettext extension is active in current PHP configuration!';
+        }
+    }
+
+    private function initCommomLibParameters()
+    {
+        $this->commonLibFlags = [
+            'available_languages' => [
+                'en_US' => 'EN',
+                'ro_RO' => 'RO',
+            ],
+            'default_language'    => 'en_US',
+            'localization_domain' => 'common-locale'
+        ];
+        $this->handleLocalizationCommon();
     }
 
     /**

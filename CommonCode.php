@@ -38,21 +38,7 @@ trait CommonCode
 
     use RomanianHolidays;
 
-    protected $applicationFlags;
     protected $filesFromDir;
-
-    public function __construct()
-    {
-        $this->applicationFlags = [
-            'available_languages' => [
-                'en_US' => 'EN',
-                'ro_RO' => 'RO',
-            ],
-            'default_language'    => 'en_US',
-            'localization_domain' => 'common-locale'
-        ];
-        $this->handleLocalizationCommon();
-    }
 
     private function calculateSelectOptionsSize($aElements, $features_array = [])
     {
@@ -232,27 +218,6 @@ trait CommonCode
             $crtUserAgent = null;
         }
         return $crtUserAgent;
-    }
-
-    private function handleLocalizationCommon()
-    {
-        if (isset($_GET['lang'])) {
-            $_SESSION['lang'] = filter_var($_GET['lang'], FILTER_SANITIZE_STRING);
-        } elseif (!isset($_SESSION['lang'])) {
-            $_SESSION['lang'] = $this->applicationFlags['default_language'];
-        }
-        /* to avoid potential language injections from other applications that do not applies here */
-        if (!in_array($_SESSION['lang'], array_keys($this->applicationFlags['available_languages']))) {
-            $_SESSION['lang'] = $this->applicationFlags['default_language'];
-        }
-        T_setlocale(LC_MESSAGES, $_SESSION['lang']);
-        if (function_exists('bindtextdomain')) {
-            bindtextdomain($this->applicationFlags['localization_domain'], realpath('./locale'));
-            bind_textdomain_codeset($this->applicationFlags['localization_domain'], 'UTF-8');
-            textdomain($this->applicationFlags['localization_domain']);
-        } else {
-            echo 'No gettext extension is active in current PHP configuration!';
-        }
     }
 
     protected function isJson($inputJson)
