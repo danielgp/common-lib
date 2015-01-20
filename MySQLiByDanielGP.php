@@ -74,7 +74,7 @@ trait MySQLiByDanielGP
      * @param array $ftrs
      * @return boolean|array|string
      */
-    protected function setMySQLquery2Server($sQuery, $sReturnType = null)
+    protected function setMySQLquery2Server($sQuery, $sReturnType = null, $ftrs = null)
     {
         $aReturn = [
             'customError' => '',
@@ -95,11 +95,22 @@ trait MySQLiByDanielGP
                     case 'array_key2_value':
                     case 'array_numbered':
                     case 'array_pairs_key_value':
+                    case 'full_array_key_numbered':
                         $aReturn           = $this->setMySQLquery2ServerByPattern([
                             'NoOfColumns' => $iNoOfCols,
                             'NoOfRows'    => $iNoOfRows,
                             'QueryResult' => $result,
                             'returnType'  => $sReturnType,
+                            'return'      => $aReturn
+                        ]);
+                        break;
+                    case 'full_array_key_numbered_with_prefix':
+                        $aReturn           = $this->setMySQLquery2ServerByPattern([
+                            'NoOfColumns' => $iNoOfCols,
+                            'NoOfRows'    => $iNoOfRows,
+                            'QueryResult' => $result,
+                            'returnType'  => $sReturnType,
+                            'prefix'      => $ftrs['prefix'],
                             'return'      => $aReturn
                         ]);
                         break;
@@ -163,6 +174,18 @@ trait MySQLiByDanielGP
                     $aReturn['customError'] = sprintf($msg, $parameters['NoOfRows'], $parameters['NoOfColumns']);
                 }
                 break;
+            case 'full_array_key_numbered':
+            case 'full_array_key_numbered_with_prefix':
+                if ($parameters['NoOfColumns'] == 0) {
+                    $aReturn['customError'] = _('i18n_MySQL_QueryResultExpected1OrMoreRows0Resulted');
+                    if ($parameters['returnType'] == 'full_array_key_numbered_with_prefix') {
+                        $aReturn['result'][$parameters['prefix']] = null;
+                    }
+                } else {
+                    $buildArray = true;
+                    $counter2   = 0;
+                }
+                break;
         }
         if ($buildArray) {
             for ($counter = 0; $counter < $parameters['NoOfRows']; $counter++) {
@@ -187,6 +210,24 @@ trait MySQLiByDanielGP
                             $aReturn['result'][$value->name] = $line[$columnCounter];
                             $columnCounter++;
                         }
+                        break;
+                    case 'full_array_key_numbered':
+                        $finfo         = $parameters['QueryResult']->fetch_fields();
+                        $columnCounter = 0;
+                        foreach ($finfo as $value) {
+                            $aReturn['result'][$counter2][$value->name] = $line[$columnCounter];
+                            $columnCounter++;
+                        }
+                        $counter2++;
+                        break;
+                    case 'full_array_key_numbered_with_prefix':
+                        $finfo         = $parameters['QueryResult']->fetch_fields();
+                        $columnCounter = 0;
+                        foreach ($finfo as $value) {
+                            $aReturn['result'][$parameters['prefix']][$counter2][$value->name] = $line[$columnCounter];
+                            $columnCounter++;
+                        }
+                        $counter2++;
                         break;
                 }
             }

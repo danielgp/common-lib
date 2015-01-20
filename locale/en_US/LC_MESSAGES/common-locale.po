@@ -31,8 +31,14 @@ msgstr "The provided return type (%s) is not among the values the function %s kn
 msgid "i18n_MySQL_QueryNoReturnTypeSpecified"
 msgstr "There is no return type specified when calling function %s"
 
+msgid "i18n_MySQL_QueryResultExpected1ColumnResultedOther"
+msgstr "The MySQL query returned %d columns although a single one was expected..."
+
 msgid "i18n_MySQL_QueryResultExpected1ResultedOther"
 msgstr "The MySQL query returned %d records although 1 single value was expected..."
+
+msgid "i18n_MySQL_QueryResultExpected1OrMoreRows0Resulted"
+msgstr "The MySQL query did not returned any records although at least one was expected..."
 
 msgid "i18n_MySQL_QueryResultExpected1RowManyColumnsResultedOther"
 msgstr "The MySQL query returned %d records and %d columns, although a single record with multiple columns was expected..."

@@ -37,9 +37,11 @@ msgstr "Interogarea MySQL a returnat %d coloane deşi se aşteptau una singură.
 msgid "i18n_MySQL_QueryResultExpected1ResultedOther"
 msgstr "Interogarea MySQL a returnat %d înregistrări deşi se aştepta o singură valoare..."
 
+msgid "i18n_MySQL_QueryResultExpected1OrMoreRows0Resulted"
+msgstr "Interogarea MySQL nu a returnat nici o înregistrăre deşi se aştepta cel puţin una singură..."
+
 msgid "i18n_MySQL_QueryResultExpected1RowManyColumnsResultedOther"
 msgstr "Interogarea MySQL a returnat %d înregistrări şi %d coloane deşi se aştepta o singură înregistrare cu coloane multiple..."
-
 
 msgid "i18n_MySQL_QueryResultExpected2ColumnsResultedOther"
 msgstr "Interogarea MySQL a returnat %d coloane deşi se aşteptau 2 coloane..."
