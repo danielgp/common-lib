@@ -63,7 +63,8 @@ trait MySQLiByDanielGP
                 $erNo                  = $this->mySQLconnection->connect_errno;
                 $erMsg                 = $this->mySQLconnection->connect_error;
                 $this->mySQLconnection = null;
-                return sprintf(_('i18n_Feedback_ConnectionError'), $erNo, $erMsg, $host, $port, $username, $database);
+                $msg                   = $this->lclMsgCmn('i18n_Feedback_ConnectionError');
+                return sprintf($msg, $erNo, $erMsg, $host, $port, $username, $database);
             } else {
                 return '';
             }
@@ -85,7 +86,6 @@ trait MySQLiByDanielGP
         if (function_exists('bindtextdomain')) {
             bindtextdomain($this->commonLibFlags['localization_domain'], realpath('./locale'));
             bind_textdomain_codeset($this->commonLibFlags['localization_domain'], 'UTF-8');
-            textdomain($this->commonLibFlags['localization_domain']);
         } else {
             echo 'No gettext extension is active in current PHP configuration!';
         }
@@ -104,6 +104,11 @@ trait MySQLiByDanielGP
         $this->handleLocalizationCommon();
     }
 
+    protected function lclMsgCmn($localizedStringCode)
+    {
+        return dgettext($this->commonLibFlags['localization_domain'], $localizedStringCode);
+    }
+
     /**
      * Transmit Query to MySQL server and get results back
      *
@@ -119,9 +124,9 @@ trait MySQLiByDanielGP
             'result'      => null
         ];
         if (is_null($sReturnType)) {
-            $aReturn['customError'] = sprintf(_('i18n_MySQL_QueryNoReturnSpecified'), __FUNCTION__);
+            $aReturn['customError'] = sprintf($this->lclMsgCmn('i18n_MySQL_QueryNoReturnSpecified'), __FUNCTION__);
         } elseif (is_null($this->mySQLconnection)) {
-            $aReturn['customError'] = _('i18n_MySQL_ConnectionNotExisting');
+            $aReturn['customError'] = $this->lclMsgCmn('i18n_MySQL_ConnectionNotExisting');
         } else {
             $result = $this->mySQLconnection->query($sQuery);
             if ($result) {
@@ -162,12 +167,12 @@ trait MySQLiByDanielGP
                         if (($iNoOfRows == 1) && ($iNoOfCols == 1)) {
                             $aReturn['result'] = $result->fetch_row()[0];
                         } else {
-                            $msg                    = _('i18n_MySQL_QueryResultExpected1ResultedOther');
+                            $msg                    = $this->lclMsgCmn('i18n_MySQL_QueryResultExpected1ResultedOther');
                             $aReturn['customError'] = sprintf($msg, $iNoOfRows);
                         }
                         break;
                     default:
-                        $msg                    = _('i18n_MySQL_QueryInvalidReturnTypeSpecified');
+                        $msg                    = $this->lclMsgCmn('i18n_MySQL_QueryInvalidReturnTypeSpecified');
                         $aReturn['customError'] = sprintf($msg, $sReturnType, __FUNCTION__);
                         break;
                 }
@@ -175,7 +180,7 @@ trait MySQLiByDanielGP
             } else {
                 $erNo                   = $this->mySQLconnection->connect_errno;
                 $erMsg                  = $this->mySQLconnection->connect_error;
-                $aReturn['customError'] = sprintf(_('i18n_MySQL_QueryError'), $erNo, $erMsg);
+                $aReturn['customError'] = sprintf($this->lclMsgCmn('i18n_MySQL_QueryError'), $erNo, $erMsg);
             }
         }
         return $aReturn;
@@ -192,7 +197,7 @@ trait MySQLiByDanielGP
                 if ($parameters['NoOfColumns'] == 2) {
                     $buildArray = true;
                 } else {
-                    $msg                    = _('i18n_MySQL_QueryResultExpected2ColumnsResultedOther');
+                    $msg                    = $this->lclMsgCmn('i18n_MySQL_QueryResultExpected2ColumnsResultedOther');
                     $aReturn['customError'] = sprintf($msg, $parameters['NoOfColumns']);
                 }
                 break;
@@ -200,7 +205,7 @@ trait MySQLiByDanielGP
                 if ($parameters['NoOfColumns'] == 1) {
                     $buildArray = true;
                 } else {
-                    $msg                    = _('i18n_MySQL_QueryResultExpected1ColumnResultedOther');
+                    $msg                    = $this->lclMsgCmn('i18n_MySQL_QueryResultExpected1ColumnResultedOther');
                     $aReturn['customError'] = sprintf($msg, $parameters['NoOfColumns']);
                 }
                 break;
@@ -208,14 +213,15 @@ trait MySQLiByDanielGP
                 if (($parameters['NoOfRows'] == 1) && ($parameters['NoOfColumns'] > 1)) {
                     $buildArray = true;
                 } else {
-                    $msg                    = _('i18n_MySQL_QueryResultExpected1RowManyColumnsResultedOther');
+                    $shorterLclString       = 'i18n_MySQL_QueryResultExpected1RowManyColumnsResultedOther';
+                    $msg                    = $this->lclMsgCmn($shorterLclString);
                     $aReturn['customError'] = sprintf($msg, $parameters['NoOfRows'], $parameters['NoOfColumns']);
                 }
                 break;
             case 'full_array_key_numbered':
             case 'full_array_key_numbered_with_prefix':
                 if ($parameters['NoOfColumns'] == 0) {
-                    $aReturn['customError'] = _('i18n_MySQL_QueryResultExpected1OrMoreRows0Resulted');
+                    $aReturn['customError'] = $this->lclMsgCmn('i18n_MySQL_QueryResultExpected1OrMoreRows0Resulted');
                     if ($parameters['returnType'] == 'full_array_key_numbered_with_prefix') {
                         $aReturn['result'][$parameters['prefix']] = null;
                     }
