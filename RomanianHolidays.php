@@ -83,6 +83,9 @@ trait RomanianHolidays
         if ($yr >= 2012) {
             $daying[] = mktime(0, 0, 0, 11, 30, $yr); // St. Andrew
         }
+        if ($yr >= 2015) {
+            $daying[] = mktime(0, 0, 0, 1, 24, $yr); // Unirea Principatelor Romane
+        }
         $daying[]  = mktime(0, 0, 0, 12, 1, $yr); // Romanian National Day
         $daying [] = mktime(0, 0, 0, 12, 25, $yr); // December 25th
         $daying[]  = mktime(0, 0, 0, 12, 26, $yr); // December 26th
