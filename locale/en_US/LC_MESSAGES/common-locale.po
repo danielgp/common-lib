@@ -45,3 +45,6 @@ msgstr "The MySQL query returned %d records and %d columns, although a single re
 
 msgid "i18n_MySQL_QueryResultExpected2ColumnsResultedOther"
 msgstr "The MySQL query returned %d columns although 2 were expected..."
+
+msgid "i18n_MySQL_QueryResultExpectedAtLeast2ColsResultedOther"
+msgstr "The MySQL query returned %d columns although at least 2 were expected..."

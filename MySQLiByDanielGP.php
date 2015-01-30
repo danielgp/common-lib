@@ -133,6 +133,7 @@ trait MySQLiByDanielGP
                 $iNoOfRows = $result->num_rows;
                 $iNoOfCols = $result->field_count;
                 switch (strtolower($sReturnType)) {
+                    case 'array_first_key_rest_values':
                     case 'array_key_value':
                     case 'array_key_value2':
                     case 'array_key2_value':
@@ -191,6 +192,14 @@ trait MySQLiByDanielGP
         $aReturn    = $parameters['return'];
         $buildArray = false;
         switch ($parameters['returnType']) {
+            case 'array_first_key_rest_values':
+                if ($parameters['NoOfColumns'] >= 2) {
+                    $buildArray = true;
+                } else {
+                    $msg                    = $this->lclMsgCmn('QueryResultExpectedAtLeast2ColsResultedOther');
+                    $aReturn['customError'] = sprintf($msg, $parameters['NoOfColumns']);
+                }
+                break;
             case 'array_key_value':
             case 'array_key_value2':
             case 'array_key2_value':
@@ -230,11 +239,24 @@ trait MySQLiByDanielGP
                     $counter2   = 0;
                 }
                 break;
+            default:
+                $aReturn['customError'] = $parameters['returnType'] . ' is not defined!';
+                break;
         }
         if ($buildArray) {
             for ($counter = 0; $counter < $parameters['NoOfRows']; $counter++) {
                 $line = $parameters['QueryResult']->fetch_row();
                 switch ($parameters['returnType']) {
+                    case 'array_first_key_rest_values':
+                        $finfo         = $parameters['QueryResult']->fetch_fields();
+                        $columnCounter = 0;
+                        foreach ($finfo as $value) {
+                            if ($columnCounter != 0) {
+                                $aReturn['result'][$line[0]][$value->name] = $line[$columnCounter];
+                            }
+                            $columnCounter++;
+                        }
+                        break;
                     case 'array_key_value':
                         $aReturn['result'][$line[0]]                  = $line[1];
                         break;

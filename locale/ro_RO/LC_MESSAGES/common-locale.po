@@ -45,3 +45,6 @@ msgstr "Interogarea MySQL a returnat %d înregistrări şi %d coloane deşi se a
 
 msgid "i18n_MySQL_QueryResultExpected2ColumnsResultedOther"
 msgstr "Interogarea MySQL a returnat %d coloane deşi se aşteptau 2 coloane..."
+
+msgid "i18n_MySQL_QueryResultExpectedAtLeast2ColsResultedOther"
+msgstr "Interogarea MySQL a returnat %d coloane deşi se aşteptau cel puţin 2 coloane..."
