@@ -349,7 +349,7 @@ trait CommonCode
             $outArray[$value] = $value;
         }
         ksort($outArray);
-        ksort($outArray);
+        return $outArray;
     }
 
     /**
