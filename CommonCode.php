@@ -342,6 +342,16 @@ trait CommonCode
         }
     }
 
+    protected function setArrayValuesAsKey($inArray)
+    {
+        $outArray = [];
+        foreach ($inArray as $value) {
+            $outArray[$value] = $value;
+        }
+        ksort($outArray);
+        ksort($outArray);
+    }
+
     /**
      * Returns a div tag that clear any float
      *
