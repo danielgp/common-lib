@@ -449,6 +449,7 @@ trait CommonCode
         $fixedHeaderElements = [
             'start'    => '<!DOCTYPE html>',
             'lang'     => '<html lang="en-US">',
+            'head'     => '<head>',
             'charset'  => '<meta charset="utf-8" />',
             'viewport' => '<meta name="viewport" content="width=device-width" />',
         ];
@@ -492,7 +493,7 @@ trait CommonCode
                 $sReturn = implode('', $fixedHeaderElements)
                         . '</head>'
                         . '<body>'
-                        . '<p style="background-color:red;color:#FFF;">The parametersent to '
+                        . '<p style="background-color:red;color:#FFF;">The parameter sent to '
                         . __FUNCTION__ . ' must be an array</p>'
                         . $this->setFooterCommon();
                 throw new \Exception($sReturn);
