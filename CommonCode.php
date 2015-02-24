@@ -486,7 +486,7 @@ trait CommonCode
                         . '<meta charset="utf-8" />'
                         . '<meta name="viewport" content="width=device-width" />';
                 $sReturn[] = $this->setFooterCommon();
-                die(implode('', $sReturn));
+                throw new Exception(implode('', $sReturn));
             }
         }
         $sReturn[] = '</head>'
