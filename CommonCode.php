@@ -446,52 +446,61 @@ trait CommonCode
      */
     protected function setHeaderCommon($headerFeatures = null)
     {
-        $sReturn   = [];
-        $sReturn[] = '<!DOCTYPE html>'
-                . '<meta charset="utf-8" />'
-                . '<meta name="viewport" content="width=device-width" />';
+        $fixedHeaderElements = [
+            'start'    => '<!DOCTYPE html>',
+            'lang'     => '<html lang="en-US">',
+            'charset'  => '<meta charset="utf-8" />',
+            'viewport' => '<meta name="viewport" content="width=device-width" />',
+        ];
+        $sReturn             = [];
         if (!is_null($headerFeatures)) {
             if (is_array($headerFeatures)) {
+                $aFeatures = [];
                 foreach ($headerFeatures as $key => $value) {
                     switch ($key) {
                         case 'css':
                             if (is_array($value)) {
                                 foreach ($value as $value2) {
-                                    $sReturn[] = $this->setCssFile(filter_var($value2, FILTER_SANITIZE_URL));
+                                    $aFeatures[] = $this->setCssFile(filter_var($value2, FILTER_SANITIZE_URL));
                                 }
                             } else {
-                                $sReturn[] = $this->setCssFile(filter_var($value, FILTER_SANITIZE_URL));
+                                $aFeatures[] = $this->setCssFile(filter_var($value, FILTER_SANITIZE_URL));
                             }
                             break;
                         case 'javascript':
                             if (is_array($value)) {
                                 foreach ($value as $value2) {
-                                    $sReturn[] = $this->setJavascriptFile(filter_var($value2, FILTER_SANITIZE_URL));
+                                    $aFeatures[] = $this->setJavascriptFile(filter_var($value2, FILTER_SANITIZE_URL));
                                 }
                             } else {
-                                $sReturn[] = $this->setJavascriptFile(filter_var($value, FILTER_SANITIZE_URL));
+                                $aFeatures[] = $this->setJavascriptFile(filter_var($value, FILTER_SANITIZE_URL));
                             }
                             break;
                         case 'lang':
-                            $sReturn[] = '<html lang="' . filter_var($value, FILTER_SANITIZE_STRING) . '">';
+                            $fixedHeaderElements['lang'] = '<html lang="'
+                                    . filter_var($value, FILTER_SANITIZE_STRING) . '">';
                             break;
                         case 'title':
-                            $sReturn[] = '<title>' . filter_var($value, FILTER_SANITIZE_STRING) . '</title>';
+                            $aFeatures[]                 = '<title>'
+                                    . filter_var($value, FILTER_SANITIZE_STRING) . '</title>';
                             break;
                     }
                 }
+                $sReturn[] = implode('', $fixedHeaderElements)
+                        . implode('', $aFeatures);
             } else {
-                $sReturn[] = '<html lang="en-US">'
-                        . '<head>'
-                        . '<meta charset="utf-8" />'
-                        . '<meta name="viewport" content="width=device-width" />';
-                $sReturn[] = $this->setFooterCommon();
-                throw new Exception(implode('', $sReturn));
+                $sReturn = implode('', $fixedHeaderElements)
+                        . '</head>'
+                        . '<body>'
+                        . '<p style="background-color:red;color:#FFF;">The parametersent to '
+                        . __FUNCTION__ . ' must be an array</p>'
+                        . $this->setFooterCommon();
+                throw new \Exception($sReturn);
             }
         }
-        $sReturn[] = '</head>'
+        return implode('', $sReturn)
+                . '</head>'
                 . '<body>';
-        return implode('', $sReturn);
     }
 
     /**
