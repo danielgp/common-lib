@@ -84,9 +84,9 @@ trait CommonCode
     {
         if (!function_exists('curl_init')) {
             $aReturn['info']     = 'CURL extension is not available...'
-                . 'therefore the informations to be obtained by funtion named '
-                . __FUNCTION__ . ' from ' . __FILE__
-                . ' could not be obtained!';
+                    . 'therefore the informations to be obtained by funtion named '
+                    . __FUNCTION__ . ' from ' . __FILE__
+                    . ' could not be obtained!';
             $aReturn['response'] = '';
         }
         if (!filter_var($fullURL, FILTER_VALIDATE_URL)) {
@@ -205,7 +205,7 @@ trait CommonCode
             $miliSeconds = str_repeat('0', (3 - $l)) . $miliSeconds;
         }
         return ('<span style="color:black!important;font-weight:bold;">['
-            . date('Y-m-d H:i:s.', $dt) . $miliSeconds . ']</span> ');
+                . date('Y-m-d H:i:s.', $dt) . $miliSeconds . ']</span> ');
     }
 
     protected function getUserAgent()
@@ -246,21 +246,21 @@ trait CommonCode
             return '';
         }
         $select_id = '" id="' . str_replace(['[', ']'], ['', ''], $select_name)
-            . (isset($features_array['id_no']) ? $features_array['id_no'] : '');
+                . (isset($features_array['id_no']) ? $features_array['id_no'] : '');
         if (isset($features_array['readonly'])) {
             return $this->setStringIntoShortTag('input', [
-                    'name'     => $select_name,
-                    'id'       => $select_id,
-                    'readonly' => 'readonly',
-                    'class'    => 'input_readonly',
-                    'value'    => $sDefaultValue,
-                ]) . $aElements[$sDefaultValue];
+                        'name'     => $select_name,
+                        'id'       => $select_id,
+                        'readonly' => 'readonly',
+                        'class'    => 'input_readonly',
+                        'value'    => $sDefaultValue,
+                    ]) . $aElements[$sDefaultValue];
         }
         if (isset($features_array['id_no'])) {
             unset($features_array['id_no']);
         }
         $string2return = '<select name="' . $select_name . $select_id
-            . '" size="' . $this->calculateSelectOptionsSize($aElements, $features_array) . '"';
+                . '" size="' . $this->calculateSelectOptionsSize($aElements, $features_array) . '"';
         if (is_array($features_array)) {
             if (in_array('additional_javascript_action', array_keys($features_array))) {
                 $temporary_string = $features_array['additional_javascript_action'];
@@ -285,8 +285,8 @@ trait CommonCode
             }
         }
         $string2return .= '>'
-            . $this->setOptionsForSelect($aElements, $sDefaultValue, $features_array)
-            . '</select>';
+                . $this->setOptionsForSelect($aElements, $sDefaultValue, $features_array)
+                . '</select>';
         return $string2return;
     }
 
@@ -360,13 +360,13 @@ trait CommonCode
     protected function setClearBoth1px($height = 1)
     {
         return $this->setStringIntoTag('&nbsp;', 'div', [
-                'style' => implode('', [
-                    'height:' . $height . 'px;',
-                    'line-height:' . $height . 'px;',
-                    'float:none;',
-                    'clear:both;',
-                    'margin:0px;'
-                ])
+                    'style' => implode('', [
+                        'height:' . $height . 'px;',
+                        'line-height:' . $height . 'px;',
+                        'float:none;',
+                        'clear:both;',
+                        'margin:0px;'
+                    ])
         ]);
     }
 
@@ -390,8 +390,29 @@ trait CommonCode
     protected function setCssFile($cssFileName)
     {
         return '<link rel="stylesheet" type="text/css" href="'
-            . filter_var($cssFileName, FILTER_SANITIZE_STRING)
-            . '" />';
+                . filter_var($cssFileName, FILTER_SANITIZE_STRING)
+                . '" />';
+    }
+
+    /**
+     * Outputs an HTML footer
+     *
+     * @param array $footerInjected
+     * @return string
+     */
+    protected function setFooterCommon($footerInjected = null)
+    {
+        $sReturn = [];
+        if (!is_null($footerInjected)) {
+            if (is_array($footerInjected)) {
+                $sReturn[] = implode('', $footerInjected);
+            } else {
+                $sReturn[] = $footerInjected;
+            }
+        }
+        $sReturn[] = '</body>';
+        $sReturn[] = '</html>';
+        return implode('', $sReturn);
     }
 
     /**
@@ -415,6 +436,62 @@ trait CommonCode
                 }
             }
         }
+    }
+
+    /**
+     * Outputs an HTML header
+     *
+     * @param array $headerFeatures
+     * @return string
+     */
+    protected function setHeaderCommon($headerFeatures = null)
+    {
+        $sReturn   = [];
+        $sReturn[] = '<!DOCTYPE html>'
+                . '<meta charset="utf-8" />'
+                . '<meta name="viewport" content="width=device-width" />';
+        if (!is_null($headerFeatures)) {
+            if (is_array($headerFeatures)) {
+                foreach ($headerFeatures as $key => $value) {
+                    switch ($key) {
+                        case 'css':
+                            if (is_array($value)) {
+                                foreach ($value as $value2) {
+                                    $sReturn[] = $this->setCssFile(filter_var($value2, FILTER_SANITIZE_URL));
+                                }
+                            } else {
+                                $sReturn[] = $this->setCssFile(filter_var($value, FILTER_SANITIZE_URL));
+                            }
+                            break;
+                        case 'javascript':
+                            if (is_array($value)) {
+                                foreach ($value as $value2) {
+                                    $sReturn[] = $this->setJavascriptFile(filter_var($value2, FILTER_SANITIZE_URL));
+                                }
+                            } else {
+                                $sReturn[] = $this->setJavascriptFile(filter_var($value, FILTER_SANITIZE_URL));
+                            }
+                            break;
+                        case 'lang':
+                            $sReturn[] = '<html lang="' . filter_var($value, FILTER_SANITIZE_STRING) . '">';
+                            break;
+                        case 'title':
+                            $sReturn[] = '<title>' . filter_var($value, FILTER_SANITIZE_STRING) . '</title>';
+                            break;
+                    }
+                }
+            } else {
+                $sReturn[] = '<html lang="en-US">'
+                        . '<head>'
+                        . '<meta charset="utf-8" />'
+                        . '<meta name="viewport" content="width=device-width" />';
+                $sReturn[] = $this->setFooterCommon();
+                die(implode('', $sReturn));
+            }
+        }
+        $sReturn[] = '</head>'
+                . '<body>';
+        return implode('', $sReturn);
     }
 
     /**
@@ -465,8 +542,8 @@ trait CommonCode
     protected function setJavascriptFile($jsFileName)
     {
         return '<script type="text/javascript" src="'
-            . filter_var($jsFileName, FILTER_SANITIZE_STRING)
-            . '"></script>';
+                . filter_var($jsFileName, FILTER_SANITIZE_STRING)
+                . '"></script>';
     }
 
     /**
@@ -550,7 +627,7 @@ trait CommonCode
                     }
                     $current_group = $temporary_string;
                     $string2return .= '<optgroup label="'
-                        . str_replace($features_array['grouping'], '', $current_group) . '">';
+                            . str_replace($features_array['grouping'], '', $current_group) . '">';
                 }
             } else {
                 $current_group = '';
