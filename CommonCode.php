@@ -352,6 +352,19 @@ trait CommonCode
         return $outArray;
     }
 
+    protected function setCleanUrl($urlString)
+    {
+        $arrayToReplace = [
+            '&#038;'    => '&amp;',
+            '&'         => '&amp;',
+            '&amp;amp;' => '&amp;',
+            ' '         => '%20',
+        ];
+        $k              = array_keys($arrayToReplace);
+        $v              = array_values($arrayToReplace);
+        return str_replace($k, $v, filter_var($urlString, FILTER_SANITIZE_URL));
+    }
+
     /**
      * Returns a div tag that clear any float
      *
@@ -374,11 +387,24 @@ trait CommonCode
      * Returns css codes
      *
      * @param string $cssContent
+     * @param array $optionalFlags
      * @return string
      */
-    protected function setCssContent($cssContent)
+    protected function setCssContent($cssContent, $optionalFlags = null)
     {
-        return '<style>' . $cssContent . '</style>';
+        if (is_null($optionalFlags)) {
+            $attr['media'] = 'all';
+        } else {
+            $knownAttributes = ['media'];
+            foreach ($knownAttributes as $value) {
+                if (in_array($value, array_keys($optionalFlags))) {
+                    $attr[$value] = $optionalFlags[$value];
+                }
+            }
+        }
+        return '<style type="text/css" media="' . $attr['media'] . '">'
+                . $cssContent
+                . '</style>';
     }
 
     /**
@@ -567,7 +593,7 @@ trait CommonCode
         $sReturn[] = '<script type="text/javascript"><!-- ';
         $sReturn[] = $this->getExternalFileContent($jsFileName);
         $sReturn[] = ' //--></script>';
-        return implode(PHP_EOL, $sReturn);
+        return implode('', $sReturn);
     }
 
     protected function setJson2array($inputJson)
