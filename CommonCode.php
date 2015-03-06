@@ -36,7 +36,8 @@ namespace danielgp\common_lib;
 trait CommonCode
 {
 
-    use RomanianHolidays;
+    use RomanianHolidays,
+        MySQLiByDanielGP;
 
     protected $filesFromDir;
 

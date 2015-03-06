@@ -18,10 +18,10 @@
     },
     "autoload": {
         "classmap": [
-            "MySQLiByDanielQueries.php",
+            "CommonCode.php",
             "MySQLiByDanielGP.php",
-            "RomanianHolidays.php",
-            "CommonCode.php"
+            "MySQLiByDanielQueries.php",
+            "RomanianHolidays.php"
         ]
     },
     "minimum-stability": "stable",

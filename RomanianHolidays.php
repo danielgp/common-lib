@@ -36,8 +36,6 @@ namespace danielgp\common_lib;
 trait RomanianHolidays
 {
 
-    use MySQLiByDanielGP;
-
     /**
      * List of legal holidays
      *

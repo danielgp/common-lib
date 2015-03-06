@@ -42,6 +42,7 @@ trait MySQLiByDanielGP
     protected $mySQLconnection = null;
 
     /**
+     * Intiates connection to MySQL
      *
      * @param array $mySQLconfig
      *
