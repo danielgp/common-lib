@@ -82,7 +82,7 @@ trait MySQLiByDanielGP
         if (is_null($this->mySQLconnection)) {
             $line = [];
         } else {
-            $line = $this->setMySQLquery2Server($this->sMySqlActiveDatabases(), 'array_first_key_rest_values')[
+            $line = $this->setMySQLquery2Server($this->sQueryMySqlActiveDatabases(), 'array_first_key_rest_values')[
                     'result'
             ];
         }
@@ -99,7 +99,7 @@ trait MySQLiByDanielGP
         if (is_null($this->mySQLconnection)) {
             $line = [];
         } else {
-            $line = $this->setMySQLquery2Server($this->sMySqlActiveEngines(), 'array_first_key_rest_values')[
+            $line = $this->setMySQLquery2Server($this->sQueryMySqlActiveEngines(), 'array_first_key_rest_values')[
                     'result'
             ];
         }
@@ -134,7 +134,7 @@ trait MySQLiByDanielGP
         if (is_null($this->mySQLconnection)) {
             $line = [];
         } else {
-            $line = $this->setMySQLquery2Server($this->sMySqlGlobalVariables(), 'array_key_value')[
+            $line = $this->setMySQLquery2Server($this->sQueryMySqlGlobalVariables(), 'array_key_value')[
                     'result'
             ];
         }
@@ -151,7 +151,7 @@ trait MySQLiByDanielGP
         if (is_null($this->mySQLconnection)) {
             $line = null;
         } else {
-            $line = $this->setMySQLquery2Server($this->sMySqlServerTime(), 'value')[
+            $line = $this->setMySQLquery2Server($this->sQueryMySqlServerTime(), 'value')[
                     'result'
             ];
         }
@@ -194,6 +194,37 @@ trait MySQLiByDanielGP
     protected function lclMsgCmn($localizedStringCode)
     {
         return dgettext($this->commonLibFlags['localization_domain'], $localizedStringCode);
+    }
+
+    private function sQueryMySqlActiveDatabases()
+    {
+        return 'SELECT `SCHEMA_NAME` As `Db` '
+                . ', `DEFAULT_CHARACTER_SET_NAME` AS `DbCharset` '
+                . ', `DEFAULT_COLLATION_NAME` AS `DbCollation` '
+                . 'FROM `information_schema`.`SCHEMATA` '
+                . 'WHERE `SCHEMA_NAME` NOT IN ("information_schema", "mysql", "performance_schema", "sys") '
+                . 'GROUP BY `SCHEMA_NAME`;';
+    }
+
+    private function sQueryMySqlActiveEngines()
+    {
+        return 'SELECT `ENGINE` AS `Engine`'
+                . ', `SUPPORT` AS `Support`'
+                . ', `COMMENT` AS `Comment` '
+                . 'FROM `information_schema`.`ENGINES` '
+                . 'WHERE (`SUPPORT` IN ("DEFAULT", "YES")) '
+                . 'AND (`ENGINE` != "PERFORMANCE_SCHEMA") '
+                . 'GROUP BY `ENGINE`;';
+    }
+
+    private function sQueryMySqlGlobalVariables()
+    {
+        return 'SHOW GLOBAL VARIABLES;';
+    }
+
+    private function sQueryMySqlServerTime()
+    {
+        return 'SELECT NOW();';
     }
 
     /**

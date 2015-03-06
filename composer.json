@@ -20,7 +20,6 @@
         "classmap": [
             "CommonCode.php",
             "MySQLiByDanielGP.php",
-            "MySQLiByDanielQueries.php",
             "RomanianHolidays.php"
         ]
     },

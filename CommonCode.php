@@ -37,7 +37,6 @@ trait CommonCode
 {
 
     use RomanianHolidays,
-        MySQLiByDanielQueries,
         MySQLiByDanielGP;
 
     protected $filesFromDir;
