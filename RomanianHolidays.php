@@ -48,7 +48,7 @@ trait RomanianHolidays
         $yr = date('Y', $lngDate);
         if ($include_easter == 0) {
             if ($yr == '2005') {
-// in Windows returns a faulty day so I treated special
+                // in Windows returns a faulty day so I treated special
                 $daying[] = mktime(0, 0, 0, 3, 27, 2005); // Easter 1st day (Catholic)
                 $daying[] = mktime(0, 0, 0, 3, 28, 2005); // Easter 2nd day (Catholic)
             } else {
