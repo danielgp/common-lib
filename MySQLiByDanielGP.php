@@ -36,6 +36,8 @@ namespace danielgp\common_lib;
 trait MySQLiByDanielGP
 {
 
+    use MySQLiByDanielQueries;
+
     protected $commonLibFlags  = null;
     protected $mySQLconnection = null;
 
@@ -69,6 +71,92 @@ trait MySQLiByDanielGP
                 return '';
             }
         }
+    }
+
+    /**
+     * returns a list of MySQL databases (except the system ones)
+     *
+     * @return array
+     */
+    protected function getMySQLactiveDatabases()
+    {
+        if (is_null($this->mySQLconnection)) {
+            $line = [];
+        } else {
+            $line = $this->setMySQLquery2Server($this->sMySqlActiveDatabases(), 'array_first_key_rest_values')[
+                    'result'
+            ];
+        }
+        return $line;
+    }
+
+    /**
+     * returns a list of MySQL engines |(except the system ones)
+     *
+     * @return array
+     */
+    protected function getMySQLactiveEngines()
+    {
+        if (is_null($this->mySQLconnection)) {
+            $line = [];
+        } else {
+            $line = $this->setMySQLquery2Server($this->sMySqlActiveEngines(), 'array_first_key_rest_values')[
+                    'result'
+            ];
+        }
+        return $line;
+    }
+
+    /**
+     * returns the list of all MySQL generic informations
+     *
+     * @return array
+     */
+    protected function getMySQLgenericInformations()
+    {
+        if (is_null($this->mySQLconnection)) {
+            $line = [];
+        } else {
+            $line = [
+                'Info'    => $this->mySQLconnection->server_info,
+                'Version' => $this->mySQLconnection->server_version
+            ];
+        }
+        return $line;
+    }
+
+    /**
+     * returns the list of all MySQL global variables
+     *
+     * @return array
+     */
+    protected function getMySQLglobalVariables()
+    {
+        if (is_null($this->mySQLconnection)) {
+            $line = [];
+        } else {
+            $line = $this->setMySQLquery2Server($this->sMySqlGlobalVariables(), 'array_key_value')[
+                    'result'
+            ];
+        }
+        return $line;
+    }
+
+    /**
+     * Return the time from the MySQL server
+     *
+     * @return string
+     */
+    protected function getMySQLserverTime()
+    {
+        if (is_null($this->mySQLconnection)) {
+            $line = null;
+        } else {
+            $line = $this->setMySQLquery2Server($this->sMySqlServerTime(), 'value')[
+                    'result'
+            ];
+        }
+        return $line;
     }
 
     private function handleLocalizationCommon()

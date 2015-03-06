@@ -629,19 +629,6 @@ trait CommonCode
         return $sReturn;
     }
 
-    protected function setMySQLownLibrarySample()
-    {
-        $mySQLconfig = [
-            'host'     => '127.0.0.1',
-            'port'     => 3306,
-            'username' => 'root',
-            'password' => '',
-            'database' => 'mysql',
-        ];
-        $this->connectToMySql($mySQLconfig);
-        echo $this->setMySQLquery2Server('SELECT NOW();', 'value');
-    }
-
     private function setOptionsForSelect($aElements, $sDefaultValue, $features_array = [])
     {
         $string2return = '';

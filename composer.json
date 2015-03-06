@@ -12,10 +12,12 @@
     ],
     "require": {
         "php": ">=5.4",
-        "ext-curl": "*"
+        "ext-curl": "*",
+        "ext-mysqli": "*"
     },
     "autoload": {
         "classmap": [
+            "MySQLiByDanielQueries.php",
             "MySQLiByDanielGP.php",
             "RomanianHolidays.php",
             "CommonCode.php"
