@@ -36,8 +36,6 @@ namespace danielgp\common_lib;
 trait DOMcomponents
 {
 
-    protected $filesFromDir;
-
     private function calculateSelectOptionsSize($aElements, $features_array = [])
     {
         if (!is_array($aElements)) {
