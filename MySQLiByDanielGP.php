@@ -130,8 +130,10 @@ trait MySQLiByDanielGP
         } else {
             $result = $this->mySQLconnection->query($sQuery);
             if ($result) {
-                $iNoOfRows = $result->num_rows;
-                $iNoOfCols = $result->field_count;
+                if (is_object($result)) {
+                    $iNoOfRows = $result->num_rows;
+                    $iNoOfCols = $result->field_count;
+                }
                 switch (strtolower($sReturnType)) {
                     case 'array_first_key_rest_values':
                     case 'array_key_value':
@@ -177,7 +179,9 @@ trait MySQLiByDanielGP
                         $aReturn['customError'] = sprintf($msg, $sReturnType, __FUNCTION__);
                         break;
                 }
-                $result->close();
+                if (is_object($result)) {
+                    $result->close();
+                }
             } else {
                 $erNo                   = $this->mySQLconnection->connect_errno;
                 $erMsg                  = $this->mySQLconnection->connect_error;
