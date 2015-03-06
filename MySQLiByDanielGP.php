@@ -124,7 +124,7 @@ trait MySQLiByDanielGP
             'result'      => null
         ];
         if (is_null($sReturnType)) {
-            $aReturn['customError'] = sprintf($this->lclMsgCmn('i18n_MySQL_QueryNoReturnSpecified'), __FUNCTION__);
+            return $this->mySQLconnection->query($sQuery);
         } elseif (is_null($this->mySQLconnection)) {
             $aReturn['customError'] = $this->lclMsgCmn('i18n_MySQL_ConnectionNotExisting');
         } else {
