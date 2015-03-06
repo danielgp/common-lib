@@ -161,7 +161,6 @@ trait MySQLiByDanielGP
 
     private function handleLocalizationCommon()
     {
-        require_once '../vendor/inetsys/phpgettext/gettext.inc';
         if (isset($_GET['lang'])) {
             $_SESSION['lang'] = filter_var($_GET['lang'], FILTER_SANITIZE_STRING);
         } elseif (!isset($_SESSION['lang'])) {
