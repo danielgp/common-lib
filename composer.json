@@ -19,6 +19,7 @@
     "autoload": {
         "classmap": [
             "CommonCode.php",
+            "DOMcomponents.php",
             "MySQLiByDanielGP.php",
             "RomanianHolidays.php"
         ]
