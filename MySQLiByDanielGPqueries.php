@@ -36,33 +36,39 @@ namespace danielgp\common_lib;
 trait MySQLiByDanielGPqueries
 {
 
-    private function sQueryMySqlActiveDatabases()
+    protected function sQueryMySqlActiveDatabases()
     {
-        return 'SELECT `SCHEMA_NAME` As `Db` '
-                . ', `DEFAULT_CHARACTER_SET_NAME` AS `DbCharset` '
-                . ', `DEFAULT_COLLATION_NAME` AS `DbCollation` '
+        return 'SELECT '
+                . implode(', ', [
+                    '`SCHEMA_NAME` As `Db`',
+                    '`DEFAULT_CHARACTER_SET_NAME` AS `DbCharset`',
+                    '`DEFAULT_COLLATION_NAME` AS `DbCollation`',
+                ]) . ' '
                 . 'FROM `information_schema`.`SCHEMATA` '
                 . 'WHERE `SCHEMA_NAME` NOT IN ("information_schema", "mysql", "performance_schema", "sys") '
                 . 'GROUP BY `SCHEMA_NAME`;';
     }
 
-    private function sQueryMySqlActiveEngines()
+    protected function sQueryMySqlActiveEngines()
     {
-        return 'SELECT `ENGINE` AS `Engine`'
-                . ', `SUPPORT` AS `Support`'
-                . ', `COMMENT` AS `Comment` '
+        return 'SELECT '
+                . implode(', ', [
+                    '`ENGINE` AS `Engine`',
+                    '`SUPPORT` AS `Support`',
+                    '`COMMENT` AS `Comment`',
+                ]) . ' '
                 . 'FROM `information_schema`.`ENGINES` '
                 . 'WHERE (`SUPPORT` IN ("DEFAULT", "YES")) '
                 . 'AND (`ENGINE` != "PERFORMANCE_SCHEMA") '
                 . 'GROUP BY `ENGINE`;';
     }
 
-    private function sQueryMySqlGlobalVariables()
+    protected function sQueryMySqlGlobalVariables()
     {
         return 'SHOW GLOBAL VARIABLES;';
     }
 
-    private function sQueryMySqlServerTime()
+    protected function sQueryMySqlServerTime()
     {
         return 'SELECT NOW();';
     }
