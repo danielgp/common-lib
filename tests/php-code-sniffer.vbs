@@ -9,7 +9,6 @@ strCurDir      = WshShell.CurrentDirectory
 strBaseDir     = Replace(strCurDir, "tests", "")
 strVendorDir   = Replace(Replace(strCurDir, "tests", "vendor"), "\", "/")
 
-MsgBox strVendorDir
 
 For Each currentPHPversion In CheckedPHPversions
     WshShell.Run "D:\www\App\PHP\PHP56\php.exe D:\www\html_3rdparty\PHP_CodeSniffer\scripts\phpcs -p -v --extensions=php -d date.timezone=""Europe/Bucharest"" --encoding=utf-8 --report=xml --standard=PHPCompatibility --runtime-set testVersion " & currentPHPversion & " " & strBaseDir & " --report-file=" & strCurDir & "\php-code-sniffer\php_" & currentPHPversion & ".xml --ignore=" & strVendorDir, 0, True

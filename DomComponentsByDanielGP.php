@@ -29,11 +29,11 @@
 namespace danielgp\common_lib;
 
 /**
- * usefull functions to get quick results
+ * DOM component functions
  *
  * @author Daniel Popiniuc
  */
-trait DOMcomponents
+trait DomComponentsByDanielGP
 {
 
     private function calculateSelectOptionsSize($aElements, $features_array = [])
