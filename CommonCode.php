@@ -38,6 +38,7 @@ trait CommonCode
 
     use DomComponentsByDanielGP,
         RomanianHolidays,
+        MySQLiByDanielGPqueries,
         MySQLiByDanielGP;
 
     protected $filesFromDir;

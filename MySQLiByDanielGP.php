@@ -36,8 +36,6 @@ namespace danielgp\common_lib;
 trait MySQLiByDanielGP
 {
 
-    use MySQLiByDanielGPqueries;
-
     protected $commonLibFlags  = null;
     protected $mySQLconnection = null;
 
