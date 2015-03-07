@@ -29,12 +29,14 @@
 namespace danielgp\common_lib;
 
 /**
- * usefull functions to get quick MySQL content
+ * Usefull functions to get quick MySQL content
  *
  * @author Daniel Popiniuc
  */
 trait MySQLiByDanielGP
 {
+
+    use MySQLiByDanielGPqueries;
 
     protected $commonLibFlags  = null;
     protected $mySQLconnection = null;
@@ -194,37 +196,6 @@ trait MySQLiByDanielGP
     protected function lclMsgCmn($localizedStringCode)
     {
         return dgettext($this->commonLibFlags['localization_domain'], $localizedStringCode);
-    }
-
-    private function sQueryMySqlActiveDatabases()
-    {
-        return 'SELECT `SCHEMA_NAME` As `Db` '
-                . ', `DEFAULT_CHARACTER_SET_NAME` AS `DbCharset` '
-                . ', `DEFAULT_COLLATION_NAME` AS `DbCollation` '
-                . 'FROM `information_schema`.`SCHEMATA` '
-                . 'WHERE `SCHEMA_NAME` NOT IN ("information_schema", "mysql", "performance_schema", "sys") '
-                . 'GROUP BY `SCHEMA_NAME`;';
-    }
-
-    private function sQueryMySqlActiveEngines()
-    {
-        return 'SELECT `ENGINE` AS `Engine`'
-                . ', `SUPPORT` AS `Support`'
-                . ', `COMMENT` AS `Comment` '
-                . 'FROM `information_schema`.`ENGINES` '
-                . 'WHERE (`SUPPORT` IN ("DEFAULT", "YES")) '
-                . 'AND (`ENGINE` != "PERFORMANCE_SCHEMA") '
-                . 'GROUP BY `ENGINE`;';
-    }
-
-    private function sQueryMySqlGlobalVariables()
-    {
-        return 'SHOW GLOBAL VARIABLES;';
-    }
-
-    private function sQueryMySqlServerTime()
-    {
-        return 'SELECT NOW();';
     }
 
     /**

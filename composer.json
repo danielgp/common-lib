@@ -20,6 +20,7 @@
         "classmap": [
             "CommonCode.php",
             "DomComponentsByDanielGP.php",
+            "MySQLiByDanielGPqueries.php",
             "MySQLiByDanielGP.php",
             "RomanianHolidays.php"
         ]
