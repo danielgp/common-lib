@@ -39,11 +39,9 @@ trait MySQLiByDanielGPqueries
     protected function sQueryMySqlActiveDatabases()
     {
         return 'SELECT '
-                . implode(', ', [
-                    '`SCHEMA_NAME` As `Db`',
-                    '`DEFAULT_CHARACTER_SET_NAME` AS `DbCharset`',
-                    '`DEFAULT_COLLATION_NAME` AS `DbCollation`',
-                ]) . ' '
+                . '`SCHEMA_NAME` As `Db`, '
+                . '`DEFAULT_CHARACTER_SET_NAME` AS `DbCharset`, '
+                . '`DEFAULT_COLLATION_NAME` AS `DbCollation` '
                 . 'FROM `information_schema`.`SCHEMATA` '
                 . 'WHERE `SCHEMA_NAME` NOT IN ("information_schema", "mysql", "performance_schema", "sys") '
                 . 'GROUP BY `SCHEMA_NAME`;';
@@ -52,11 +50,9 @@ trait MySQLiByDanielGPqueries
     protected function sQueryMySqlActiveEngines()
     {
         return 'SELECT '
-                . implode(', ', [
-                    '`ENGINE` AS `Engine`',
-                    '`SUPPORT` AS `Support`',
-                    '`COMMENT` AS `Comment`',
-                ]) . ' '
+                . '`ENGINE` AS `Engine`, '
+                . '`SUPPORT` AS `Support`, '
+                . '`COMMENT` AS `Comment` '
                 . 'FROM `information_schema`.`ENGINES` '
                 . 'WHERE (`SUPPORT` IN ("DEFAULT", "YES")) '
                 . 'AND (`ENGINE` != "PERFORMANCE_SCHEMA") '

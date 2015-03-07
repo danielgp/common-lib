@@ -408,7 +408,7 @@ trait DomComponentsByDanielGP
     protected function setJavascriptFile($jsFileName, $hostsWithoutCDNrequired = ['127.0.0.1'])
     {
         $patternFound = $this->setJavascriptFileCDN($jsFileName, $hostsWithoutCDNrequired);
-        if ($patternFound[0] == false) {
+        if ($patternFound[0] === false) {
             return '<script type="text/javascript" src="' . $patternFound[1] . '"></script>';
         } else {
             return '<script type="text/javascript" src="' . $patternFound[1] . '"></script>'
@@ -427,11 +427,11 @@ trait DomComponentsByDanielGP
          * if within local network makes no sense to use CDNs
          */
         if (!in_array($_SERVER['REMOTE_ADDR'], $hostsWithoutCDNrequired)) {
-            if (strpos($jsFileName, 'jquery-') != false) {
+            if (strpos($jsFileName, 'jquery-') !== false) {
                 $patternFound = $this->setJavascriptFileCDNjQuery($jsFileName);
-            } elseif (strpos($jsFileName, 'highcharts-') != false) {
+            } elseif (strpos($jsFileName, 'highcharts-') !== false) {
                 $patternFound = $this->setJavascriptFileCDNforHighCharts($jsFileName);
-            } elseif (strpos($jsFileName, 'exporting-') != false) {
+            } elseif (strpos($jsFileName, 'exporting-') !== false) {
                 $patternFound = $this->setJavascriptFileCDNforHighChartsExporting($jsFileName);
             }
         }
