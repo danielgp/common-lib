@@ -38,6 +38,7 @@ trait MySQLiByDanielGP
 
     protected $commonLibFlags  = null;
     protected $mySQLconnection = null;
+    protected $tCmnLb          = null;
 
     /**
      * Intiates connection to MySQL
@@ -169,13 +170,12 @@ trait MySQLiByDanielGP
         if (!in_array($_SESSION['lang'], array_keys($this->commonLibFlags['available_languages']))) {
             $_SESSION['lang'] = $this->commonLibFlags['default_language'];
         }
-        setlocale(LC_MESSAGES, $_SESSION['lang']);
-        if (function_exists('bindtextdomain')) {
-            bindtextdomain($this->commonLibFlags['localization_domain'], realpath('./locale'));
-            bind_textdomain_codeset($this->commonLibFlags['localization_domain'], 'UTF-8');
-        } else {
-            echo 'No gettext extension is active in current PHP configuration!';
-        }
+        $localizationFile = './locale/' . $_SESSION['lang'] . '/LC_MESSAGES/'
+                . $this->commonLibFlags['localization_domain']
+                . '.mo';
+        $translations     = \Gettext\Extractors\Mo::fromFile($localizationFile);
+        $this->tCmnLb     = new \Gettext\Translator();
+        $this->tCmnLb->loadTranslations($translations);
     }
 
     private function initCommomLibParameters()
@@ -193,7 +193,7 @@ trait MySQLiByDanielGP
 
     protected function lclMsgCmn($localizedStringCode)
     {
-        return dgettext($this->commonLibFlags['localization_domain'], $localizedStringCode);
+        return $this->tCmnLb->gettext($localizedStringCode);
     }
 
     /**

@@ -55,7 +55,6 @@ trait MySQLiByDanielGPqueries
                 . '`COMMENT` AS `Comment` '
                 . 'FROM `information_schema`.`ENGINES` '
                 . 'WHERE (`SUPPORT` IN ("DEFAULT", "YES")) '
-                . 'AND (`ENGINE` != "PERFORMANCE_SCHEMA") '
                 . 'GROUP BY `ENGINE`;';
     }
 
