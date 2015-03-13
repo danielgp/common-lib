@@ -170,7 +170,7 @@ trait MySQLiByDanielGP
         if (!in_array($_SESSION['lang'], array_keys($this->commonLibFlags['available_languages']))) {
             $_SESSION['lang'] = $this->commonLibFlags['default_language'];
         }
-        $localizationFile = './locale/' . $_SESSION['lang'] . '/LC_MESSAGES/'
+        $localizationFile = __DIR__ . '/locale/' . $_SESSION['lang'] . '/LC_MESSAGES/'
                 . $this->commonLibFlags['localization_domain']
                 . '.mo';
         $translations     = \Gettext\Extractors\Mo::fromFile($localizationFile);
