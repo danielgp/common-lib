@@ -106,7 +106,7 @@ trait DomComponentsByDanielGP
         $sReturn = '';
         if (filter_var($ip, FILTER_VALIDATE_IP)) {
             if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
-                $ips     = explode('\.', $ip);
+                $ips     = explode('.', $ip);
                 $sReturn = $ips[3] + $ips[2] * 256 + $ips[1] * 65536 + $ips[0] * 16777216;
             } elseif (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
                 $sReturn = inet_ntop($ip);
@@ -489,7 +489,7 @@ trait DomComponentsByDanielGP
         /**
          * if within local network makes no sense to use CDNs
          */
-        if (!in_array($_SERVER['REMOTE_ADDR'], $hostsWithoutCDNrequired)) {
+        if (!in_array($this->getClientRealIpAddress(), $hostsWithoutCDNrequired)) {
             if (strpos($jsFileName, 'jquery-') !== false) {
                 $patternFound = $this->setJavascriptFileCDNjQuery($jsFileName);
             } elseif (strpos($jsFileName, 'jquery.placeholder.min.js') !== false) {
