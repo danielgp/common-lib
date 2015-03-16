@@ -467,9 +467,8 @@ trait DomComponentsByDanielGP
      */
     protected function setJavascriptFile($jsFileName, $hostsWithoutCDNrequired = null)
     {
-        $sReturn           = null;
-        $clientAddressType = $this->checkIpIsPrivate($this->getClientRealIpAddress());
-        if ($clientAddressType == 'private') {
+        $sReturn = null;
+        if (in_array($this->getClientRealIpAddress(), $hostsWithoutCDNrequired)) {
             $sReturn = '<script type="text/javascript" src="' . $jsFileName . '"></script>';
         } else {
             $patternFound = $this->setJavascriptFileCDN($jsFileName, $hostsWithoutCDNrequired);
@@ -481,26 +480,25 @@ trait DomComponentsByDanielGP
 
     private function setJavascriptFileCDN($jsFileName, $hostsWithoutCDNrequired)
     {
-        $patternFound = [
-            false,
-            filter_var($jsFileName, FILTER_SANITIZE_STRING),
-            '',
-        ];
         /**
          * if within local network makes no sense to use CDNs
          */
-        if (!in_array($this->getClientRealIpAddress(), $hostsWithoutCDNrequired)) {
-            if (strpos($jsFileName, 'jquery-') !== false) {
-                $patternFound = $this->setJavascriptFileCDNjQuery($jsFileName);
-            } elseif (strpos($jsFileName, 'jquery.placeholder.min.js') !== false) {
-                $patternFound = $this->setJavascriptFileCDNjQueryLibs($jsFileName);
-            } elseif (strpos($jsFileName, 'jquery.easing.1.3.min.js') !== false) {
-                $patternFound = $this->setJavascriptFileCDNjQueryLibs($jsFileName);
-            } elseif (strpos($jsFileName, 'highcharts-') !== false) {
-                $patternFound = $this->setJavascriptFileCDNforHighCharts($jsFileName);
-            } elseif (strpos($jsFileName, 'exporting-') !== false) {
-                $patternFound = $this->setJavascriptFileCDNforHighChartsExporting($jsFileName);
-            }
+        if (strpos($jsFileName, 'jquery-') !== false) {
+            $patternFound = $this->setJavascriptFileCDNjQuery($jsFileName);
+        } elseif (strpos($jsFileName, 'jquery.placeholder.min.js') !== false) {
+            $patternFound = $this->setJavascriptFileCDNjQueryLibs($jsFileName);
+        } elseif (strpos($jsFileName, 'jquery.easing.1.3.min.js') !== false) {
+            $patternFound = $this->setJavascriptFileCDNjQueryLibs($jsFileName);
+        } elseif (strpos($jsFileName, 'highcharts-') !== false) {
+            $patternFound = $this->setJavascriptFileCDNforHighCharts($jsFileName);
+        } elseif (strpos($jsFileName, 'exporting-') !== false) {
+            $patternFound = $this->setJavascriptFileCDNforHighChartsExporting($jsFileName);
+        } else {
+            $patternFound = [
+                false,
+                filter_var($jsFileName, FILTER_SANITIZE_STRING),
+                '',
+            ];
         }
         return $patternFound;
     }
