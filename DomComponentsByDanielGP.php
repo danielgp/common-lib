@@ -57,6 +57,20 @@ trait DomComponentsByDanielGP
         }
     }
 
+    protected function checkIpIsInRange($ip, $ipStart, $ipEnd)
+    {
+        $sReturn     = 'out';
+        $startNo     = $this->convertIpToNumber($ipStart);
+        $endNo       = $this->convertIpToNumber($ipEnd);
+        $evaluatedNo = $this->convertIpToNumber($ip);
+        if ($sReturn == 'out') {
+            if (($evaluatedNo >= $startNo) && ($evaluatedNo <= $endNo)) {
+                $sReturn = 'in';
+            }
+        }
+        return $sReturn;
+    }
+
     protected function checkIpIsPrivate($ip)
     {
         $ipType = 'unkown';
@@ -87,43 +101,18 @@ trait DomComponentsByDanielGP
         return $ipType;
     }
 
-    protected function checkIpIsInRange($ip, $ipStart, $ipEnd)
+    protected function convertIpToNumber($ip)
     {
-        $sReturn = 'out';
-        if (filter_var($ipStart, FILTER_VALIDATE_IP)) {
-            if (filter_var($ipStart, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
-                $ips     = explode('\.', $ipStart);
-                $startNo = $ips[3] + $ips[2] * 256 + $ips[1] * 65536 + $ips[0] * 16777216;
-            } elseif (filter_var($ipStart, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
-                $startNo = inet_ntop($ipStart);
-            }
-        } else {
-            $sReturn .= '; start IP is invalid';
-        }
-        if (filter_var($ipEnd, FILTER_VALIDATE_IP)) {
-            if (filter_var($ipEnd, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
-                $ips   = explode('\.', $ipEnd);
-                $endNo = $ips[3] + $ips[2] * 256 + $ips[1] * 65536 + $ips[0] * 16777216;
-            } elseif (filter_var($ipEnd, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
-                $endNo = inet_ntop($ipEnd);
-            }
-        } else {
-            $sReturn .= '; end IP is invalid';
-        }
+        $sReturn = '';
         if (filter_var($ip, FILTER_VALIDATE_IP)) {
             if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
-                $ips         = explode('\.', $ip);
-                $evaluatedNo = $ips[3] + $ips[2] * 256 + $ips[1] * 65536 + $ips[0] * 16777216;
+                $ips     = explode('\.', $ip);
+                $sReturn = $ips[3] + $ips[2] * 256 + $ips[1] * 65536 + $ips[0] * 16777216;
             } elseif (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
-                $evaluatedNo = inet_ntop($ip);
+                $sReturn = inet_ntop($ip);
             }
         } else {
-            $sReturn .= '; evaluated IP is invalid';
-        }
-        if ($sReturn == 'out') {
-            if (($evaluatedNo >= $startNo) && ($evaluatedNo <= $endNo)) {
-                $sReturn = 'in';
-            }
+            $sReturn = 'invalid IP';
         }
         return $sReturn;
     }
