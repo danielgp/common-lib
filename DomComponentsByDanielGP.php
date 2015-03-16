@@ -57,6 +57,77 @@ trait DomComponentsByDanielGP
         }
     }
 
+    protected function checkIpIsPrivate($ip)
+    {
+        $ipType = 'unkown';
+        if (filter_var($ip, FILTER_VALIDATE_IP)) {
+            if (!filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_RES_RANGE | FILTER_FLAG_NO_PRIV_RANGE)) {
+                $ipType = 'private';
+            } else {
+                $ipType = 'public';
+            }
+        } else {
+            $ipType = 'invalid';
+        }
+        return $ipType;
+    }
+
+    protected function checkIpIsV4OrV6($ip)
+    {
+        $ipType = 'unkown';
+        if (filter_var($ip, FILTER_VALIDATE_IP)) {
+            if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+                $ipType = 'V4';
+            } elseif (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
+                $ipType = 'V6';
+            }
+        } else {
+            $ipType = 'invalid';
+        }
+        return $ipType;
+    }
+
+    protected function checkIpIsInRange($ip, $ipStart, $ipEnd)
+    {
+        $sReturn = 'out';
+        if (filter_var($ipStart, FILTER_VALIDATE_IP)) {
+            if (filter_var($ipStart, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+                $ips     = explode('\.', $ipStart);
+                $startNo = $ips[3] + $ips[2] * 256 + $ips[1] * 65536 + $ips[0] * 16777216;
+            } elseif (filter_var($ipStart, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
+                $startNo = inet_ntop($ipStart);
+            }
+        } else {
+            $sReturn .= '; start IP is invalid';
+        }
+        if (filter_var($ipEnd, FILTER_VALIDATE_IP)) {
+            if (filter_var($ipEnd, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+                $ips   = explode('\.', $ipEnd);
+                $endNo = $ips[3] + $ips[2] * 256 + $ips[1] * 65536 + $ips[0] * 16777216;
+            } elseif (filter_var($ipEnd, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
+                $endNo = inet_ntop($ipEnd);
+            }
+        } else {
+            $sReturn .= '; end IP is invalid';
+        }
+        if (filter_var($ip, FILTER_VALIDATE_IP)) {
+            if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+                $ips         = explode('\.', $ip);
+                $evaluatedNo = $ips[3] + $ips[2] * 256 + $ips[1] * 65536 + $ips[0] * 16777216;
+            } elseif (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
+                $evaluatedNo = inet_ntop($ip);
+            }
+        } else {
+            $sReturn .= '; evaluated IP is invalid';
+        }
+        if ($sReturn == 'out') {
+            if (($evaluatedNo >= $startNo) && ($evaluatedNo <= $endNo)) {
+                $sReturn = 'in';
+            }
+        }
+        return $sReturn;
+    }
+
     /**
      * Returns the IP of the client
      *
@@ -405,15 +476,18 @@ trait DomComponentsByDanielGP
      * @param string $jsFileName
      * @return string
      */
-    protected function setJavascriptFile($jsFileName, $hostsWithoutCDNrequired = ['127.0.0.1'])
+    protected function setJavascriptFile($jsFileName, $hostsWithoutCDNrequired = null)
     {
-        $patternFound = $this->setJavascriptFileCDN($jsFileName, $hostsWithoutCDNrequired);
-        if ($patternFound[0] === false) {
-            return '<script type="text/javascript" src="' . $patternFound[1] . '"></script>';
+        $sReturn           = null;
+        $clientAddressType = $this->checkIpIsPrivate($this->getClientRealIpAddress());
+        if ($clientAddressType == 'private') {
+            $sReturn = '<script type="text/javascript" src="' . $jsFileName . '"></script>';
         } else {
-            return '<script type="text/javascript" src="' . $patternFound[1] . '"></script>'
+            $patternFound = $this->setJavascriptFileCDN($jsFileName, $hostsWithoutCDNrequired);
+            $sReturn      = '<script type="text/javascript" src="' . $patternFound[1] . '"></script>'
                     . $patternFound[2];
         }
+        return $sReturn;
     }
 
     private function setJavascriptFileCDN($jsFileName, $hostsWithoutCDNrequired)
@@ -421,7 +495,7 @@ trait DomComponentsByDanielGP
         $patternFound = [
             false,
             filter_var($jsFileName, FILTER_SANITIZE_STRING),
-            null,
+            '',
         ];
         /**
          * if within local network makes no sense to use CDNs
@@ -429,6 +503,10 @@ trait DomComponentsByDanielGP
         if (!in_array($_SERVER['REMOTE_ADDR'], $hostsWithoutCDNrequired)) {
             if (strpos($jsFileName, 'jquery-') !== false) {
                 $patternFound = $this->setJavascriptFileCDNjQuery($jsFileName);
+            } elseif (strpos($jsFileName, 'jquery.placeholder.min.js') !== false) {
+                $patternFound = $this->setJavascriptFileCDNjQueryLibs($jsFileName);
+            } elseif (strpos($jsFileName, 'jquery.easing.1.3.min.js') !== false) {
+                $patternFound = $this->setJavascriptFileCDNjQueryLibs($jsFileName);
             } elseif (strpos($jsFileName, 'highcharts-') !== false) {
                 $patternFound = $this->setJavascriptFileCDNforHighCharts($jsFileName);
             } elseif (strpos($jsFileName, 'exporting-') !== false) {
@@ -493,6 +571,39 @@ trait DomComponentsByDanielGP
                 ]),
                 implode('', [
                     '<script>window.jQuery || document.write(\'<script src="',
+                    filter_var($jsFileName, FILTER_SANITIZE_STRING),
+                    '">\x3C/script>\')</script>'
+                ])
+            ];
+        }
+        return $patternFound;
+    }
+
+    private function setJavascriptFileCDNjQueryLibs($jsFileName)
+    {
+        $version  = null;
+        $justFile = pathinfo($jsFileName)['basename'];
+        switch ($justFile) {
+            case 'jquery.placeholder.min.js':
+                $version                   = 'jquery-placeholder/2.0.8/';
+                $functionExistanceToVerify = 'jQuery.placeholder';
+                break;
+            case 'jquery.easing.1.3.min.js':
+                $version                   = 'jquery-easing/1.3/';
+                $functionExistanceToVerify = 'jQuery.easing["jswing"]';
+                $justFile                  = str_replace('.1.3', '', $justFile);
+                break;
+        }
+        if (!is_null($version)) {
+            $patternFound = [
+                true,
+                implode('', [
+                    '//cdnjs.cloudflare.com/ajax/libs/',
+                    $version,
+                    $justFile,
+                ]),
+                implode('', [
+                    '<script>' . $functionExistanceToVerify . ' || document.write(\'<script src="',
                     filter_var($jsFileName, FILTER_SANITIZE_STRING),
                     '">\x3C/script>\')</script>'
                 ])
