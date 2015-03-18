@@ -480,18 +480,19 @@ trait DomComponentsByDanielGP
 
     private function setJavascriptFileCDN($jsFileName, $hostsWithoutCDNrequired)
     {
+        $onlyFileName = pathinfo($jsFileName)['basename'];
         /**
          * if within local network makes no sense to use CDNs
          */
-        if (strpos($jsFileName, 'jquery-') !== false) {
+        if (strpos($onlyFileName, 'jquery-') !== false) {
             $patternFound = $this->setJavascriptFileCDNjQuery($jsFileName);
-        } elseif (strpos($jsFileName, 'jquery.placeholder.min.js') !== false) {
+        } elseif (strpos($onlyFileName, 'jquery.placeholder.min.js') !== false) {
             $patternFound = $this->setJavascriptFileCDNjQueryLibs($jsFileName);
-        } elseif (strpos($jsFileName, 'jquery.easing.1.3.min.js') !== false) {
+        } elseif (strpos($onlyFileName, 'jquery.easing.1.3.min.js') !== false) {
             $patternFound = $this->setJavascriptFileCDNjQueryLibs($jsFileName);
-        } elseif (strpos($jsFileName, 'highcharts-') !== false) {
+        } elseif (strpos($onlyFileName, 'highcharts-') !== false) {
             $patternFound = $this->setJavascriptFileCDNforHighCharts($jsFileName);
-        } elseif (strpos($jsFileName, 'exporting-') !== false) {
+        } elseif (strpos($onlyFileName, 'exporting-') !== false) {
             $patternFound = $this->setJavascriptFileCDNforHighChartsExporting($jsFileName);
         } else {
             $patternFound = [
@@ -511,7 +512,7 @@ trait DomComponentsByDanielGP
                 true,
                 implode('', [
                     '//cdnjs.cloudflare.com/ajax/libs/highcharts/',
-                    str_replace(['highcharts-', '.min.js'], '', pathinfo($jsFileName)['basename']),
+                    str_replace(['highcharts-', '.js'], '', pathinfo($jsFileName)['basename']),
                     '/highcharts.js',
                 ]),
                 implode('', [
@@ -532,7 +533,7 @@ trait DomComponentsByDanielGP
                 true,
                 implode('', [
                     '//code.highcharts.com/',
-                    str_replace(['exporting-', '.min.js'], '', pathinfo($jsFileName)['basename']),
+                    str_replace(['exporting-', '.js'], '', pathinfo($jsFileName)['basename']),
                     '/modules/exporting.js',
                 ]),
                 implode('', [
