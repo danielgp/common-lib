@@ -468,17 +468,20 @@ trait DomComponentsByDanielGP
     protected function setJavascriptFile($jsFileName, $hostsWithoutCDNrequired = null)
     {
         $sReturn = null;
+        if (is_null($hostsWithoutCDNrequired)) {
+            $hostsWithoutCDNrequired = [];
+        }
         if (in_array($this->getClientRealIpAddress(), $hostsWithoutCDNrequired)) {
             $sReturn = '<script type="text/javascript" src="' . $jsFileName . '"></script>';
         } else {
-            $patternFound = $this->setJavascriptFileCDN($jsFileName, $hostsWithoutCDNrequired);
+            $patternFound = $this->setJavascriptFileCDN($jsFileName);
             $sReturn      = '<script type="text/javascript" src="' . $patternFound[1] . '"></script>'
                     . $patternFound[2];
         }
         return $sReturn;
     }
 
-    private function setJavascriptFileCDN($jsFileName, $hostsWithoutCDNrequired)
+    private function setJavascriptFileCDN($jsFileName)
     {
         $onlyFileName = pathinfo($jsFileName)['basename'];
         /**
