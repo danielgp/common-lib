@@ -128,7 +128,30 @@ trait MySQLiByDanielGP
      */
     protected function getMySQLlistIndexes($filterArray = null)
     {
-        return $this->getMySQLlistMultiple('Indexes', 'full_array_key_numbered', $filterArray);
+        $filters     = [];
+        $xtraSorting = ', `C`.`ORDINAL_POSITION`, `KCU`.`CONSTRAINT_NAME`';
+        if (!is_null($filterArray) && is_array($filterArray)) {
+            foreach ($filterArray as $key => $value) {
+                $filters[] = '`KCU`.`' . $key . '` ' . $this->sGlueFilterValueIntoWhereString($value);
+                if ($key == 'COLUMN_NAME') {
+                    $xtraSorting = '';
+                }
+            }
+        }
+        if (count($filters) == 0) {
+            $finalFilter = '';
+        } else {
+            $finalFilter = 'WHERE ' . $this->sGlueFiltersIntoWhereArrayFilter($filters) . ' ';
+        }
+        echo '<hr/>';
+        $q = str_replace([
+            ' ORDER BY ',
+            '`;',
+                ], [
+            ' ' . $finalFilter . 'ORDER BY ',
+            '`' . $xtraSorting . ';',
+                ], $this->sQueryMySqlIndexes());
+        return $this->getMySQLlistMultiple('Indexes', 'full_array_key_numbered', $q);
     }
 
     /**
@@ -176,7 +199,7 @@ trait MySQLiByDanielGP
                     $q = $this->sQueryMySqlActiveEngines($additionalFeatures);
                     break;
                 case 'Indexes':
-                    $q = $this->sQueryMySqlIndexes($additionalFeatures);
+                    $q = $additionalFeatures;
                     break;
                 case 'ServerTime':
                     $q = $this->sQueryMySqlServerTime();
@@ -237,6 +260,21 @@ trait MySQLiByDanielGP
     protected function lclMsgCmn($localizedStringCode)
     {
         return $this->tCmnLb->gettext($localizedStringCode);
+    }
+
+    private function sGlueFilterValueIntoWhereString($filterValue)
+    {
+        if (is_array($filterValue)) {
+            $sReturn = 'IN ("' . implode('", "', $filterValue) . '")';
+        } else {
+            $sReturn = '= "' . $filterValue . '"';
+        }
+        return $sReturn;
+    }
+
+    private function sGlueFiltersIntoWhereArrayFilter($filters)
+    {
+        return '(' . implode(') AND (', $filters) . ')';
     }
 
     /**

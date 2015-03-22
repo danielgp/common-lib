@@ -36,40 +36,20 @@ namespace danielgp\common_lib;
 trait MySQLiByDanielGPqueries
 {
 
-    private function sGlueFilterValueIntoWhereString($filterValue)
-    {
-        if (is_array($filterValue)) {
-            $sReturn = 'IN ("' . implode('", "', $filterValue) . '")';
-        } else {
-            $sReturn = '= "' . $filterValue . '"';
-        }
-        return $sReturn;
-    }
-
-    private function sGlueFiltersIntoWhereArrayFilter($filters)
-    {
-        return '(' . implode(') AND (', $filters) . ')';
-    }
-
     protected function sQueryMySqlActiveDatabases($excludeSystemDatabases = true)
     {
         if ($excludeSystemDatabases) {
-            $sReturn = 'SELECT '
-                    . '`SCHEMA_NAME` As `Db`, '
-                    . '`DEFAULT_CHARACTER_SET_NAME` AS `DbCharset`, '
-                    . '`DEFAULT_COLLATION_NAME` AS `DbCollation` '
-                    . 'FROM `information_schema`.`SCHEMATA` '
-                    . 'WHERE `SCHEMA_NAME` NOT IN ("information_schema", "mysql", "performance_schema", "sys") '
-                    . 'GROUP BY `SCHEMA_NAME`;';
+            $filterChoice = 'WHERE `SCHEMA_NAME` NOT IN ("information_schema", "mysql", "performance_schema", "sys") ';
         } else {
-            $sReturn = 'SELECT '
-                    . '`SCHEMA_NAME` As `Db`, '
-                    . '`DEFAULT_CHARACTER_SET_NAME` AS `DbCharset`, '
-                    . '`DEFAULT_COLLATION_NAME` AS `DbCollation` '
-                    . 'FROM `information_schema`.`SCHEMATA` '
-                    . 'GROUP BY `SCHEMA_NAME`;';
+            $filterChoice = '';
         }
-        return $sReturn;
+        return 'SELECT '
+                . '`SCHEMA_NAME` As `Db`, '
+                . '`DEFAULT_CHARACTER_SET_NAME` AS `DbCharset`, '
+                . '`DEFAULT_COLLATION_NAME` AS `DbCollation` '
+                . 'FROM `information_schema`.`SCHEMATA` '
+                . $filterChoice
+                . 'GROUP BY `SCHEMA_NAME`;';
     }
 
     protected function sQueryMySqlActiveEngines($onlyActiveOnes = true)
@@ -93,24 +73,8 @@ trait MySQLiByDanielGPqueries
         return 'SHOW GLOBAL VARIABLES;';
     }
 
-    protected function sQueryMySqlIndexes($filteringArray = null)
+    protected function sQueryMySqlIndexes()
     {
-        $filters     = [];
-        $xtraSorting = ', `C`.`ORDINAL_POSITION`, `KCU`.`CONSTRAINT_NAME`';
-        if (!is_null($filteringArray) && is_array($filteringArray)) {
-            foreach ($filteringArray as $key => $value) {
-                $filters[] = '`KCU`.`' . $key . '` ' . $this->sGlueFilterValueIntoWhereString($value);
-                if ($key == 'COLUMN_NAME') {
-                    $xtraSorting = '';
-                }
-            }
-        }
-        if (count($filters) == 0) {
-            $finalFilter = '';
-        } else {
-            $finalFilter = ' WHERE '
-                    . filter_var($this->sGlueFiltersIntoWhereArrayFilter($filters), FILTER_SANITIZE_STRING);
-        }
         return 'SELECT `KCU`.`CONSTRAINT_SCHEMA` '
                 . ', `KCU`.`CONSTRAINT_NAME` '
                 . ', `KCU`.`TABLE_SCHEMA` '
@@ -129,13 +93,12 @@ trait MySQLiByDanielGPqueries
                     '`C`.`TABLE_SCHEMA` = `KCU`.`TABLE_SCHEMA`',
                     '`C`.`TABLE_NAME` = `KCU`.`TABLE_NAME`',
                     '`C`.`COLUMN_NAME` = `KCU`.`COLUMN_NAME`',
-                ]) . ')'
+                ]) . ') '
                 . 'LEFT JOIN `information_schema`.`REFERENTIAL_CONSTRAINTS` `RC` ON (' . implode(') AND (', [
                     '`KCU`.`CONSTRAINT_SCHEMA` = `RC`.`CONSTRAINT_SCHEMA`',
                     '`KCU`.`CONSTRAINT_NAME` = `RC`.`CONSTRAINT_NAME`',
-                ]) . ')'
-                . $finalFilter
-                . ' ORDER BY `KCU`.`TABLE_SCHEMA`, `KCU`.`TABLE_NAME`' . $xtraSorting . '';
+                ]) . ') '
+                . 'ORDER BY `KCU`.`TABLE_SCHEMA`, `KCU`.`TABLE_NAME`;';
     }
 
     protected function sQueryMySqlServerTime()
