@@ -148,7 +148,7 @@ trait MySQLiByDanielGP
      */
     protected function getMySQLlistDatabases($excludeSystemDatabases = true)
     {
-        return $this->getMySQLlistMultiple('DatabaseList', 'array_first_key_rest_values', $excludeSystemDatabases);
+        return $this->getMySQLlistMultiple('Databases', 'array_first_key_rest_values', $excludeSystemDatabases);
     }
 
     /**

@@ -36,20 +36,31 @@ namespace danielgp\common_lib;
 trait MySQLiByDanielGPqueries
 {
 
-    private function sGlueFilterValueIntoWhereString($value)
+    private function sGlueFilterValueIntoWhereString($filterValue)
     {
-        return (is_array($value) ? 'IN ("' . implode('", "', $value) . '")' : '= "' . $value . '"');
+        if (is_array($filterValue)) {
+            $sReturn = 'IN ("' . implode('", "', $filterValue) . '")';
+        } else {
+            $sReturn = '= "' . $filterValue . '"';
+        }
+        return $sReturn;
+    }
+
+    private function sGlueFiltersIntoWhereArrayFilter($filters)
+    {
+        return '(' . implode(') AND (', $filters) . ')';
     }
 
     protected function sQueryMySqlActiveDatabases($excludeSystemDatabases = true)
     {
         if ($excludeSystemDatabases) {
-            $finalFilter = 'WHERE `SCHEMA_NAME` NOT IN ("' . implode('","', [
-                        'information_schema',
-                        'mysql',
-                        'performance_schema',
-                        'sys'
-                    ]) . '") ';
+            $systemDBs   = [
+                'information_schema',
+                'mysql',
+                'performance_schema',
+                'sys'
+            ];
+            $finalFilter = 'WHERE `SCHEMA_NAME` NOT ' . $this->sGlueFilterValueIntoWhereString($systemDBs);
         } else {
             $finalFilter = '';
         }
@@ -98,7 +109,7 @@ trait MySQLiByDanielGPqueries
         if (count($filters) == 0) {
             $finalFilter = '';
         } else {
-            $finalFilter = ' WHERE (' . implode(') AND (', $filters) . ')';
+            $finalFilter = ' WHERE ' . $this->sGlueFiltersIntoWhereArrayFilter($filters);
         }
         return 'SELECT `KCU`.`CONSTRAINT_SCHEMA` '
                 . ', `KCU`.`CONSTRAINT_NAME` '
