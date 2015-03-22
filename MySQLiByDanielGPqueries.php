@@ -36,31 +36,80 @@ namespace danielgp\common_lib;
 trait MySQLiByDanielGPqueries
 {
 
-    protected function sQueryMySqlActiveDatabases()
+    private function sGlueFilterValueIntoWhereString($value)
+    {
+        return (is_array($value) ? 'IN ("' . implode('", "', $value) . '")' : '= "' . $value . '"');
+    }
+
+    protected function sQueryMySqlActiveDatabases($excludeSystemDatabases = true)
     {
         return 'SELECT '
                 . '`SCHEMA_NAME` As `Db`, '
                 . '`DEFAULT_CHARACTER_SET_NAME` AS `DbCharset`, '
                 . '`DEFAULT_COLLATION_NAME` AS `DbCollation` '
                 . 'FROM `information_schema`.`SCHEMATA` '
-                . 'WHERE `SCHEMA_NAME` NOT IN ("information_schema", "mysql", "performance_schema", "sys") '
+                . ($excludeSystemDatabases ? 'WHERE `SCHEMA_NAME` NOT IN ("' . implode('","', [
+                            'information_schema',
+                            'mysql',
+                            'performance_schema',
+                            'sys'
+                        ]) . '") ' : '')
                 . 'GROUP BY `SCHEMA_NAME`;';
     }
 
-    protected function sQueryMySqlActiveEngines()
+    protected function sQueryMySqlActiveEngines($onlyActiveOnes = true)
     {
         return 'SELECT '
                 . '`ENGINE` AS `Engine`, '
                 . '`SUPPORT` AS `Support`, '
                 . '`COMMENT` AS `Comment` '
                 . 'FROM `information_schema`.`ENGINES` '
-                . 'WHERE (`SUPPORT` IN ("DEFAULT", "YES")) '
+                . ($onlyActiveOnes ? 'WHERE (`SUPPORT` IN ("DEFAULT", "YES")) ' : '')
                 . 'GROUP BY `ENGINE`;';
     }
 
     protected function sQueryMySqlGlobalVariables()
     {
         return 'SHOW GLOBAL VARIABLES;';
+    }
+
+    protected function sQueryMySqlIndexes($filteringArray = null)
+    {
+        $filters     = [];
+        $xtraSorting = ', `C`.`ORDINAL_POSITION`, `KCU`.`CONSTRAINT_NAME`';
+        if (!is_null($filteringArray) && is_array($filteringArray)) {
+            foreach ($filteringArray as $key => $value) {
+                $filters[] = '`KCU`.`' . $key . '` ' . $this->sGlueFilterValueIntoWhereString($value);
+                if ($key == 'COLUMN_NAME') {
+                    $xtraSorting = '';
+                }
+            }
+        }
+        return 'SELECT `KCU`.`CONSTRAINT_SCHEMA` '
+                . ', `KCU`.`CONSTRAINT_NAME` '
+                . ', `KCU`.`TABLE_SCHEMA` '
+                . ', `KCU`.`TABLE_NAME` '
+                . ', `KCU`.`COLUMN_NAME` '
+                . ', `C`.`ORDINAL_POSITION` AS `COLUMN_POSITION` '
+                . ', `KCU`.`ORDINAL_POSITION` '
+                . ', `KCU`.`POSITION_IN_UNIQUE_CONSTRAINT` '
+                . ', `KCU`.`REFERENCED_TABLE_SCHEMA` '
+                . ', `KCU`.`REFERENCED_TABLE_NAME` '
+                . ', `KCU`.`REFERENCED_COLUMN_NAME` '
+                . ', `RC`.`UPDATE_RULE` '
+                . ', `RC`.`DELETE_RULE` '
+                . 'FROM `information_schema`.`KEY_COLUMN_USAGE` `KCU` '
+                . 'INNER JOIN `information_schema`.`COLUMNS` `C` ON (' . implode(') AND (', [
+                    '`C`.`TABLE_SCHEMA` = `KCU`.`TABLE_SCHEMA`',
+                    '`C`.`TABLE_NAME` = `KCU`.`TABLE_NAME`',
+                    '`C`.`COLUMN_NAME` = `KCU`.`COLUMN_NAME`',
+                ]) . ')'
+                . 'LEFT JOIN `information_schema`.`REFERENTIAL_CONSTRAINTS` `RC` ON (' . implode(') AND (', [
+                    '`KCU`.`CONSTRAINT_SCHEMA` = `RC`.`CONSTRAINT_SCHEMA`',
+                    '`KCU`.`CONSTRAINT_NAME` = `RC`.`CONSTRAINT_NAME`',
+                ]) . ')'
+                . (count($filters) == 0 ? '' : ' WHERE (' . implode(') AND (', $filters) . ')')
+                . ' ORDER BY `KCU`.`TABLE_SCHEMA`, `KCU`.`TABLE_NAME`' . $xtraSorting . '';
     }
 
     protected function sQueryMySqlServerTime()

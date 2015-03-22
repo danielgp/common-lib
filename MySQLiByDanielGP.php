@@ -74,37 +74,23 @@ trait MySQLiByDanielGP
     }
 
     /**
-     * returns a list of MySQL databases (except the system ones)
+     * returns a list of MySQL databases
      *
      * @return array
      */
     protected function getMySQLactiveDatabases()
     {
-        if (is_null($this->mySQLconnection)) {
-            $line = [];
-        } else {
-            $line = $this->setMySQLquery2Server($this->sQueryMySqlActiveDatabases(), 'array_first_key_rest_values')[
-                    'result'
-            ];
-        }
-        return $line;
+        return $this->getMySQLlistDatabases(true);
     }
 
     /**
-     * returns a list of MySQL engines |(except the system ones)
+     * returns a list of active MySQL engines
      *
      * @return array
      */
     protected function getMySQLactiveEngines()
     {
-        if (is_null($this->mySQLconnection)) {
-            $line = [];
-        } else {
-            $line = $this->setMySQLquery2Server($this->sQueryMySqlActiveEngines(), 'array_first_key_rest_values')[
-                    'result'
-            ];
-        }
-        return $line;
+        return $this->getMySQLlistEngines(true);
     }
 
     /**
@@ -126,16 +112,80 @@ trait MySQLiByDanielGP
     }
 
     /**
+     * returns a list of MySQL engines (w. choice of return only the active ones)
+     *
+     * @return array
+     */
+    protected function getMySQLlistEngines($onlyActiveOnes = true)
+    {
+        return $this->getMySQLlistMultiple('Engines', 'array_first_key_rest_values', $onlyActiveOnes);
+    }
+
+    /**
+     * returns a list of MySQL indexes (w. choice of to choose any combination of db/table/column)
+     *
+     * @return array
+     */
+    protected function getMySQLlistIndexes($filterArray = null)
+    {
+        return $this->getMySQLlistMultiple('Indexes', 'full_array_key_numbered', $filterArray);
+    }
+
+    /**
      * returns the list of all MySQL global variables
      *
      * @return array
      */
     protected function getMySQLglobalVariables()
     {
+        return $this->getMySQLlistMultiple('VariablesGlobal', 'array_key_value');
+    }
+
+    /**
+     * returns a list of MySQL databases (w. choice of exclude/include the system ones)
+     *
+     * @return array
+     */
+    protected function getMySQLlistDatabases($excludeSystemDatabases = true)
+    {
+        return $this->getMySQLlistMultiple('DatabaseList', 'array_first_key_rest_values', $excludeSystemDatabases);
+    }
+
+    /**
+     * Return various informations (from predefined list) from the MySQL server
+     *
+     * @return string
+     */
+    private function getMySQLlistMultiple($returnChoice, $returnType, $additionalFeatures = null)
+    {
         if (is_null($this->mySQLconnection)) {
-            $line = [];
+            switch ($returnType) {
+                case 'value':
+                    $line = null;
+                    break;
+                default:
+                    $line = [];
+                    break;
+            }
         } else {
-            $line = $this->setMySQLquery2Server($this->sQueryMySqlGlobalVariables(), 'array_key_value')[
+            switch ($returnChoice) {
+                case 'Databases':
+                    $q = $this->sQueryMySqlActiveDatabases($additionalFeatures);
+                    break;
+                case 'Engines':
+                    $q = $this->sQueryMySqlActiveEngines($additionalFeatures);
+                    break;
+                case 'Indexes':
+                    $q = $this->sQueryMySqlIndexes($additionalFeatures);
+                    break;
+                case 'ServerTime':
+                    $q = $this->sQueryMySqlServerTime();
+                    break;
+                case 'VariablesGlobal':
+                    $q = $this->sQueryMySqlGlobalVariables();
+                    break;
+            }
+            $line = $this->setMySQLquery2Server($q, $returnType)[
                     'result'
             ];
         }
@@ -149,14 +199,7 @@ trait MySQLiByDanielGP
      */
     protected function getMySQLserverTime()
     {
-        if (is_null($this->mySQLconnection)) {
-            $line = null;
-        } else {
-            $line = $this->setMySQLquery2Server($this->sQueryMySqlServerTime(), 'value')[
-                    'result'
-            ];
-        }
-        return $line;
+        return $this->getMySQLlistMultiple('ServerTime', 'value');
     }
 
     private function handleLocalizationCommon()
