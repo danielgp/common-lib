@@ -54,24 +54,22 @@ trait MySQLiByDanielGPqueries
     protected function sQueryMySqlActiveDatabases($excludeSystemDatabases = true)
     {
         if ($excludeSystemDatabases) {
-            $systemDBs   = [
-                'information_schema',
-                'mysql',
-                'performance_schema',
-                'sys'
-            ];
-            $finalFilter = 'WHERE `SCHEMA_NAME` NOT '
-                    . filter_var($this->sGlueFilterValueIntoWhereString($systemDBs), FILTER_SANITIZE_STRING);
+            $sReturn = 'SELECT '
+                    . '`SCHEMA_NAME` As `Db`, '
+                    . '`DEFAULT_CHARACTER_SET_NAME` AS `DbCharset`, '
+                    . '`DEFAULT_COLLATION_NAME` AS `DbCollation` '
+                    . 'FROM `information_schema`.`SCHEMATA` '
+                    . 'WHERE `SCHEMA_NAME` NOT IN ("information_schema", "mysql", "performance_schema", "sys") '
+                    . 'GROUP BY `SCHEMA_NAME`;';
         } else {
-            $finalFilter = '';
+            $sReturn = 'SELECT '
+                    . '`SCHEMA_NAME` As `Db`, '
+                    . '`DEFAULT_CHARACTER_SET_NAME` AS `DbCharset`, '
+                    . '`DEFAULT_COLLATION_NAME` AS `DbCollation` '
+                    . 'FROM `information_schema`.`SCHEMATA` '
+                    . 'GROUP BY `SCHEMA_NAME`;';
         }
-        return 'SELECT '
-                . '`SCHEMA_NAME` As `Db`, '
-                . '`DEFAULT_CHARACTER_SET_NAME` AS `DbCharset`, '
-                . '`DEFAULT_COLLATION_NAME` AS `DbCollation` '
-                . 'FROM `information_schema`.`SCHEMATA` '
-                . $finalFilter
-                . 'GROUP BY `SCHEMA_NAME`;';
+        return $sReturn;
     }
 
     protected function sQueryMySqlActiveEngines($onlyActiveOnes = true)
