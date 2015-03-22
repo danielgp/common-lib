@@ -36,6 +36,37 @@ namespace danielgp\common_lib;
 trait MySQLiByDanielGPqueries
 {
 
+    private function sGlueFilterValueIntoWhereString($filterValue)
+    {
+        if (is_array($filterValue)) {
+            $sReturn = 'IN ("' . implode('", "', $filterValue) . '")';
+        } else {
+            $sReturn = '= "' . $filterValue . '"';
+        }
+        return $sReturn;
+    }
+
+    private function sGlueFiltersIntoWhereArrayFilter($filters)
+    {
+        return '(' . implode(') AND (', $filters) . ')';
+    }
+
+    private function sManageDynamicFilters($filterArray)
+    {
+        $filters = [];
+        if (!is_null($filterArray) && is_array($filterArray)) {
+            foreach ($filterArray as $key => $value) {
+                $filters[] = '`KCU`.`' . $key . '` ' . $this->sGlueFilterValueIntoWhereString($value);
+            }
+        }
+        if (count($filters) == 0) {
+            $finalFilter = '';
+        } else {
+            $finalFilter = 'WHERE (' . $this->sGlueFiltersIntoWhereArrayFilter($filters) . ') ';
+        }
+        return $finalFilter;
+    }
+
     protected function sQueryMySqlActiveDatabases($excludeSystemDatabases = true)
     {
         if ($excludeSystemDatabases) {
@@ -73,8 +104,14 @@ trait MySQLiByDanielGPqueries
         return 'SHOW GLOBAL VARIABLES;';
     }
 
-    protected function sQueryMySqlIndexes()
+    protected function sQueryMySqlIndexes($filterArray)
     {
+        $xtraSorting = ', `C`.`ORDINAL_POSITION`, `KCU`.`CONSTRAINT_NAME`';
+        if (!is_null($filterArray) && is_array($filterArray)) {
+            if (in_array('COLUMN_NAME', array_keys($filterArray))) {
+                $xtraSorting = '';
+            }
+        }
         return 'SELECT `KCU`.`CONSTRAINT_SCHEMA` '
                 . ', `KCU`.`CONSTRAINT_NAME` '
                 . ', `KCU`.`TABLE_SCHEMA` '
@@ -98,7 +135,8 @@ trait MySQLiByDanielGPqueries
                     '`KCU`.`CONSTRAINT_SCHEMA` = `RC`.`CONSTRAINT_SCHEMA`',
                     '`KCU`.`CONSTRAINT_NAME` = `RC`.`CONSTRAINT_NAME`',
                 ]) . ') '
-                . 'ORDER BY `KCU`.`TABLE_SCHEMA`, `KCU`.`TABLE_NAME`;';
+                . $this->sManageDynamicFilters($filterArray)
+                . 'ORDER BY `KCU`.`TABLE_SCHEMA`, `KCU`.`TABLE_NAME`' . $xtraSorting . ';';
     }
 
     protected function sQueryMySqlServerTime()
