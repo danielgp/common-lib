@@ -51,18 +51,22 @@ trait MySQLiByDanielGPqueries
         return '(' . implode(') AND (', $filters) . ')';
     }
 
-    private function sManageDynamicFilters($filterArray)
+    private function sManageDynamicFilters($filterArray = null, $tableToApplyFilterTo = '')
     {
         $filters = [];
         if (!is_null($filterArray) && is_array($filterArray)) {
             foreach ($filterArray as $key => $value) {
-                $filters[] = '`KCU`.`' . $key . '` ' . $this->sGlueFilterValueIntoWhereString($value);
+                $filters[] = '`' . $tableToApplyFilterTo . '`.`' . $key . '` '
+                        . $this->sGlueFilterValueIntoWhereString($value);
             }
         }
         if (count($filters) == 0) {
             $finalFilter = '';
         } else {
-            $finalFilter = 'WHERE (' . $this->sGlueFiltersIntoWhereArrayFilter($filters) . ') ';
+            $finalFilter = implode(' ', [
+                        'WHERE',
+                        $this->sGlueFiltersIntoWhereArrayFilter($filters),
+                    ]) . ' ';
         }
         return $finalFilter;
     }
@@ -104,7 +108,7 @@ trait MySQLiByDanielGPqueries
         return 'SHOW GLOBAL VARIABLES;';
     }
 
-    protected function sQueryMySqlIndexes($filterArray)
+    protected function sQueryMySqlIndexes($filterArray = null)
     {
         $xtraSorting = ', `C`.`ORDINAL_POSITION`, `KCU`.`CONSTRAINT_NAME`';
         if (!is_null($filterArray) && is_array($filterArray)) {
@@ -135,12 +139,33 @@ trait MySQLiByDanielGPqueries
                     '`KCU`.`CONSTRAINT_SCHEMA` = `RC`.`CONSTRAINT_SCHEMA`',
                     '`KCU`.`CONSTRAINT_NAME` = `RC`.`CONSTRAINT_NAME`',
                 ]) . ') '
-                . $this->sManageDynamicFilters($filterArray)
+                . $this->sManageDynamicFilters($filterArray, 'KCU')
                 . 'ORDER BY `KCU`.`TABLE_SCHEMA`, `KCU`.`TABLE_NAME`' . $xtraSorting . ';';
     }
 
     protected function sQueryMySqlServerTime()
     {
         return 'SELECT NOW();';
+    }
+
+    protected function sQueryMySqlTables($filterArray = null)
+    {
+        $xtraSorting = 'ORDER BY `TABLE_SCHEMA`, `TABLE_NAME`';
+        if (!is_null($filterArray) && is_array($filterArray)) {
+            if (in_array('TABLE_SCHEMA', array_keys($filterArray))) {
+                $xtraSorting = 'ORDER BY `TABLE_NAME`';
+            }
+        }
+        return 'SELECT `TABLE_SCHEMA` '
+                . ', `TABLE_NAME` '
+                . ', `TABLE_TYPE` '
+                . ', `ENGINE` '
+                . ', `VERSION` '
+                . ', `ROW_FORMAT` '
+                . ', `TABLE_COLLATION` '
+                . ', `TABLE_COMMENT` '
+                . 'FROM `information_schema`.`TABLES` `T` '
+                . $this->sManageDynamicFilters($filterArray, 'T')
+                . $xtraSorting . ';';
     }
 }

@@ -112,26 +112,6 @@ trait MySQLiByDanielGP
     }
 
     /**
-     * returns a list of MySQL engines (w. choice of return only the active ones)
-     *
-     * @return array
-     */
-    protected function getMySQLlistEngines($onlyActiveOnes = true)
-    {
-        return $this->getMySQLlistMultiple('Engines', 'array_first_key_rest_values', $onlyActiveOnes);
-    }
-
-    /**
-     * returns a list of MySQL indexes (w. choice of to choose any combination of db/table/column)
-     *
-     * @return array
-     */
-    protected function getMySQLlistIndexes($filterArray = null)
-    {
-        return $this->getMySQLlistMultiple('Indexes', 'full_array_key_numbered', $filterArray);
-    }
-
-    /**
      * returns the list of all MySQL global variables
      *
      * @return array
@@ -149,6 +129,26 @@ trait MySQLiByDanielGP
     protected function getMySQLlistDatabases($excludeSystemDatabases = true)
     {
         return $this->getMySQLlistMultiple('Databases', 'array_first_key_rest_values', $excludeSystemDatabases);
+    }
+
+    /**
+     * returns a list of MySQL engines (w. choice of return only the active ones)
+     *
+     * @return array
+     */
+    protected function getMySQLlistEngines($onlyActiveOnes = true)
+    {
+        return $this->getMySQLlistMultiple('Engines', 'array_first_key_rest_values', $onlyActiveOnes);
+    }
+
+    /**
+     * returns a list of MySQL indexes (w. choice of to choose any combination of db/table/column)
+     *
+     * @return array
+     */
+    protected function getMySQLlistIndexes($filterArray = null)
+    {
+        return $this->getMySQLlistMultiple('Indexes', 'full_array_key_numbered', $filterArray);
     }
 
     /**
@@ -181,6 +181,12 @@ trait MySQLiByDanielGP
                 case 'ServerTime':
                     $q = $this->sQueryMySqlServerTime();
                     break;
+                case 'Tables':
+                    $q = $this->sQueryMySqlTables($additionalFeatures);
+                    echo '<hr/>';
+                    var_dump($q);
+                    echo '<hr/>';
+                    break;
                 case 'VariablesGlobal':
                     $q = $this->sQueryMySqlGlobalVariables();
                     break;
@@ -190,6 +196,16 @@ trait MySQLiByDanielGP
             ];
         }
         return $line;
+    }
+
+    /**
+     * Return the list of Tables from the MySQL server
+     *
+     * @return string
+     */
+    protected function getMySQLlistTables($filterArray = null)
+    {
+        return $this->getMySQLlistMultiple('Tables', 'full_array_key_numbered', $filterArray);
     }
 
     /**
