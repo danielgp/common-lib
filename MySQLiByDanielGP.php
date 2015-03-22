@@ -183,9 +183,6 @@ trait MySQLiByDanielGP
                     break;
                 case 'Tables':
                     $q = $this->sQueryMySqlTables($additionalFeatures);
-                    echo '<hr/>';
-                    var_dump($q);
-                    echo '<hr/>';
                     break;
                 case 'VariablesGlobal':
                     $q = $this->sQueryMySqlGlobalVariables();
