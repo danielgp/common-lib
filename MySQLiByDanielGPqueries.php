@@ -60,7 +60,8 @@ trait MySQLiByDanielGPqueries
                 'performance_schema',
                 'sys'
             ];
-            $finalFilter = 'WHERE `SCHEMA_NAME` NOT ' . $this->sGlueFilterValueIntoWhereString($systemDBs);
+            $finalFilter = 'WHERE `SCHEMA_NAME` NOT '
+                    . filter_var($this->sGlueFilterValueIntoWhereString($systemDBs), FILTER_SANITIZE_STRING);
         } else {
             $finalFilter = '';
         }
@@ -109,7 +110,8 @@ trait MySQLiByDanielGPqueries
         if (count($filters) == 0) {
             $finalFilter = '';
         } else {
-            $finalFilter = ' WHERE ' . $this->sGlueFiltersIntoWhereArrayFilter($filters);
+            $finalFilter = ' WHERE '
+                    . filter_var($this->sGlueFiltersIntoWhereArrayFilter($filters), FILTER_SANITIZE_STRING);
         }
         return 'SELECT `KCU`.`CONSTRAINT_SCHEMA` '
                 . ', `KCU`.`CONSTRAINT_NAME` '
