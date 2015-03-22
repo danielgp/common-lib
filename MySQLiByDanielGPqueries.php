@@ -43,28 +43,38 @@ trait MySQLiByDanielGPqueries
 
     protected function sQueryMySqlActiveDatabases($excludeSystemDatabases = true)
     {
+        if ($excludeSystemDatabases) {
+            $finalFilter = 'WHERE `SCHEMA_NAME` NOT IN ("' . implode('","', [
+                        'information_schema',
+                        'mysql',
+                        'performance_schema',
+                        'sys'
+                    ]) . '") ';
+        } else {
+            $finalFilter = '';
+        }
         return 'SELECT '
                 . '`SCHEMA_NAME` As `Db`, '
                 . '`DEFAULT_CHARACTER_SET_NAME` AS `DbCharset`, '
                 . '`DEFAULT_COLLATION_NAME` AS `DbCollation` '
                 . 'FROM `information_schema`.`SCHEMATA` '
-                . ($excludeSystemDatabases ? 'WHERE `SCHEMA_NAME` NOT IN ("' . implode('","', [
-                            'information_schema',
-                            'mysql',
-                            'performance_schema',
-                            'sys'
-                        ]) . '") ' : '')
+                . $finalFilter
                 . 'GROUP BY `SCHEMA_NAME`;';
     }
 
     protected function sQueryMySqlActiveEngines($onlyActiveOnes = true)
     {
+        if ($onlyActiveOnes) {
+            $finalFilter = 'WHERE (`SUPPORT` IN ("DEFAULT", "YES")) ';
+        } else {
+            $finalFilter = '';
+        }
         return 'SELECT '
                 . '`ENGINE` AS `Engine`, '
                 . '`SUPPORT` AS `Support`, '
                 . '`COMMENT` AS `Comment` '
                 . 'FROM `information_schema`.`ENGINES` '
-                . ($onlyActiveOnes ? 'WHERE (`SUPPORT` IN ("DEFAULT", "YES")) ' : '')
+                . $finalFilter
                 . 'GROUP BY `ENGINE`;';
     }
 
@@ -84,6 +94,11 @@ trait MySQLiByDanielGPqueries
                     $xtraSorting = '';
                 }
             }
+        }
+        if (count($filters) == 0) {
+            $finalFilter = '';
+        } else {
+            $finalFilter = ' WHERE (' . implode(') AND (', $filters) . ')';
         }
         return 'SELECT `KCU`.`CONSTRAINT_SCHEMA` '
                 . ', `KCU`.`CONSTRAINT_NAME` '
@@ -108,7 +123,7 @@ trait MySQLiByDanielGPqueries
                     '`KCU`.`CONSTRAINT_SCHEMA` = `RC`.`CONSTRAINT_SCHEMA`',
                     '`KCU`.`CONSTRAINT_NAME` = `RC`.`CONSTRAINT_NAME`',
                 ]) . ')'
-                . (count($filters) == 0 ? '' : ' WHERE (' . implode(') AND (', $filters) . ')')
+                . $finalFilter
                 . ' ORDER BY `KCU`.`TABLE_SCHEMA`, `KCU`.`TABLE_NAME`' . $xtraSorting . '';
     }
 
