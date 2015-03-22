@@ -367,7 +367,7 @@ trait DomComponentsByDanielGP
             'lang'     => '<html lang="en-US">',
             'head'     => '<head>',
             'charset'  => '<meta charset="utf-8" />',
-            'viewport' => '<meta name="viewport" content="width=device-width" />',
+            'viewport' => '<meta name="viewport" content="width=device-width, initial-scale=1" />',
         ];
         $sReturn             = [];
         if (!is_null($headerFeatures)) {
