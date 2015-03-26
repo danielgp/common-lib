@@ -206,6 +206,249 @@ trait MySQLiByDanielGP
     }
 
     /**
+     * Just to keep a list of type of language as array
+     *
+     * @return array
+     */
+    private static function getMySQLqueryLanguageType()
+    {
+        return [
+            'DCL' => [
+                'standsFor'   => 'Data Control Language',
+                'description' => implode(', ', [
+                    'includes commands such as GRANT',
+                    'and mostly concerned with rights',
+                    'permissions and other controls of the database system',
+                ]),
+            ],
+            'DDL' => [
+                'standsFor'   => 'Data Definition Language',
+                'description' => implode(', ', [
+                    'deals with database schemas and descriptions',
+                    'of how the data should reside in the database',
+                ]),
+            ],
+            'DML' => [
+                'standsFor'   => 'Data Manipulation Language',
+                'description' => implode(', ', [
+                    'deals with data manipulation',
+                    'and includes most common SQL statements such as SELECT, INSERT, UPDATE, DELETE etc',
+                    'and it is used to store, modify, retrieve, delete and update data in database',
+                ]),
+            ],
+            'DQL' => [
+                'standsFor'   => 'Data Query Language',
+                'description' => 'deals with data/structure retrieval',
+            ],
+            'DTL' => [
+                'standsFor'   => 'Data Transaction Language',
+                'description' => implode('. ', [
+                    'statements are used to manage changes made by DML statements',
+                    'It allows statements to be grouped together into logical transactions',
+                ]),
+            ],
+        ];
+    }
+
+    /**
+     * Just to keep a list of statement types as array
+     *
+     * @return array
+     */
+    private static function getMySQLqueryStatementType()
+    {
+        return [
+            'ALTER'     => [
+                'Type'        => 'DDL',
+                'Description' => 'create objects in the database',
+            ],
+            'CALL'      => [
+                'Type'        => 'DML',
+                'Description' => 'call a stored procedure',
+            ],
+            'COMMENT'   => [
+                'Type'        => 'DDL',
+                'Description' => 'add comments to the data dictionary',
+            ],
+            'COMMIT'    => [
+                'Type'        => 'DTL',
+                'Description' => 'sends a signal to MySQL to save all un-commited statements',
+            ],
+            'CREATE'    => [
+                'Type'        => 'DDL',
+                'Description' => 'create objects within a database',
+            ],
+            'DELETE'    => [
+                'Type'        => 'DML',
+                'Description' => 'deletes records from a table (all or partial depending on potential conditions)',
+            ],
+            'DESC'      => [
+                'Type'        => 'DML',
+                'Description' => 'interpretation of the data access path (synonym of EXPLAIN)',
+            ],
+            'DESCRIBE'  => [
+                'type'        => 'DML',
+                'Description' => 'interpretation of the data access path (synonym of EXPLAIN)',
+            ],
+            'DO'        => [
+                'Type'        => 'DML',
+                'Description' => 'executes an expression without returning any result',
+            ],
+            'DROP'      => [
+                'Type'        => 'DDL',
+                'Description' => 'delete objects from a database',
+            ],
+            'EXPLAIN'   => [
+                'Type'        => 'DML',
+                'Description' => 'interpretation of the data access path',
+            ],
+            'GRANT'     => [
+                'Type'        => 'DCL',
+                'Description' => 'allow users access privileges to database',
+            ],
+            'HANDLER'   => [
+                'Type'        => 'DML',
+                'Description' => 'statement provides direct access to table storage engine interfaces',
+            ],
+            'HELP'      => [
+                'Type'        => 'DQL',
+                'Description' => implode(' ', [
+                    'The HELP statement returns online information from the MySQL Reference manual.',
+                    'Its proper operation requires that the help tables in the mysql database',
+                    'be initialized with help topic information',
+                ]),
+            ],
+            'INSERT'    => [
+                'Type'        => 'DML',
+                'Description' => 'insert data into a table',
+            ],
+            'LOAD'      => [
+                'Type'        => 'DML',
+                'Description' => implode(' ', [
+                    'The LOAD DATA INFILE statement reads rows from a text file',
+                    'into a table at a very high speed',
+                    'or LOAD XML statement reads data from an XML file into a table',
+                ]),
+            ],
+            'LOCK'      => [
+                'Type'        => 'DML',
+                'Description' => 'concurrency control',
+            ],
+            'MERGE'     => [
+                'Type'        => 'DML',
+                'Description' => 'UPSERT operation (insert or update)',
+            ],
+            'RELEASE'   => [
+                'Type'        => 'DTL',
+                'Description' => implode(' ', [
+                    'The RELEASE SAVEPOINT statement removes the named savepoint',
+                    'from the set of savepoints of the current transaction.',
+                    'No commit or rollback occurs. It is an error if the savepoint does not exist.',
+                ]),
+            ],
+            'RENAME'    => [
+                'Type'        => 'DDL',
+                'Description' => 'rename objects from a database',
+            ],
+            'REPLACE'   => [
+                'Type'        => 'DML',
+                'Description' => implode(' ', [
+                    'REPLACE works exactly like INSERT, except that if an old row in the table',
+                    'has the same value as a new row for a PRIMARY KEY or a UNIQUE index,',
+                    'the old row is deleted before the new row is inserted',
+                ]),
+            ],
+            'REVOKE'    => [
+                'Type'        => 'DCL',
+                'description' => 'withdraw users access privileges given by using the GRANT command',
+            ],
+            'ROLLBACK'  => [
+                'Type'        => 'DTL',
+                'Description' => 'restore database to original since the last COMMIT',
+            ],
+            'SELECT'    => [
+                'Type'        => 'DQL',
+                'Description' => 'retrieve data from the a database',
+            ],
+            'SAVEPOINT' => [
+                'Type'        => 'DTL',
+                'Description' => 'identify a point in a transaction to which you can later roll back',
+            ],
+            'SET'       => [
+                'Type'        => 'DTL',
+                'Description' => 'change values of global/session variables or transaction characteristics',
+            ],
+            'SHOW'      => [
+                'Type'        => 'DQL',
+                'Description' => implode(' ', [
+                    'has many forms that provide information about databases, tables, columns,',
+                    'or status information about the server',
+                ]),
+            ],
+            'START'     => [
+                'Type'        => 'DTL',
+                'Description' => 'marks the starting point for a transaction',
+            ],
+            'TRUNCATE'  => [
+                'Type'        => 'DDL',
+                'Description' => implode(', ', [
+                    'remove all records from a table',
+                    'including all spaces allocated for the records are removed'
+                ]),
+            ],
+            'UPDATE'    => [
+                'Type'        => 'DML',
+                'Description' => 'updates existing data within a table',
+            ],
+            'USE'       => [
+                'Type'        => 'DML',
+                'Description' => implode(' ', [
+                    'The USE db_name statement tells MySQL to use the db_name database',
+                    'as the default (current) database for subsequent statements.',
+                ]),
+            ],
+        ];
+    }
+
+    /**
+     * Returns the Query language type by scanning the 1st keyword from a given query
+     *
+     * @param input $sQuery
+     */
+    protected function getMySQLqueryType($sQuery)
+    {
+        $queryPieces    = explode(' ', $sQuery);
+        $statementTypes = $this->getMySQLqueryStatementType();
+        if (in_array($queryPieces[0], array_keys($statementTypes))) {
+            $type    = $statementTypes[$queryPieces[0]]['Type'];
+            $sReturn = array_merge([
+                'detected1stKeywordWithinQuery' => $queryPieces[0],
+                $type                           => $this->getMySQLqueryLanguageType()[$type],
+                    ], $statementTypes[$queryPieces[0]]);
+        } else {
+            $sReturn = [
+                'detected1stKeywordWithinQuery' => $queryPieces[0],
+                'unknown'                       => [
+                    'standsFor'   => 'unknown',
+                    'description' => 'unknown',
+                ],
+                'Type'                          => 'unknown',
+                'Description'                   => 'unknown',
+            ];
+        }
+        return $sReturn;
+    }
+
+    protected function getMySQLqueryWithParameterIdentifier($sQuery, $paramIdentifier)
+    {
+        if (strpos($sQuery, $paramIdentifier) === false) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    /**
      * Return the time from the MySQL server
      *
      * @return string
@@ -326,8 +569,8 @@ trait MySQLiByDanielGP
                     $result->close();
                 }
             } else {
-                $erNo                   = $this->mySQLconnection->connect_errno;
-                $erMsg                  = $this->mySQLconnection->connect_error;
+                $erNo                   = $this->mySQLconnection->errno;
+                $erMsg                  = $this->mySQLconnection->error;
                 $aReturn['customError'] = sprintf($this->lclMsgCmn('i18n_MySQL_QueryError'), $erNo, $erMsg);
             }
         }
