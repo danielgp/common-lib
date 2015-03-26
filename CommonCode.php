@@ -159,16 +159,26 @@ trait CommonCode
         return $fileDetails;
     }
 
-    protected function getTimestamp()
+    protected function getTimestamp($returnType = 'string')
     {
-        $dt          = microtime(true);
-        $miliSeconds = floor((gettimeofday()['usec'] / 1000));
-        $l           = strlen($miliSeconds);
-        if ($l < 3) {
-            $miliSeconds = str_repeat('0', (3 - $l)) . $miliSeconds;
+        $dt = gettimeofday();
+        switch ($returnType) {
+            case 'array':
+                $sReturn = [
+                    'float'  => ($dt['sec'] + $dt['usec'] / pow(10, 6)),
+                    'string' => '<span style="color:black!important;font-weight:bold;">['
+                    . date('Y-m-d H:i:s.', $dt['sec']) . substr(round($dt['usec'], -3), 0, 3) . ']</span> ',
+                ];
+                break;
+            case 'float':
+                $sReturn = ($dt['sec'] + $dt['usec'] / pow(10, 6));
+                break;
+            case 'string':
+                $sReturn = '<span style="color:black!important;font-weight:bold;">['
+                        . date('Y-m-d H:i:s.', $dt['sec']) . substr(round($dt['usec'], -3), 0, 3) . ']</span> ';
+                break;
         }
-        return ('<span style="color:black!important;font-weight:bold;">['
-                . date('Y-m-d H:i:s.', $dt) . $miliSeconds . ']</span> ');
+        return $sReturn;
     }
 
     protected function isJson($inputJson)
