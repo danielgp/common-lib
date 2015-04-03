@@ -439,6 +439,14 @@ trait MySQLiByDanielGP
         return $sReturn;
     }
 
+    /**
+     * Provides a detection if given Query does contain a Parameter
+     * that may require statement processing later on
+     *
+     * @param string $sQuery
+     * @param string $paramIdentifier
+     * @return boolean
+     */
     protected function getMySQLqueryWithParameterIdentifier($sQuery, $paramIdentifier)
     {
         if (strpos($sQuery, $paramIdentifier) === false) {
@@ -458,6 +466,12 @@ trait MySQLiByDanielGP
         return $this->getMySQLlistMultiple('ServerTime', 'value');
     }
 
+    /**
+     * Takes care of instatiation of localization libraries
+     * used within current module for multi-languages support
+     *
+     * @return NOTHING
+     */
     private function handleLocalizationCommon()
     {
         if (isset($_GET['lang'])) {
@@ -477,6 +491,11 @@ trait MySQLiByDanielGP
         $this->tCmnLb->loadTranslations($translations);
     }
 
+    /**
+     * Takes care of instatiation of common flags used internally winthin current trait
+     *
+     * @returns NOTHING
+     */
     private function initCommomLibParameters()
     {
         $this->commonLibFlags = [
@@ -490,6 +509,12 @@ trait MySQLiByDanielGP
         $this->handleLocalizationCommon();
     }
 
+    /**
+     * Central function to deal with multi-language messages
+     *
+     * @param string $localizedStringCode
+     * @return string
+     */
     protected function lclMsgCmn($localizedStringCode)
     {
         return $this->tCmnLb->gettext($localizedStringCode);
@@ -577,6 +602,13 @@ trait MySQLiByDanielGP
         return $aReturn;
     }
 
+    /**
+     * Turns a raw query result into various structures
+     * based on different predefined $parameters['returnType'] value
+     *
+     * @param array $parameters
+     * @return array as ['customError' => '...', 'result' => '...']
+     */
     protected function setMySQLquery2ServerByPattern($parameters)
     {
         $aReturn    = $parameters['return'];
@@ -691,6 +723,13 @@ trait MySQLiByDanielGP
         return $aReturn;
     }
 
+    /**
+     * Detects what kind of variable has been transmited
+     * to return the identifier needed by MySQL statement preparing
+     *
+     * @param type $variabaleValue
+     * @return string
+     */
     protected function setVariableTypeForMySqlStatements($variabaleValue)
     {
         if (is_int($variabaleValue)) {
