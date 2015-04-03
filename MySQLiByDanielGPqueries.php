@@ -41,7 +41,16 @@ trait MySQLiByDanielGPqueries
         if (is_array($filterValue)) {
             $sReturn = 'IN ("' . implode('", "', $filterValue) . '")';
         } else {
-            $sReturn = '= "' . $filterValue . '"';
+            switch ($filterValue) {
+                case 'CURRENT_DATETIME':
+                case 'NOT NULL':
+                case 'NULL':
+                    $sReturn = 'IS ' . $filterValue;
+                    break;
+                default:
+                    $sReturn = '= "' . $filterValue . '"';
+                    break;
+            }
         }
         return $sReturn;
     }
