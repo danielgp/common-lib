@@ -36,27 +36,42 @@ namespace danielgp\common_lib;
 trait DomComponentsByDanielGP
 {
 
-    private function calculateSelectOptionsSize($aElements, $features_array = [])
+    /**
+     * Calculate the optimal for all options within a select tag
+     *
+     * @param array $aElements
+     * @param array $aFeatures
+     * @return string|int
+     */
+    private function calculateSelectOptionsSize($aElements, $aFeatures = [])
     {
         if (!is_array($aElements)) {
             return '';
         } else {
-            if (in_array('size', array_keys($features_array))) {
-                if ($features_array['size'] == 0) {
+            if (in_array('size', array_keys($aFeatures))) {
+                if ($aFeatures['size'] == 0) {
                     $selectSize = count($aElements);
                 } else {
-                    $selectSize = min(count($aElements), $features_array['size']);
+                    $selectSize = min(count($aElements), $aFeatures['size']);
                 }
             } else {
                 $selectSize = 1;
             }
-            if ((in_array('include_null', $features_array)) && ($selectSize != '1')) {
+            if ((in_array('include_null', $aFeatures)) && ($selectSize != '1')) {
                 $selectSize++;
             }
             return $selectSize;
         }
     }
 
+    /**
+     * Determines if a given IP is with a defined range
+     *
+     * @param ipv4 $ip
+     * @param ipv4 $ipStart
+     * @param ipv4 $ipEnd
+     * @return string
+     */
     protected function checkIpIsInRange($ip, $ipStart, $ipEnd)
     {
         $sReturn     = 'out';
@@ -71,6 +86,12 @@ trait DomComponentsByDanielGP
         return $sReturn;
     }
 
+    /**
+     * Checks if given IP is a private or public one
+     *
+     * @param ipv4 $ip
+     * @return string
+     */
     protected function checkIpIsPrivate($ip)
     {
         $ipType = 'unkown';
@@ -86,6 +107,12 @@ trait DomComponentsByDanielGP
         return $ipType;
     }
 
+    /**
+     * Checks if given IP is a V4 or V6
+     *
+     * @param ipv4 $ip
+     * @return string
+     */
     protected function checkIpIsV4OrV6($ip)
     {
         $ipType = 'unkown';
@@ -101,6 +128,12 @@ trait DomComponentsByDanielGP
         return $ipType;
     }
 
+    /**
+     * Converts IP to a number
+     *
+     * @param type $ip
+     * @return string|int
+     */
     protected function convertIpToNumber($ip)
     {
         $sReturn = '';
@@ -136,12 +169,17 @@ trait DomComponentsByDanielGP
         return $ip;
     }
 
+    /**
+     * Captures the user agent
+     *
+     * @return string
+     */
     protected function getUserAgent()
     {
-        if (filter_has_var(INPUT_SERVER, "HTTP_USER_AGENT")) {
-            $crtUserAgent = filter_input(INPUT_SERVER, "HTTP_USER_AGENT", FILTER_UNSAFE_RAW, FILTER_NULL_ON_FAILURE);
-        } elseif (isset($_SERVER["HTTP_USER_AGENT"])) {
-            $crtUserAgent = filter_var($_SERVER["HTTP_USER_AGENT"], FILTER_UNSAFE_RAW, FILTER_NULL_ON_FAILURE);
+        if (filter_has_var(INPUT_SERVER, 'HTTP_USER_AGENT')) {
+            $crtUserAgent = filter_input(INPUT_SERVER, 'HTTP_USER_AGENT', FILTER_UNSAFE_RAW, FILTER_NULL_ON_FAILURE);
+        } elseif (isset($_SERVER['HTTP_USER_AGENT'])) {
+            $crtUserAgent = filter_var($_SERVER['HTTP_USER_AGENT'], FILTER_UNSAFE_RAW, FILTER_NULL_ON_FAILURE);
         } else {
             $crtUserAgent = null;
         }
@@ -242,6 +280,12 @@ trait DomComponentsByDanielGP
         return implode($sSeparator, $sReturn);
     }
 
+    /**
+     * Cleans a string for certain internal rules
+     *
+     * @param type $urlString
+     * @return type
+     */
     protected function setCleanUrl($urlString)
     {
         $arrayToReplace = [
@@ -481,6 +525,12 @@ trait DomComponentsByDanielGP
         return $sReturn;
     }
 
+    /**
+     * Manages all known Javascript that can be handled through CDNs
+     *
+     * @param string $jsFileName
+     * @return array
+     */
     private function setJavascriptFileCDN($jsFileName)
     {
         $onlyFileName = pathinfo($jsFileName)['basename'];
@@ -507,6 +557,14 @@ trait DomComponentsByDanielGP
         return $patternFound;
     }
 
+    /**
+     * Returns an array with CDN call of a known Javascript library
+     * and fall-back line that points to local cache of it
+     * specific for HighCharts
+     *
+     * @param string $jsFileName
+     * @return array
+     */
     private function setJavascriptFileCDNforHighCharts($jsFileName)
     {
         $jQueryPosition = strpos($jsFileName, 'highcharts');
@@ -528,6 +586,14 @@ trait DomComponentsByDanielGP
         return $patternFound;
     }
 
+    /**
+     * Returns an array with CDN call of a known Javascript library
+     * and fall-back line that points to local cache of it
+     * specific for HighCharts Exporting feature
+     *
+     * @param string $jsFileName
+     * @return array
+     */
     private function setJavascriptFileCDNforHighChartsExporting($jsFileName)
     {
         $jQueryPosition = strpos($jsFileName, 'exporting');
@@ -535,7 +601,7 @@ trait DomComponentsByDanielGP
             $patternFound = [
                 true,
                 implode('', [
-                    '//code.highcharts.com/',
+                    '//cdnjs.cloudflare.com/ajax/libs/highcharts/',
                     str_replace(['exporting-', '.js'], '', pathinfo($jsFileName)['basename']),
                     '/modules/exporting.js',
                 ]),
@@ -549,6 +615,14 @@ trait DomComponentsByDanielGP
         return $patternFound;
     }
 
+    /**
+     * Returns an array with CDN call of a known Javascript library
+     * and fall-back line that points to local cache of it
+     * specific for jQuery
+     *
+     * @param string $jsFileName
+     * @return array
+     */
     private function setJavascriptFileCDNjQuery($jsFileName)
     {
         $jQueryPosition = strpos($jsFileName, 'jquery-');
@@ -570,6 +644,14 @@ trait DomComponentsByDanielGP
         return $patternFound;
     }
 
+    /**
+     * Returns an array with CDN call of a known Javascript library
+     * and fall-back line that points to local cache of it
+     * specific for jQuery Libraries
+     *
+     * @param string $jsFileName
+     * @return array
+     */
     private function setJavascriptFileCDNjQueryLibs($jsFileName)
     {
         $version  = null;
@@ -617,6 +699,14 @@ trait DomComponentsByDanielGP
         return implode('', $sReturn);
     }
 
+    /**
+     * Creates all the child tags required to populate a SELECT tag
+     *
+     * @param array $aElements
+     * @param string|array $sDefaultValue
+     * @param array $features_array
+     * @return string
+     */
     private function setOptionsForSelect($aElements, $sDefaultValue, $features_array = [])
     {
         $string2return = '';
