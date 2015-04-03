@@ -18,11 +18,11 @@
     },
     "autoload": {
         "classmap": [
-            "CommonCode.php",
-            "DomComponentsByDanielGP.php",
-            "MySQLiByDanielGPqueries.php",
-            "MySQLiByDanielGP.php",
-            "RomanianHolidays.php"
+            "source/CommonCode.php",
+            "source/DomComponentsByDanielGP.php",
+            "source/MySQLiByDanielGPqueries.php",
+            "source/MySQLiByDanielGP.php",
+            "source/RomanianHolidays.php"
         ]
     },
     "minimum-stability": "stable",
