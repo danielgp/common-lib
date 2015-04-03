@@ -59,16 +59,16 @@
         },
         {
             "name": "gettext/languages",
-            "version": "v2.1.1",
+            "version": "2.1.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/mlocati/cldr-to-gettext-plural-rules.git",
-                "reference": "7ea1b22590480e21950ab15ef7f56090153d3d21"
+                "reference": "c43ade7e3fb68bcf2379036513dce8d20553d9c8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/mlocati/cldr-to-gettext-plural-rules/zipball/7ea1b22590480e21950ab15ef7f56090153d3d21",
-                "reference": "7ea1b22590480e21950ab15ef7f56090153d3d21",
+                "url": "https://api.github.com/repos/mlocati/cldr-to-gettext-plural-rules/zipball/c43ade7e3fb68bcf2379036513dce8d20553d9c8",
+                "reference": "c43ade7e3fb68bcf2379036513dce8d20553d9c8",
                 "shasum": ""
             },
             "require": {
@@ -109,7 +109,7 @@
                 "translations",
                 "unicode"
             ],
-            "time": "2015-02-24 09:33:40"
+            "time": "2015-03-27 11:32:41"
         }
     ],
     "packages-dev": [],
