@@ -131,7 +131,7 @@ trait CommonCode
         $fileDetails                         = null;
         while ($file                                = $dir->read()) {
             clearstatcache();
-            $fName     = $pathAnalised . '/' . $file;
+            $fName     = $pathAnalised . DIRECTORY_SEPARATOR . $file;
             $fileParts = pathinfo($fName);
             switch ($fileParts['basename']) {
                 case '.':
