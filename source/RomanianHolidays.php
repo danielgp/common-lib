@@ -69,6 +69,13 @@ trait RomanianHolidays
         return array_unique($daying);
     }
 
+    /**
+     * List of all Romanian fixed holidays
+     * (where fixed means every single year occur on same day of the month)
+     *
+     * @param date $lngDate
+     * @return array
+     */
     private function setHolidaysFixed($lngDate)
     {
         $yr        = date('Y', $lngDate);
@@ -90,6 +97,12 @@ trait RomanianHolidays
         return $daying;
     }
 
+    /**
+     * List of all Orthodox holidays between 2001 and 2005
+     *
+     * @param date $lngDate
+     * @return array
+     */
     private function setHolidaysEasterBetween2001and2005($lngDate)
     {
         $yr               = date('Y', $lngDate);
@@ -124,6 +137,12 @@ trait RomanianHolidays
         return $daying;
     }
 
+    /**
+     * List of all Orthodox holidays between 2006 and 2010
+     *
+     * @param date $lngDate
+     * @return array
+     */
     private function setHolidaysEasterBetween2006and2010($lngDate)
     {
         $yr               = date('Y', $lngDate);
@@ -162,6 +181,12 @@ trait RomanianHolidays
         return $daying;
     }
 
+    /**
+     * List of all Orthodox holidays between 2011 and 2015
+     *
+     * @param date $lngDate
+     * @return array
+     */
     private function setHolidaysEasterBetween2011and2015($lngDate)
     {
         $yr               = date('Y', $lngDate);
@@ -206,6 +231,12 @@ trait RomanianHolidays
         return $daying;
     }
 
+    /**
+     * List of all Orthodox holidays between 2016 and 2020
+     *
+     * @param date $lngDate
+     * @return array
+     */
     private function setHolidaysEasterBetween2016and2020($lngDate)
     {
         $yr               = date('Y', $lngDate);

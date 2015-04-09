@@ -42,8 +42,13 @@ trait CommonCode
         MySQLiByDanielGPqueries,
         MySQLiByDanielGP;
 
-    protected $filesFromDir;
-
+    /**
+     * Reads the content of a remote file through CURL extension
+     *
+     * @param string $fullURL
+     * @param array $features
+     * @return blob
+     */
     protected function getContentFromUrlThroughCurl($fullURL, $features = null)
     {
         if (!function_exists('curl_init')) {
@@ -121,10 +126,10 @@ trait CommonCode
         if (!file_exists($pathAnalised)) {
             return null;
         }
-        $dir                = dir($pathAnalised);
-        $this->filesFromDir = 0;
-        $fileDetails        = null;
-        while ($file               = $dir->read()) {
+        $dir                                 = dir($pathAnalised);
+        $this->commonLibFlags[$pathAnalised] = 0;
+        $fileDetails                         = null;
+        while ($file                                = $dir->read()) {
             clearstatcache();
             $fName     = $pathAnalised . '/' . $file;
             $fileParts = pathinfo($fName);
@@ -136,7 +141,7 @@ trait CommonCode
                     if (is_dir($fName)) {
                         $fileDetails[$fName] = $this->getListOfFiles($fName);
                     } else {
-                        $this->filesFromDir += 1;
+                        $this->commonLibFlags[$pathAnalised] += 1;
                         $xt                  = (isset($fileParts['extension']) ? $fileParts['extension'] : '-');
                         $fileDetails[$fName] = [
                             'Folder'                    => $fileParts['dirname'],
@@ -160,6 +165,77 @@ trait CommonCode
         return $fileDetails;
     }
 
+    /**
+     * Returns a complete list of packages and respective details from a composer.lock file
+     *
+     * @param string $fileToRead
+     * @return array
+     */
+    protected function getPackageDetailsFromGivenComposerLockFile($fileToRead)
+    {
+        if (!file_exists($fileToRead)) {
+            return [];
+        }
+        $handle           = fopen($fileToRead, 'r');
+        $fileContents     = fread($handle, filesize($fileToRead));
+        fclose($handle);
+        $packages         = $this->setJson2array($fileContents);
+        $dateTimeToday    = new \DateTime(date('Y-m-d', strtotime('today')));
+        $defaultNA        = '---';
+        $finalInformation = [];
+        foreach ($packages['packages'] as $value) {
+            if (isset($value['time'])) {
+                $dateTime = new \DateTime(date('Y-m-d', strtotime($value['time'])));
+                $interval = $dateTimeToday->diff($dateTime);
+            }
+            if (isset($value['version'])) {
+                if (substr($value['version'], 0, 1) == 'v') {
+                    $v = substr($value['version'], 1, strlen($value['version']) - 1);
+                } else {
+                    $v = $value['version'];
+                }
+                if (strpos($v, '-') !== false) {
+                    $v = substr($v, 0, strpos($v, '-'));
+                }
+            }
+            if (isset($value['license'])) {
+                if (is_array($value['license'])) {
+                    $l = implode(', ', $value['license']);
+                } else {
+                    $l = $value['license'];
+                }
+            } else {
+                $l = $defaultNA;
+            }
+            $finalInformation[$value['name']] = [
+                'Aging'            => (isset($value['time']) ? $interval->format('%a days ago') : $defaultNA),
+                'Description'      => (isset($value['description']) ? $value['description'] : $defaultNA),
+                'Homepage'         => (isset($value['homepage']) ? $value['homepage'] : $defaultNA),
+                'License'          => $l,
+                'Notification URL' => (isset($value['version']) ? $value['notification-url'] : $defaultNA),
+                'Package Name'     => $value['name'],
+                'PHP required'     => (isset($value['require']['php']) ? $value['require']['php'] : $defaultNA),
+                'Product'          => explode('/', $value['name'])[1],
+                'Type'             => (isset($value['type']) ? $value['type'] : $defaultNA),
+                'Time'             => (isset($value['time']) ? date('l, d F Y H:i:s', strtotime($value['time'])) : ''),
+                'Time as PHP no.'  => (isset($value['time']) ? strtotime($value['time']) : ''),
+                'URL'              => (isset($value['url']) ? $value['url'] : $defaultNA),
+                'Vendor'           => explode('/', $value['name'])[0],
+                'Version'          => (isset($value['version']) ? $value['version'] : $defaultNA),
+                'Version no.'      => (isset($value['version']) ? $v : $defaultNA),
+            ];
+        }
+        ksort($finalInformation);
+        asort($finalInformation);
+        return $finalInformation;
+    }
+
+    /**
+     * Returns server Timestamp into various formats
+     *
+     * @param string $returnType
+     * @return string
+     */
     protected function getTimestamp($returnType = 'string')
     {
         $dt = gettimeofday();
@@ -178,10 +254,19 @@ trait CommonCode
                 $sReturn = '<span style="color:black!important;font-weight:bold;">['
                         . date('Y-m-d H:i:s.', $dt['sec']) . substr(round($dt['usec'], -3), 0, 3) . ']</span> ';
                 break;
+            default:
+                $sReturn = 'Unknown return type...';
+                break;
         }
         return $sReturn;
     }
 
+    /**
+     * Tests if given string has a valid Json format
+     *
+     * @param string $inputJson
+     * @return boolean|string
+     */
     protected function isJson($inputJson)
     {
         if (is_string($inputJson)) {
@@ -192,6 +277,12 @@ trait CommonCode
         }
     }
 
+    /**
+     * Converts an array into JSON string
+     *
+     * @param array $inArray
+     * @return string
+     */
     protected function setArray2json($inArray)
     {
         if (!is_array($inArray)) {
@@ -210,6 +301,12 @@ trait CommonCode
         }
     }
 
+    /**
+     * Converts a single-child array into an parent-child one
+     *
+     * @param type $inArray
+     * @return type
+     */
     protected function setArrayValuesAsKey($inArray)
     {
         $outArray = [];
@@ -220,6 +317,12 @@ trait CommonCode
         return $outArray;
     }
 
+    /**
+     * Converts a JSON string into an Array
+     *
+     * @param string $inputJson
+     * @return array
+     */
     protected function setJson2array($inputJson)
     {
         if (!$this->isJson($inputJson)) {
@@ -234,6 +337,11 @@ trait CommonCode
         }
     }
 
+    /**
+     * Provides a list of all known JSON errors and their description
+     *
+     * @return type
+     */
     private function setJsonErrorInPlainEnglish()
     {
         $knownErrors  = [

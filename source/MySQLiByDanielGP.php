@@ -732,14 +732,16 @@ trait MySQLiByDanielGP
      */
     protected function setVariableTypeForMySqlStatements($variabaleValue)
     {
+        $sReturn = '';
         if (is_int($variabaleValue)) {
-            return 'i';
-        } else if (is_double($variabaleValue)) {
-            return 'd';
-        } else if (is_string($variabaleValue)) {
-            return 's';
+            $sReturn = 'i';
+        } elseif (is_double($variabaleValue)) {
+            $sReturn = 'd';
+        } elseif (is_string($variabaleValue)) {
+            $sReturn = 's';
         } else {
-            return 'b';
+            $sReturn = 'b';
         }
+        return $sReturn;
     }
 }
