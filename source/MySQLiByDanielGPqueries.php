@@ -36,6 +36,12 @@ namespace danielgp\common_lib;
 trait MySQLiByDanielGPqueries
 {
 
+    /**
+     * Internal function to manage concatenation for filters
+     *
+     * @param type $filterValue
+     * @return string
+     */
     private function sGlueFilterValueIntoWhereString($filterValue)
     {
         if (is_array($filterValue)) {
@@ -64,11 +70,24 @@ trait MySQLiByDanielGPqueries
         return $sReturn;
     }
 
+    /**
+     * Internal function to concatenate filters
+     *
+     * @param type $filters
+     * @return type
+     */
     private function sGlueFiltersIntoWhereArrayFilter($filters)
     {
         return '(' . implode(') AND (', $filters) . ')';
     }
 
+    /**
+     * Internal function to manage the filters passed to the query
+     *
+     * @param array $filterArray
+     * @param string $tableToApplyFilterTo
+     * @return string
+     */
     private function sManageDynamicFilters($filterArray = null, $tableToApplyFilterTo = '')
     {
         $filters = [];
@@ -89,6 +108,12 @@ trait MySQLiByDanielGPqueries
         return $finalFilter;
     }
 
+    /**
+     * Query to list Databases
+     *
+     * @param type $excludeSystemDatabases
+     * @return type
+     */
     protected function sQueryMySqlActiveDatabases($excludeSystemDatabases = true)
     {
         if ($excludeSystemDatabases) {
@@ -105,6 +130,12 @@ trait MySQLiByDanielGPqueries
                 . 'GROUP BY `SCHEMA_NAME`;';
     }
 
+    /**
+     * Query to list MySQL engines
+     *
+     * @param string $onlyActiveOnes
+     * @return type
+     */
     protected function sQueryMySqlActiveEngines($onlyActiveOnes = true)
     {
         if ($onlyActiveOnes) {
@@ -121,11 +152,22 @@ trait MySQLiByDanielGPqueries
                 . 'GROUP BY `ENGINE`;';
     }
 
+    /**
+     * Query to list Global Variables
+     *
+     * @return string
+     */
     protected function sQueryMySqlGlobalVariables()
     {
         return 'SHOW GLOBAL VARIABLES;';
     }
 
+    /**
+     * Query
+     *
+     * @param array $filterArray
+     * @return string
+     */
     protected function sQueryMySqlIndexes($filterArray = null)
     {
         $xtraSorting = ', `C`.`ORDINAL_POSITION`, `KCU`.`CONSTRAINT_NAME`';
@@ -161,11 +203,22 @@ trait MySQLiByDanielGPqueries
                 . 'ORDER BY `KCU`.`TABLE_SCHEMA`, `KCU`.`TABLE_NAME`' . $xtraSorting . ';';
     }
 
+    /**
+     * The MySQL server time
+     *
+     * @return string
+     */
     protected function sQueryMySqlServerTime()
     {
         return 'SELECT NOW();';
     }
 
+    /**
+     * Query to get list of tables
+     *
+     * @param type $filterArray
+     * @return string
+     */
     protected function sQueryMySqlTables($filterArray = null)
     {
         $xtraSorting = 'ORDER BY `TABLE_SCHEMA`, `TABLE_NAME`';
@@ -184,6 +237,7 @@ trait MySQLiByDanielGPqueries
                 . ', `TABLE_COMMENT` '
                 . 'FROM `information_schema`.`TABLES` `T` '
                 . $this->sManageDynamicFilters($filterArray, 'T')
-                . $xtraSorting . ';';
+                . $xtraSorting
+                . ';';
     }
 }

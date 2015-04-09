@@ -225,8 +225,8 @@ trait CommonCode
                 'Version no.'      => (isset($value['version']) ? $v : $defaultNA),
             ];
         }
-        ksort($finalInformation);
         asort($finalInformation);
+        ksort($finalInformation);
         return $finalInformation;
     }
 
