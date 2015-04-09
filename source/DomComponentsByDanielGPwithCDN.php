@@ -45,6 +45,7 @@ trait DomComponentsByDanielGPwithCDN
     protected function setCssFileCDN($cssFileName)
     {
         $onlyFileName = pathinfo($cssFileName)['basename'];
+        $patternFound = null;
         if (strpos($onlyFileName, 'font-awesome-') !== false) {
             $patternFound = $this->setCssFileCDNforFontAwesome($cssFileName);
         }
