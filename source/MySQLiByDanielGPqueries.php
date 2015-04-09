@@ -42,7 +42,16 @@ trait MySQLiByDanielGPqueries
             $sReturn = 'IN ("' . implode('", "', $filterValue) . '")';
         } else {
             switch ($filterValue) {
+                case 'CONNECTION_ID()':
+                case 'CURDATE()':
+                case 'CURRENT_USER':
+                case 'CURRENT_USER()':
                 case 'CURRENT_DATETIME':
+                case 'DATABASE()':
+                case 'NOW()':
+                case 'USER()':
+                    $sReturn = '= ' . $filterValue;
+                    break;
                 case 'NOT NULL':
                 case 'NULL':
                     $sReturn = 'IS ' . $filterValue;
