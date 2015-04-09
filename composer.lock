@@ -4,28 +4,35 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "f7e347add26ba33ff7f8978f747568f2",
+    "hash": "9c6c595e6bd1b9fca60758018b704a2d",
     "packages": [
         {
             "name": "gettext/gettext",
-            "version": "v3.3",
+            "version": "v3.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/oscarotero/Gettext.git",
-                "reference": "3addf67466e8ab129b8a5b15ad374c3d1a9359b3"
+                "reference": "843c87d345b5be3bd168d77cf09ecaca72b74f8f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/oscarotero/Gettext/zipball/3addf67466e8ab129b8a5b15ad374c3d1a9359b3",
-                "reference": "3addf67466e8ab129b8a5b15ad374c3d1a9359b3",
+                "url": "https://api.github.com/repos/oscarotero/Gettext/zipball/843c87d345b5be3bd168d77cf09ecaca72b74f8f",
+                "reference": "843c87d345b5be3bd168d77cf09ecaca72b74f8f",
                 "shasum": ""
             },
             "require": {
                 "gettext/languages": "2.*",
                 "php": ">=5.3.0"
             },
+            "require-dev": {
+                "illuminate/view": "*",
+                "twig/extensions": "*",
+                "twig/twig": "*"
+            },
             "suggest": {
-                "illuminate/view": "Is necessary if you want use the Blade extractor"
+                "illuminate/view": "Is necessary if you want to use the Blade extractor",
+                "twig/extensions": "Is necessary if you want to use the Twig extractor",
+                "twig/twig": "Is necessary if you want to use the Twig extractor"
             },
             "type": "library",
             "autoload": {
@@ -55,7 +62,7 @@
                 "po",
                 "translation"
             ],
-            "time": "2015-02-16 11:52:19"
+            "time": "2015-04-06 09:38:45"
         },
         {
             "name": "gettext/languages",

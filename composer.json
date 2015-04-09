@@ -19,6 +19,7 @@
     "autoload": {
         "classmap": [
             "source/CommonCode.php",
+            "source/DomComponentsByDanielGPwithCDN.php",
             "source/DomComponentsByDanielGP.php",
             "source/MySQLiByDanielGPqueries.php",
             "source/MySQLiByDanielGP.php",

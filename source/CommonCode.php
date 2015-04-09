@@ -36,7 +36,8 @@ namespace danielgp\common_lib;
 trait CommonCode
 {
 
-    use DomComponentsByDanielGP,
+    use DomComponentsByDanielGPwithCDN,
+        DomComponentsByDanielGP,
         RomanianHolidays,
         MySQLiByDanielGPqueries,
         MySQLiByDanielGP;
