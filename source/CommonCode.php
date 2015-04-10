@@ -103,17 +103,23 @@ trait CommonCode
         if (!file_exists($fileGiven)) {
             return null;
         }
-        return [
+        $parts   = pathinfo($fileGiven);
+        $sReturn = [
+            'File Extension'            => $parts['extension'],
+            'File Name'                 => $parts['basename'],
+            'File Name w. Extension'    => $parts['filename'],
+            'File Path'                 => $parts['dirname'],
             'Name'                      => $fileGiven,
             'Size'                      => filesize($fileGiven),
             'Sha1'                      => sha1_file($fileGiven),
             'TimestampAccessed'         => fileatime($fileGiven),
             'TimestampAccessedReadable' => date('Y-m-d H:i:s', fileatime($fileGiven)),
-            'TimestampChanged'          => filectime(__FILE__),
+            'TimestampChanged'          => filectime($fileGiven),
             'TimestampChangedReadable'  => date('Y-m-d H:i:s', filectime($fileGiven)),
-            'TimestampModified'         => filemtime(__FILE__),
+            'TimestampModified'         => filemtime($fileGiven),
             'TimestampModifiedReadable' => date('Y-m-d H:i:s', filemtime($fileGiven)),
         ];
+        return $sReturn;
     }
 
     /**
