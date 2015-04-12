@@ -65,7 +65,7 @@ trait CommonCode
         $aReturn = [];
         $ch      = curl_init();
         curl_setopt($ch, CURLOPT_USERAGENT, $this->getUserAgent());
-        if ((strpos($fullURL, "https") !== false) || (isset($features['forceSSLverification']))) {
+        if ((strpos($fullURL, 'https') !== false) || (isset($features['forceSSLverification']))) {
             curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         }
@@ -82,15 +82,41 @@ trait CommonCode
             ];
             $aReturn['response'] = '';
         } else {
-            $aReturn['info']     = curl_getinfo($ch);
+            $aReturn['info']     = $this->setArray2json(curl_getinfo($ch));
             $aReturn['response'] = $responseJsonFromClientOriginal;
-            if (is_array($aReturn['response'])) {
-                ksort($aReturn['response']);
-            }
-            ksort($aReturn['info']);
         }
         curl_close($ch);
-        return $aReturn;
+        $sReturn = '';
+        if ($this->isJson($aReturn['info'])) {
+            $sReturn = '"info": ' . $aReturn['info'];
+        } else {
+            $sReturn = '"info": {' . $aReturn['info'] . ' }';
+        }
+        $sReturn .= ', ';
+        if ($this->isJson($aReturn['response'])) {
+            $sReturn .= '"response": ' . $aReturn['response'];
+        } else {
+            $sReturn .= '"response": { ' . $aReturn['response'] . ' }';
+        }
+        return '{ ' . $sReturn . ' }';
+    }
+
+    /**
+     * Reads the content of a remote file through CURL extension
+     *
+     * @param string $fullURL
+     * @param array $features
+     * @return blob
+     */
+    protected function getContentFromUrlThroughCurlAsArrayIfJson($fullURL, $features = null)
+    {
+        $result = $this->setJson2array($this->getContentFromUrlThroughCurl($fullURL, $features));
+        var_dump($result);
+        ksort($result['info']);
+        if (is_array($result['response'])) {
+            ksort($result['response']);
+        }
+        return $result;
     }
 
     /**
