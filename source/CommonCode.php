@@ -111,7 +111,6 @@ trait CommonCode
     protected function getContentFromUrlThroughCurlAsArrayIfJson($fullURL, $features = null)
     {
         $result = $this->setJson2array($this->getContentFromUrlThroughCurl($fullURL, $features));
-        var_dump($result);
         ksort($result['info']);
         if (is_array($result['response'])) {
             ksort($result['response']);
