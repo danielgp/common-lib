@@ -14,6 +14,7 @@
         "php": ">=5.4",
         "ext-curl": "*",
         "ext-mysqli": "*",
+        "phpoffice/phpexcel": "*",
         "gettext/gettext": "*"
     },
     "autoload": {
