@@ -65,111 +65,6 @@ trait DomComponentsByDanielGP
     }
 
     /**
-     * Determines if a given IP is with a defined range
-     *
-     * @param ipv4 $ip
-     * @param ipv4 $ipStart
-     * @param ipv4 $ipEnd
-     * @return string
-     */
-    protected function checkIpIsInRange($ip, $ipStart, $ipEnd)
-    {
-        $sReturn     = 'out';
-        $startNo     = $this->convertIpToNumber($ipStart);
-        $endNo       = $this->convertIpToNumber($ipEnd);
-        $evaluatedNo = $this->convertIpToNumber($ip);
-        if ($sReturn == 'out') {
-            if (($evaluatedNo >= $startNo) && ($evaluatedNo <= $endNo)) {
-                $sReturn = 'in';
-            }
-        }
-        return $sReturn;
-    }
-
-    /**
-     * Checks if given IP is a private or public one
-     *
-     * @param ipv4 $ip
-     * @return string
-     */
-    protected function checkIpIsPrivate($ip)
-    {
-        $ipType = 'unkown';
-        if (filter_var($ip, FILTER_VALIDATE_IP)) {
-            if (!filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_RES_RANGE | FILTER_FLAG_NO_PRIV_RANGE)) {
-                $ipType = 'private';
-            } else {
-                $ipType = 'public';
-            }
-        } else {
-            $ipType = 'invalid';
-        }
-        return $ipType;
-    }
-
-    /**
-     * Checks if given IP is a V4 or V6
-     *
-     * @param ipv4 $ip
-     * @return string
-     */
-    protected function checkIpIsV4OrV6($ip)
-    {
-        $ipType = 'unkown';
-        if (filter_var($ip, FILTER_VALIDATE_IP)) {
-            if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
-                $ipType = 'V4';
-            } elseif (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
-                $ipType = 'V6';
-            }
-        } else {
-            $ipType = 'invalid';
-        }
-        return $ipType;
-    }
-
-    /**
-     * Converts IP to a number
-     *
-     * @param type $ip
-     * @return string|int
-     */
-    protected function convertIpToNumber($ip)
-    {
-        $sReturn = '';
-        if (filter_var($ip, FILTER_VALIDATE_IP)) {
-            if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
-                $ips     = explode('.', $ip);
-                $sReturn = $ips[3] + $ips[2] * 256 + $ips[1] * 65536 + $ips[0] * 16777216;
-            } elseif (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
-                $sReturn = inet_ntop($ip);
-            }
-        } else {
-            $sReturn = 'invalid IP';
-        }
-        return $sReturn;
-    }
-
-    /**
-     * Returns the IP of the client
-     *
-     * @return string
-     */
-    protected function getClientRealIpAddress()
-    {
-        //check ip from share internet
-        if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
-            $ip = $_SERVER['HTTP_CLIENT_IP'];
-        } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-            //to check ip is pass from proxy
-            $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
-        } else {
-            $ip = $_SERVER['REMOTE_ADDR'];
-        }
-        return $ip;
-    }
-
-    /**
      * Captures the user agent
      *
      * @return string
@@ -196,7 +91,7 @@ trait DomComponentsByDanielGP
      * @param array $features_array
      * @return string
      */
-    protected function setArray2Select($aElements, $sDefaultValue, $select_name, $features_array = null)
+    protected function setArrayToSelect($aElements, $sDefaultValue, $select_name, $features_array = null)
     {
         if (!is_array($aElements)) {
             return '';
@@ -254,7 +149,7 @@ trait DomComponentsByDanielGP
      * @param array $aElements
      * @return string
      */
-    protected function setArray2String4Url($sSeparator, $aElements, $aExceptedElements = [''])
+    protected function setArrayToStringForUrl($sSeparator, $aElements, $aExceptedElements = [''])
     {
         if (!is_array($aElements)) {
             return '';

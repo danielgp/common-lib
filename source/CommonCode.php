@@ -36,11 +36,12 @@ namespace danielgp\common_lib;
 trait CommonCode
 {
 
-    use DomComponentsByDanielGPwithCDN,
-        DomComponentsByDanielGP,
-        RomanianHolidays,
+    use DomComponentsByDanielGP,
+        DomComponentsByDanielGPwithCDN,
         MySQLiByDanielGPqueries,
-        MySQLiByDanielGP;
+        MySQLiByDanielGP,
+        NetworkComponentsByDanielGP,
+        RomanianHolidays;
 
     /**
      * Reads the content of a remote file through CURL extension
