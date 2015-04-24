@@ -44,6 +44,105 @@ trait CommonCode
         RomanianHolidays;
 
     /**
+     * Returns an array with meaningfull content of permissions
+     *
+     * @param int $permissionNumber
+     * @return array
+     */
+    protected function explainPermissions($permissionNumber)
+    {
+        if (($permissionNumber & 0xC000) == 0xC000) {
+            $firstFlag = [
+                'code' => 's',
+                'name' => 'Socket',
+            ];
+        } elseif (($permissionNumber & 0xA000) == 0xA000) {
+            $firstFlag = [
+                'code' => 'l',
+                'name' => 'Symbolic Link',
+            ];
+        } elseif (($permissionNumber & 0x8000) == 0x8000) {
+            $firstFlag = [
+                'code' => '-',
+                'name' => 'Regular',
+            ];
+        } elseif (($permissionNumber & 0x6000) == 0x6000) {
+            $firstFlag = [
+                'code' => 'b',
+                'name' => 'Block special',
+            ];
+        } elseif (($permissionNumber & 0x4000) == 0x4000) {
+            $firstFlag = [
+                'code' => 'd',
+                'name' => 'Directory',
+            ];
+        } elseif (($permissionNumber & 0x2000) == 0x2000) {
+            $firstFlag = [
+                'code' => 'c',
+                'name' => 'Character special',
+            ];
+        } elseif (($permissionNumber & 0x1000) == 0x1000) {
+            $firstFlag = [
+                'code' => 'p',
+                'name' => 'FIFO pipe',
+            ];
+        } else {
+            $firstFlag = [
+                'code' => 'u',
+                'name' => 'FIFO pipe',
+            ];
+        }
+        $permissionsString    = substr(sprintf('%o', $permissionNumber), -4);
+        $numericalPermissions = [
+            0 => [
+                'code' => '---',
+                'name' => 'none',
+            ],
+            1 => [
+                'code' => '--x',
+                'name' => 'execute only',
+            ],
+            2 => [
+                'code' => '-w-',
+                'name' => 'write only',
+            ],
+            3 => [
+                'code' => '-wx',
+                'name' => 'write and execute',
+            ],
+            4 => [
+                'code' => 'r--',
+                'name' => 'read only',
+            ],
+            5 => [
+                'code' => 'r-x',
+                'name' => 'read and execute',
+            ],
+            6 => [
+                'code' => 'rw-',
+                'name' => 'read and write',
+            ],
+            7 => [
+                'code' => 'rwx',
+                'name' => 'read, write and execute',
+            ],
+        ];
+        return [
+            'Code'        => $permissionsString,
+            'Overall'     => implode('', [
+                $firstFlag['code'],
+                $numericalPermissions[substr($permissionsString, 1, 1)]['code'],
+                $numericalPermissions[substr($permissionsString, 2, 1)]['code'],
+                $numericalPermissions[substr($permissionsString, 3, 1)]['code'],
+            ]),
+            'First'       => $firstFlag,
+            'Owner'       => $numericalPermissions[substr($permissionsString, 1, 1)],
+            'Group'       => $numericalPermissions[substr($permissionsString, 2, 1)],
+            'World/Other' => $numericalPermissions[substr($permissionsString, 3, 1)],
+        ];
+    }
+
+    /**
      * Reads the content of a remote file through CURL extension
      *
      * @param string $fullURL
@@ -129,21 +228,34 @@ trait CommonCode
         if (!file_exists($fileGiven)) {
             return null;
         }
-        $parts   = pathinfo($fileGiven);
+        $info    = new \SplFileInfo($fileGiven);
         $sReturn = [
-            'File Extension'            => $parts['extension'],
-            'File Name'                 => $parts['basename'],
-            'File Name w. Extension'    => $parts['filename'],
-            'File Path'                 => $parts['dirname'],
-            'Name'                      => $fileGiven,
-            'Size'                      => filesize($fileGiven),
-            'Sha1'                      => sha1_file($fileGiven),
-            'TimestampAccessed'         => fileatime($fileGiven),
-            'TimestampAccessedReadable' => date('Y-m-d H:i:s', fileatime($fileGiven)),
-            'TimestampChanged'          => filectime($fileGiven),
-            'TimestampChangedReadable'  => date('Y-m-d H:i:s', filectime($fileGiven)),
-            'TimestampModified'         => filemtime($fileGiven),
-            'TimestampModifiedReadable' => date('Y-m-d H:i:s', filemtime($fileGiven)),
+            'File Extension'         => $info->getExtension(),
+            'File Group'             => $info->getGroup(),
+            'File Link Target'       => $info->getLinkTarget(),
+            'File Name'              => $info->getBasename('.' . $info->getExtension()),
+            'File Name w. Extension' => $info->getFilename(),
+            'File Owner'             => $info->getOwner(),
+            'File Path'              => $info->getPath(),
+            'File Permissions'       => array_merge([
+                'Permissions' => $info->getPerms(),
+                    ], $this->explainPermissions($info->getPerms())),
+            'Name'                   => $fileGiven,
+            'Size'                   => $info->getSize(),
+            'Sha1'                   => sha1_file($fileGiven),
+            'Timestamp Accessed'     => [
+                'PHP number' => $info->getATime(),
+                'SQL format' => date('Y-m-d H:i:s', $info->getATime()),
+            ],
+            'Timestamp Created'      => [
+                'PHP number' => $info->getCTime(),
+                'SQL format' => date('Y-m-d H:i:s', $info->getCTime()),
+            ],
+            'Timestamp Modified'     => [
+                'PHP number' => $info->getMTime(),
+                'SQL format' => date('Y-m-d H:i:s', $info->getMTime()),
+            ],
+            'Type'                   => $info->getType(),
         ];
         return $sReturn;
     }
@@ -206,15 +318,17 @@ trait CommonCode
     protected function getPackageDetailsFromGivenComposerLockFile($fileToRead)
     {
         if (!file_exists($fileToRead)) {
-            return [];
+            return [
+                'error' => $fileToRead . ' was not found'
+            ];
         }
+        $dateTimeToday    = new \DateTime(date('Y-m-d', strtotime('today')));
+        $defaultNA        = '---';
+        $finalInformation = [];
         $handle           = fopen($fileToRead, 'r');
         $fileContents     = fread($handle, filesize($fileToRead));
         fclose($handle);
         $packages         = $this->setJson2array($fileContents);
-        $dateTimeToday    = new \DateTime(date('Y-m-d', strtotime('today')));
-        $defaultNA        = '---';
-        $finalInformation = [];
         foreach ($packages['packages'] as $value) {
             if (isset($value['time'])) {
                 $dateTime = new \DateTime(date('Y-m-d', strtotime($value['time'])));
