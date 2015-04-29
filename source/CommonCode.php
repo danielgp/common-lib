@@ -152,14 +152,11 @@ trait CommonCode
     protected function getContentFromUrlThroughCurl($fullURL, $features = null)
     {
         if (!function_exists('curl_init')) {
-            $aReturn['info']     = 'CURL extension is not available...'
-                    . 'therefore the informations to be obtained by funtion named '
-                    . __FUNCTION__ . ' from ' . __FILE__
-                    . ' could not be obtained!';
+            $aReturn['info']     = $this->lclMsgCmn('i18n_Error_ExtensionNotLoaded');
             $aReturn['response'] = '';
         }
         if (!filter_var($fullURL, FILTER_VALIDATE_URL)) {
-            $aReturn['info']     = 'URL is not valid...';
+            $aReturn['info']     = $this->lclMsgCmn('i18n_Error_GivenUrlIsNotValid');
             $aReturn['response'] = '';
         }
         $aReturn = [];
@@ -210,7 +207,7 @@ trait CommonCode
      */
     protected function getContentFromUrlThroughCurlAsArrayIfJson($fullURL, $features = null)
     {
-        $result = $this->setJson2array($this->getContentFromUrlThroughCurl($fullURL, $features));
+        $result = $this->setJsonToArray($this->getContentFromUrlThroughCurl($fullURL, $features));
         ksort($result['info']);
         if (is_array($result['response'])) {
             ksort($result['response']);
@@ -221,18 +218,28 @@ trait CommonCode
     /**
      * returns the details about Communicator (current) file
      *
+     * @param string $fileGiven
      * @return array
      */
     protected function getFileDetails($fileGiven)
     {
         if (!file_exists($fileGiven)) {
-            return null;
+            return [
+                'error' => sprintf($this->lclMsgCmn('i18n_Error_GivenFileDoesNotExist'), $fileGiven)
+            ];
         }
         $info    = new \SplFileInfo($fileGiven);
         $sReturn = [
             'File Extension'         => $info->getExtension(),
             'File Group'             => $info->getGroup(),
-            'File Link Target'       => $info->getLinkTarget(),
+            'File Inode'             => $info->getInode(),
+            'File Link Target'       => ($info->isLink() ? $info->getLinkTarget() : '-'),
+            'File is Dir'            => $info->isDir(),
+            'File is Executable'     => $info->isExecutable(),
+            'File is File'           => $info->isFile(),
+            'File is Link'           => $info->isLink(),
+            'File is Readable'       => $info->isReadable(),
+            'File is Writable'       => $info->isWritable(),
             'File Name'              => $info->getBasename('.' . $info->getExtension()),
             'File Name w. Extension' => $info->getFilename(),
             'File Owner'             => $info->getOwner(),
@@ -240,14 +247,14 @@ trait CommonCode
             'File Permissions'       => array_merge([
                 'Permissions' => $info->getPerms(),
                     ], $this->explainPermissions($info->getPerms())),
-            'Name'                   => $fileGiven,
+            'Name'                   => $info->getRealPath(),
             'Size'                   => $info->getSize(),
             'Sha1'                   => sha1_file($fileGiven),
             'Timestamp Accessed'     => [
                 'PHP number' => $info->getATime(),
                 'SQL format' => date('Y-m-d H:i:s', $info->getATime()),
             ],
-            'Timestamp Created'      => [
+            'Timestamp Changed'      => [
                 'PHP number' => $info->getCTime(),
                 'SQL format' => date('Y-m-d H:i:s', $info->getCTime()),
             ],
@@ -262,51 +269,36 @@ trait CommonCode
 
     /**
      * returns a multi-dimensional array with list of file details within a given path
+     * (by using Symfony/Finder package)
+     *
      * @param  string $pathAnalised
      * @return array
      */
     protected function getListOfFiles($pathAnalised)
     {
-        if (!file_exists($pathAnalised)) {
-            return null;
-        }
-        $dir                                 = dir($pathAnalised);
-        $this->commonLibFlags[$pathAnalised] = 0;
-        $fileDetails                         = null;
-        while ($file                                = $dir->read()) {
-            clearstatcache();
-            $fName     = $pathAnalised . DIRECTORY_SEPARATOR . $file;
-            $fileParts = pathinfo($fName);
-            switch ($fileParts['basename']) {
-                case '.':
-                case '..':
-                    break;
-                default:
-                    if (is_dir($fName)) {
-                        $fileDetails[$fName] = $this->getListOfFiles($fName);
-                    } else {
-                        $this->commonLibFlags[$pathAnalised] += 1;
-                        $xt                  = (isset($fileParts['extension']) ? $fileParts['extension'] : '-');
-                        $fileDetails[$fName] = [
-                            'Folder'                    => $fileParts['dirname'],
-                            'BaseName'                  => $fileParts['basename'],
-                            'Extension'                 => $xt,
-                            'FileName'                  => $fileParts['filename'],
-                            'Size'                      => filesize($fName),
-                            'Sha1'                      => sha1_file($fName),
-                            'TimestampAccessed'         => fileatime($fName),
-                            'TimestampAccessedReadable' => date('Y-m-d H:i:s', fileatime($fName)),
-                            'TimestampChanged'          => filectime($fName),
-                            'TimestampChangedReadable'  => date('Y-m-d H:i:s', filectime($fName)),
-                            'TimestampModified'         => filemtime($fName),
-                            'TimestampModifiedReadable' => date('Y-m-d H:i:s', filemtime($fName)),
-                        ];
-                    }
-                    break;
+        if (realpath($pathAnalised) === false) {
+            $aFiles = [
+                'error' => sprintf($this->lclMsgCmn('i18n_Error_GivenPathIsNotValid'), $pathAnalised)
+            ];
+        } elseif (!file_exists($pathAnalised)) {
+            $aFiles = [
+                'error' => sprintf($this->lclMsgCmn('i18n_Error_GivenPathDoesNotExist'), $pathAnalised)
+            ];
+        } elseif (!is_dir($pathAnalised)) {
+            $aFiles = [
+                'error' => $this->lclMsgCmn('i18n_Error_GivenPathIsNotFolder')
+            ];
+        } else {
+            $finder   = new \Symfony\Component\Finder\Finder();
+            $iterator = $finder
+                    ->files()
+                    ->sortByName()
+                    ->in($pathAnalised);
+            foreach ($iterator as $file) {
+                $aFiles[$file->getRealPath()] = $this->getFileDetails($file);
             }
         }
-        $dir->close();
-        return $fileDetails;
+        return $aFiles;
     }
 
     /**
@@ -328,7 +320,7 @@ trait CommonCode
         $handle           = fopen($fileToRead, 'r');
         $fileContents     = fread($handle, filesize($fileToRead));
         fclose($handle);
-        $packages         = $this->setJson2array($fileContents);
+        $packages         = $this->setJsonToArray($fileContents);
         foreach ($packages['packages'] as $value) {
             if (isset($value['time'])) {
                 $dateTime = new \DateTime(date('Y-m-d', strtotime($value['time'])));
@@ -389,19 +381,27 @@ trait CommonCode
             case 'array':
                 $sReturn = [
                     'float'  => ($dt['sec'] + $dt['usec'] / pow(10, 6)),
-                    'string' => '<span style="color:black!important;font-weight:bold;">['
-                    . date('Y-m-d H:i:s.', $dt['sec']) . substr(round($dt['usec'], -3), 0, 3) . ']</span> ',
+                    'string' => implode('', [
+                        '<span style="color:black!important;font-weight:bold;">[',
+                        date('Y-m-d H:i:s.', $dt['sec']),
+                        substr(round($dt['usec'], -3), 0, 3),
+                        ']</span> '
+                    ]),
                 ];
                 break;
             case 'float':
                 $sReturn = ($dt['sec'] + $dt['usec'] / pow(10, 6));
                 break;
             case 'string':
-                $sReturn = '<span style="color:black!important;font-weight:bold;">['
-                        . date('Y-m-d H:i:s.', $dt['sec']) . substr(round($dt['usec'], -3), 0, 3) . ']</span> ';
+                $sReturn = implode('', [
+                    '<span style="color:black!important;font-weight:bold;">[',
+                    date('Y-m-d H:i:s.', $dt['sec']),
+                    substr(round($dt['usec'], -3), 0, 3),
+                    ']</span> '
+                ]);
                 break;
             default:
-                $sReturn = 'Unknown return type...';
+                $sReturn = sprintf($this->lclMsgCmn('i18n_Error_UnknownReturnType'), $returnType);
                 break;
         }
         return $sReturn;
@@ -419,7 +419,79 @@ trait CommonCode
             json_decode($inputJson);
             return (json_last_error() == JSON_ERROR_NONE);
         } else {
-            return 'Given input in ' . __FUNCTION__ . ' is not a json string...';
+            return $this->lclMsgCmn('i18n_Error_GivenInputIsNotJson');
+        }
+    }
+
+    /**
+     * Moves files into another folder
+     *
+     * @param type $sourcePath
+     * @param type $targetPath
+     * @param type $overwrite
+     * @return type
+     */
+    protected function moveFilesIntoTargetFolder($sourcePath, $targetPath)
+    {
+        $filesystem = new \Symfony\Component\Filesystem\Filesystem();
+        $filesystem->mirror($sourcePath, $targetPath);
+        $finder     = new \Symfony\Component\Finder\Finder();
+        $iterator   = $finder
+                ->files()
+                ->ignoreUnreadableDirs(true)
+                ->followLinks()
+                ->in($sourcePath);
+        foreach ($iterator as $file) {
+            $sFiles[] = $file->getRealPath();
+//            $targetFile = $targetPath . DIRECTORY_SEPARATOR . $file->getFilename();
+//            $filesystem->rename($file->getRealPath(), $targetFile, $overwrite);
+        }
+        // TODO: compare the file copied w. source and highlight any missmatch
+        return $this->setArrayToJson($sFiles);
+    }
+
+    /**
+     * Remove files older than given rule
+     * (both Access time and Modified time will be checked
+     * and only if both matches removal will take place)
+     *
+     * @param array $inputArray
+     * @return string
+     */
+    protected function removeFilesOlderThanGivenRule($inputArray)
+    {
+        if (is_array($inputArray)) {
+            if (!isset($inputArray['path'])) {
+                $proceedWithDeletion = false;
+                $error[]             = '`path` has not been provided';
+            } elseif (!isset($inputArray['dateRule'])) {
+                $proceedWithDeletion = false;
+                $error[]             = '`dateRule` has not been provided';
+            } else {
+                $proceedWithDeletion = true;
+            }
+        } else {
+            $proceedWithDeletion = false;
+        }
+        if ($proceedWithDeletion) {
+            $finder   = new \Symfony\Component\Finder\Finder();
+            $iterator = $finder
+                    ->files()
+                    ->ignoreUnreadableDirs(true)
+                    ->followLinks()
+                    ->in($inputArray['path']);
+            foreach ($iterator as $file) {
+                if ($file->getATime() < strtotime($inputArray['dateRule'])) {
+                    if ($file->getMTime() < strtotime($inputArray['dateRule'])) {
+                        $aFiles[] = $file->getRealPath();
+                    }
+                }
+            }
+            $filesystem = new \Symfony\Component\Filesystem\Filesystem();
+            $filesystem->remove($aFiles);
+            return $this->setArrayToJson($aFiles);
+        } else {
+            return $error;
         }
     }
 
@@ -559,18 +631,18 @@ trait CommonCode
      */
     private static function setArrayToExcelStringFromColumnIndex($pColumnIndex = 0)
     {
-        //	Using a lookup cache adds a slight memory overhead, but boosts speed
-        //	caching using a static within the method is faster than a class static,
-        //	though it's additional memory overhead
         static $_indexCache = [];
         if (!isset($_indexCache[$pColumnIndex])) {
             // Determine column string
             if ($pColumnIndex < 26) {
+                // 26 is the # of column of 1 single letter
                 $_indexCache[$pColumnIndex] = chr(65 + $pColumnIndex);
             } elseif ($pColumnIndex < 702) {
+                // 702 is the # of columns with 2 letters
                 $_indexCache[$pColumnIndex] = chr(64 + ($pColumnIndex / 26)) .
                         chr(65 + $pColumnIndex % 26);
             } else {
+                // anything above 702 has 3 letters combination
                 $_indexCache[$pColumnIndex] = chr(64 + (($pColumnIndex - 26) / 676)) .
                         chr(65 + ((($pColumnIndex - 26) % 676) / 26)) .
                         chr(65 + $pColumnIndex % 26);
@@ -588,7 +660,7 @@ trait CommonCode
     protected function setArrayToJson($inArray)
     {
         if (!is_array($inArray)) {
-            return 'Given input is not an array...';
+            return $this->lclMsgCmn('i18n_Error_GivenInputIsNotArray');
         }
         if (version_compare(phpversion(), "5.4.0", ">=")) {
             $rtrn = utf8_encode(json_encode($inArray, JSON_FORCE_OBJECT | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
@@ -625,17 +697,21 @@ trait CommonCode
      * @param string $inputJson
      * @return array
      */
-    protected function setJson2array($inputJson)
+    protected function setJsonToArray($inputJson)
     {
         if (!$this->isJson($inputJson)) {
-            return ['error' => 'Given input is not an json...'];
+            return [
+                'error' => $this->lclMsgCmn('i18n_Error_GivenInputIsNotJson')
+            ];
         }
         $sReturn   = (json_decode($inputJson, true));
         $jsonError = $this->setJsonErrorInPlainEnglish();
         if ($jsonError == '') {
             return $sReturn;
         } else {
-            return ['error' => $jsonError];
+            return [
+                'error' => $jsonError
+            ];
         }
     }
 

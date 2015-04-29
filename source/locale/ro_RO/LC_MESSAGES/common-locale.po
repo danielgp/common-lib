@@ -16,6 +16,33 @@ msgstr ""
 "Language: ro_RO\n"
 "Plural-Forms: nplurals=3; plural=(n==1?0:(((n%100>19)||((n%100==0)&&(n!=0)))?2:1));\n"
 
+msgid "i18n_Error_ExtensionNotLoaded"
+msgstr "CURL extension is not available..."
+
+msgid "i18n_Error_GivenFileDoesNotExist"
+msgstr "Given file does not exist...(%s)"
+
+msgid "i18n_Error_GivenInputIsNotArray"
+msgstr "Given input is not an array!"
+
+msgid "i18n_Error_GivenInputIsNotJson"
+msgstr "Given input is not JSON!"
+
+msgid "i18n_Error_GivenPathDoesNotExist"
+msgstr "Given path does not exist...(%s)"
+
+msgid "i18n_Error_GivenPathIsNotValid"
+msgstr "Given path is not valid...(%s)"
+
+msgid "i18n_Error_GivenPathIsNotFolder"
+msgstr "Given path is not a folder/director!"
+
+msgid "i18n_Error_GivenUrlIsNotValid"
+msgstr "Given URL is not valid!"
+
+msgid "i18n_Error_UnknownReturnType"
+msgstr "Unknown return type...(%s)"
+
 msgid "i18n_MySQL_ConnectionError"
 msgstr "Eroare la conectare (nr.: %d, mesaj de la server: %s, nume server = %s, port: %s, nume utilizator: %s, baza de date: %s)"
 

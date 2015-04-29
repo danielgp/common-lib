@@ -14,8 +14,10 @@
         "php": ">=5.4",
         "ext-curl": "*",
         "ext-mysqli": "*",
+        "gettext/gettext": "*",
         "phpoffice/phpexcel": "*",
-        "gettext/gettext": "*"
+        "symfony/finder": "*",
+        "symfony/filesystem": "*"
     },
     "autoload": {
         "classmap": [
