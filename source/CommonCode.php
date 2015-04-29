@@ -441,12 +441,13 @@ trait CommonCode
                 ->ignoreUnreadableDirs(true)
                 ->followLinks()
                 ->in($sourcePath);
+        $sFiles     = [];
         foreach ($iterator as $file) {
-            $sFiles[] = $file->getRealPath();
-//            $targetFile = $targetPath . DIRECTORY_SEPARATOR . $file->getFilename();
-//            $filesystem->rename($file->getRealPath(), $targetFile, $overwrite);
+            $relativePathFile = str_replace($sourcePath, '', $file->getRealPath());
+            if (!file_exists($targetPath . $relativePathFile)) {
+                $sFiles[$relativePathFile] = $targetPath . $relativePathFile;
+            }
         }
-        // TODO: compare the file copied w. source and highlight any missmatch
         return $this->setArrayToJson($sFiles);
     }
 
