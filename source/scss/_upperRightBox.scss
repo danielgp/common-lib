@@ -1,0 +1,25 @@
+.upperRightBox {
+    background-color: #E5E5E5;
+    border-radius: 5px;
+    box-shadow: 0px 0px 10px #000;
+    -webkit-box-shadow: 0px 0px 10px #000;
+    color: #000;
+    font-weight: bold;
+    padding:1px 5px 1px 5px;
+    position:fixed;
+    right:5px;
+    top:5px;
+    transition:height 1s;
+    -webkit-transition:height 1s;
+    z-index:902;
+    table tr td {
+        font-size:12px;
+    }
+}
+.upperRightBox:hover > #visibleOnHover {
+    display: block;
+}
+#visibleOnHover {
+    display: none;
+    margin: 10px;
+}
