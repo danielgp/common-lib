@@ -179,7 +179,7 @@ trait BrowserAgentInfosByDanielGP
                         break;
                 }
             }
-            return $sReturn;
+            return $aReturn;
         }
     }
 
