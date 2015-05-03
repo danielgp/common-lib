@@ -157,7 +157,7 @@ trait BrowserAgentInfosByDanielGP
             $userAgent = $_SERVER['HTTP_USER_AGENT'];
         }
         $dd = new \DeviceDetector\DeviceDetector($userAgent);
-        $dd->setCache(new \Doctrine\Common\Cache\PhpFileCache(ini_get('upload_tmp_dir') . 'DoctrineCache/'));
+        $dd->setCache(new \Doctrine\Common\Cache\PhpFileCache('../tmp/DoctrineCache/'));
         $dd->discardBotInformation();
         $dd->parse();
         if ($dd->isBot()) {
