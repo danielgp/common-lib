@@ -41,6 +41,7 @@ trait CommonCode
         MySQLiByDanielGPqueries,
         MySQLiByDanielGP,
         NetworkComponentsByDanielGP,
+        BrowserAgentInfosByDanielGP,
         RomanianHolidays;
 
     /**
