@@ -104,7 +104,7 @@ trait BrowserAgentInfosByDanielGP
         return $aReturn;
     }
 
-    private function getClientBrowser($deviceDetectorClass, $userAgent)
+    private function getClientBrowser(\DeviceDetector\DeviceDetector $deviceDetectorClass, $userAgent)
     {
         $br                 = new \DeviceDetector\Parser\Client\Browser();
         $browserFamily      = $br->getBrowserFamily($deviceDetectorClass->getClient('short_name'));
@@ -179,7 +179,7 @@ trait BrowserAgentInfosByDanielGP
      * @param class $deviceDetectorClass
      * @return array
      */
-    private function getClientBrowserDevice($deviceDetectorClass)
+    private function getClientBrowserDevice(\DeviceDetector\DeviceDetector $deviceDetectorClass)
     {
         $clientIp = $this->getClientRealIpAddress();
         return [
@@ -200,7 +200,7 @@ trait BrowserAgentInfosByDanielGP
      * @param string $userAgent
      * @return array
      */
-    private function getClientBrowserOperatingSystem($deviceDetectorClass, $userAgent)
+    private function getClientBrowserOperatingSystem(\DeviceDetector\DeviceDetector $deviceDetectorClass, $userAgent)
     {
         $aReturn                 = $deviceDetectorClass->getOs();
         $aReturn['architecture'] = $this->getArchitectureFromUserAgent($userAgent, 'os');
