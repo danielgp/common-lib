@@ -149,7 +149,7 @@ trait BrowserAgentInfosByDanielGP
         return $sReturn;
     }
 
-    protected function getClientBrowserDetails()
+    protected function getClientBrowserDetails($returnType = ['Browser', 'Device', 'OS'])
     {
         if (isset($_GET['ua'])) {
             $userAgent = $_GET['ua'];
@@ -165,11 +165,21 @@ trait BrowserAgentInfosByDanielGP
                 'Bot' => $dd->getBot(), // handle bots,spiders,crawlers,...
             ];
         } else {
-            return [
-                'Browser' => $this->getClientBrowser($dd),
-                'Device'  => $this->getClientBrowserDevice($dd),
-                'OS'      => $this->getClientBrowserOperatingSystem($dd, $userAgent),
-            ];
+            $aReturn = [];
+            foreach ($returnType as $value) {
+                switch ($value) {
+                    case 'Browser':
+                        $aReturn[$value] = $this->getClientBrowser($dd);
+                        break;
+                    case 'Device':
+                        $aReturn[$value] = $this->getClientBrowserDevice($dd);
+                        break;
+                    case 'OS':
+                        $aReturn[$value] = $this->getClientBrowserOperatingSystem($dd, $userAgent);
+                        break;
+                }
+            }
+            return $sReturn;
         }
     }
 
