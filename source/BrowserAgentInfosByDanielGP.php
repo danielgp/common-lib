@@ -54,7 +54,7 @@ trait BrowserAgentInfosByDanielGP
                     $aReturn = $this->listOfKnownCpuArchitectures()['ia32'];
                 } elseif (strpos($userAgent, 'ia32;')) {
                     $aReturn = $this->listOfKnownCpuArchitectures()['ia32'];
-                } elseif (strpos($userAgent, 'WOW64;')) {
+                } elseif (strpos($userAgent, 'WOW64')) {
                     $aReturn = $this->listOfKnownCpuArchitectures()['ia32'];
                 } elseif (strpos($userAgent, 'x86;')) {
                     $aReturn = $this->listOfKnownCpuArchitectures()['ia32'];
@@ -85,7 +85,7 @@ trait BrowserAgentInfosByDanielGP
                     $aReturn = $this->listOfKnownCpuArchitectures()['amd64'];
                 } elseif (strpos(strtolower($userAgent), 'AMD64')) {
                     $aReturn = $this->listOfKnownCpuArchitectures()['amd64'];
-                } elseif (strpos($userAgent, 'WOW64;')) {
+                } elseif (strpos($userAgent, 'WOW64')) {
                     $aReturn = $this->listOfKnownCpuArchitectures()['amd64'];
                 } elseif (strpos($userAgent, 'x64_64;')) {
                     $aReturn = $this->listOfKnownCpuArchitectures()['amd64'];
