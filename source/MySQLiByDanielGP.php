@@ -561,6 +561,7 @@ trait MySQLiByDanielGP
                             'return'      => $aReturn
                         ]);
                         break;
+                    case 'full_array_key_numbered_with_record_number_prefix':
                     case 'full_array_key_numbered_with_prefix':
                         $aReturn           = $this->setMySQLquery2ServerByPattern([
                             'NoOfColumns' => $iNoOfCols,
@@ -651,9 +652,13 @@ trait MySQLiByDanielGP
                 break;
             case 'full_array_key_numbered':
             case 'full_array_key_numbered_with_prefix':
+            case 'full_array_key_numbered_with_record_number_prefix':
                 if ($parameters['NoOfColumns'] == 0) {
                     $aReturn['customError'] = $this->lclMsgCmn('i18n_MySQL_QueryResultExpected1OrMoreRows0Resulted');
-                    if ($parameters['returnType'] == 'full_array_key_numbered_with_prefix') {
+                    if (in_array($parameters['returnType'], [
+                                'full_array_key_numbered_with_prefix',
+                                'full_array_key_numbered_with_record_number_prefix',
+                            ])) {
                         $aReturn['result'][$parameters['prefix']] = null;
                     }
                 } else {
