@@ -708,9 +708,12 @@ trait MySQLiByDanielGP
                         }
                         $counter2++;
                         break;
+                    case 'full_array_key_numbered_with_record_number_prefix':
+                        $parameters['prefix'] = $counter;
+                    // intentionally left open
                     case 'full_array_key_numbered_with_prefix':
-                        $finfo         = $parameters['QueryResult']->fetch_fields();
-                        $columnCounter = 0;
+                        $finfo                = $parameters['QueryResult']->fetch_fields();
+                        $columnCounter        = 0;
                         foreach ($finfo as $value) {
                             $aReturn['result'][$parameters['prefix']][$counter2][$value->name] = $line[$columnCounter];
                             $columnCounter++;
