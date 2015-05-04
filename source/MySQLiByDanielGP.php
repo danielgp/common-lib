@@ -714,7 +714,7 @@ trait MySQLiByDanielGP
                         $counter2++;
                         break;
                     case 'full_array_key_numbered_with_record_number_prefix':
-                        $parameters['prefix'] = $counter;
+                        $parameters['prefix'] = 'RecordNo';
                     // intentionally left open
                     case 'full_array_key_numbered_with_prefix':
                         $finfo                = $parameters['QueryResult']->fetch_fields();
