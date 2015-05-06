@@ -104,18 +104,28 @@ trait BrowserAgentInfosByDanielGP
         return $aReturn;
     }
 
+    /**
+     * Provides details about browser
+     *
+     * @param \DeviceDetector\DeviceDetector $deviceDetectorClass
+     * @param string $userAgent
+     * @return array
+     */
     private function getClientBrowser(\DeviceDetector\DeviceDetector $deviceDetectorClass, $userAgent)
     {
-        $br                 = new \DeviceDetector\Parser\Client\Browser();
-        $browserFamily      = $br->getBrowserFamily($deviceDetectorClass->getClient('short_name'));
-        $browserInformation = array_merge($deviceDetectorClass->getClient(), [
+        $br                                  = new \DeviceDetector\Parser\Client\Browser();
+        $browserFamily                       = $br->getBrowserFamily($deviceDetectorClass->getClient('short_name'));
+        $browserInformation                  = array_merge([
             'architecture' => $this->getArchitectureFromUserAgent($userAgent, 'browser'),
             'connection'   => $_SERVER['HTTP_CONNECTION'],
             'family'       => ($browserFamily !== false ? $browserFamily : 'Unknown'),
             'host'         => $_SERVER['HTTP_HOST'],
             'referrer'     => (isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : ''),
             'user_agent'   => $deviceDetectorClass->getUserAgent(),
-                ], $this->getClientBrowserAccepted());
+                ], $deviceDetectorClass->getClient(), $this->getClientBrowserAccepted());
+        // more digestable details about version
+        $browserInformation['version_major'] = explode('.', $browserInformation['version'])[0];
+        $browserInformation['version_minor'] = explode('.', $browserInformation['version'])[1];
         ksort($browserInformation);
         return $browserInformation;
     }
@@ -149,19 +159,29 @@ trait BrowserAgentInfosByDanielGP
         return $sReturn;
     }
 
+    /**
+     * Provides various details about browser based on user agent
+     *
+     * @param array $returnType
+     * @return array
+     */
     protected function getClientBrowserDetails($returnType = ['Browser', 'Device', 'OS'])
     {
         if (isset($_GET['ua'])) {
             $userAgent = $_GET['ua'];
         } else {
-            $userAgent = $_SERVER['HTTP_USER_AGENT'];
+            if (PHP_SAPI === 'cli' || empty($_SERVER['REMOTE_ADDR'])) {  // command line
+                $userAgent = 'PHP/' . PHP_VERSION . ' comand-line';
+            } else {
+                $userAgent = $_SERVER['HTTP_USER_AGENT'];
+            }
         }
         $dd = new \DeviceDetector\DeviceDetector($userAgent);
         $dd->setCache(new \Doctrine\Common\Cache\PhpFileCache('../../tmp/DoctrineCache/'));
         $dd->discardBotInformation();
         $dd->parse();
         if ($dd->isBot()) {
-            return [
+            $aReturn = [
                 'Bot' => $dd->getBot(), // handle bots,spiders,crawlers,...
             ];
         } else {
@@ -169,7 +189,7 @@ trait BrowserAgentInfosByDanielGP
             foreach ($returnType as $value) {
                 switch ($value) {
                     case 'Browser':
-                        $aReturn[$value] = $this->getClientBrowser($dd);
+                        $aReturn[$value] = $this->getClientBrowser($dd, $userAgent);
                         break;
                     case 'Device':
                         $aReturn[$value] = $this->getClientBrowserDevice($dd);
@@ -179,8 +199,8 @@ trait BrowserAgentInfosByDanielGP
                         break;
                 }
             }
-            return $aReturn;
         }
+        return $aReturn;
     }
 
     /**
