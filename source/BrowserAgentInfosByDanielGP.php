@@ -165,7 +165,7 @@ trait BrowserAgentInfosByDanielGP
      * @param array $returnType
      * @return array
      */
-    protected function getClientBrowserDetails($returnType = ['Browser', 'Device', 'OS'])
+    protected function getClientBrowserDetails($returnType = ['Browser', 'Device', 'OS'], $tmpFolder = null)
     {
         if (isset($_GET['ua'])) {
             $userAgent = $_GET['ua'];
@@ -177,7 +177,10 @@ trait BrowserAgentInfosByDanielGP
             }
         }
         $dd = new \DeviceDetector\DeviceDetector($userAgent);
-        $dd->setCache(new \Doctrine\Common\Cache\PhpFileCache('../../tmp/DoctrineCache/'));
+        if (is_null($tmpFolder)) {
+            $tmpFolder = '../../tmp/DoctrineCache/';
+        }
+        $dd->setCache(new \Doctrine\Common\Cache\PhpFileCache($tmpFolder));
         $dd->discardBotInformation();
         $dd->parse();
         if ($dd->isBot()) {
