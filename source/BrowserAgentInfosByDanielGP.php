@@ -121,7 +121,7 @@ trait BrowserAgentInfosByDanielGP
             'family'       => ($browserFamily !== false ? $browserFamily : 'Unknown'),
             'host'         => $_SERVER['HTTP_HOST'],
             'referrer'     => (isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : ''),
-            'user_agent'   => $deviceDetectorClass->getUserAgent(),
+            'user_agent'   => $deviceDetectorClass->getUserAgentByCommonLib(),
                 ], $deviceDetectorClass->getClient(), $this->getClientBrowserAccepted());
         // more digestable details about version
         $browserInformation['version_major'] = explode('.', $browserInformation['version'])[0];
@@ -242,6 +242,23 @@ trait BrowserAgentInfosByDanielGP
         $aReturn['family']       = ($osFamily !== false ? $osFamily : 'Unknown');
         ksort($aReturn);
         return $aReturn;
+    }
+
+    /**
+     * Captures the user agent
+     *
+     * @return string
+     */
+    protected function getUserAgentByCommonLib()
+    {
+        if (filter_has_var(INPUT_SERVER, 'HTTP_USER_AGENT')) {
+            $crtUserAgent = filter_input(INPUT_SERVER, 'HTTP_USER_AGENT', FILTER_UNSAFE_RAW, FILTER_NULL_ON_FAILURE);
+        } elseif (isset($_SERVER['HTTP_USER_AGENT'])) {
+            $crtUserAgent = filter_var($_SERVER['HTTP_USER_AGENT'], FILTER_UNSAFE_RAW, FILTER_NULL_ON_FAILURE);
+        } else {
+            $crtUserAgent = null;
+        }
+        return $crtUserAgent;
     }
 
     /**

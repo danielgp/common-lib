@@ -36,9 +36,7 @@ namespace danielgp\common_lib;
 trait MySQLiByDanielGP
 {
 
-    protected $commonLibFlags  = null;
     protected $mySQLconnection = null;
-    protected $tCmnLb          = null;
 
     /**
      * Intiates connection to MySQL
@@ -56,9 +54,6 @@ trait MySQLiByDanielGP
     protected function connectToMySql($mySQLconfig)
     {
         if (is_null($this->mySQLconnection)) {
-            if (is_null($this->commonLibFlags)) {
-                $this->initCommomLibParameters();
-            }
             extract($mySQLconfig);
             $this->mySQLconnection = new \mysqli($host, $username, $password, $database, $port);
             if ($this->mySQLconnection->connect_error) {
@@ -259,60 +254,6 @@ trait MySQLiByDanielGP
     protected function getMySQLserverTime()
     {
         return $this->getMySQLlistMultiple('ServerTime', 'value');
-    }
-
-    /**
-     * Takes care of instatiation of localization libraries
-     * used within current module for multi-languages support
-     *
-     * @return NOTHING
-     */
-    private function handleLocalizationCommon()
-    {
-        if (isset($_GET['lang'])) {
-            $_SESSION['lang'] = filter_var($_GET['lang'], FILTER_SANITIZE_STRING);
-        } elseif (!isset($_SESSION['lang'])) {
-            $_SESSION['lang'] = $this->commonLibFlags['default_language'];
-        }
-        /* to avoid potential language injections from other applications that do not applies here */
-        if (!in_array($_SESSION['lang'], array_keys($this->commonLibFlags['available_languages']))) {
-            $_SESSION['lang'] = $this->commonLibFlags['default_language'];
-        }
-        $localizationFile = __DIR__ . '/locale/' . $_SESSION['lang'] . '/LC_MESSAGES/'
-                . $this->commonLibFlags['localization_domain']
-                . '.mo';
-        $translations     = \Gettext\Extractors\Mo::fromFile($localizationFile);
-        $this->tCmnLb     = new \Gettext\Translator();
-        $this->tCmnLb->loadTranslations($translations);
-    }
-
-    /**
-     * Takes care of instatiation of common flags used internally winthin current trait
-     *
-     * @returns NOTHING
-     */
-    private function initCommomLibParameters()
-    {
-        $this->commonLibFlags = [
-            'available_languages' => [
-                'en_US' => 'EN',
-                'ro_RO' => 'RO',
-            ],
-            'default_language'    => 'en_US',
-            'localization_domain' => 'common-locale'
-        ];
-        $this->handleLocalizationCommon();
-    }
-
-    /**
-     * Central function to deal with multi-language messages
-     *
-     * @param string $localizedStringCode
-     * @return string
-     */
-    protected function lclMsgCmn($localizedStringCode)
-    {
-        return $this->tCmnLb->gettext($localizedStringCode);
     }
 
     /**

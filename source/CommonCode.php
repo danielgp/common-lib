@@ -36,7 +36,8 @@ namespace danielgp\common_lib;
 trait CommonCode
 {
 
-    use DomComponentsByDanielGP,
+    use CommonLibLocale,
+        DomComponentsByDanielGP,
         DomComponentsByDanielGPwithCDN,
         MySQLiByDanielGPqueries,
         MySQLiByDanielGP,
@@ -162,7 +163,7 @@ trait CommonCode
         }
         $aReturn = [];
         $ch      = curl_init();
-        curl_setopt($ch, CURLOPT_USERAGENT, $this->getUserAgent());
+        curl_setopt($ch, CURLOPT_USERAGENT, $this->getUserAgentByCommonLib());
         if ((strpos($fullURL, 'https') !== false) || (isset($features['forceSSLverification']))) {
             curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);

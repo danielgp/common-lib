@@ -65,23 +65,6 @@ trait DomComponentsByDanielGP
     }
 
     /**
-     * Captures the user agent
-     *
-     * @return string
-     */
-    protected function getUserAgent()
-    {
-        if (filter_has_var(INPUT_SERVER, 'HTTP_USER_AGENT')) {
-            $crtUserAgent = filter_input(INPUT_SERVER, 'HTTP_USER_AGENT', FILTER_UNSAFE_RAW, FILTER_NULL_ON_FAILURE);
-        } elseif (isset($_SERVER['HTTP_USER_AGENT'])) {
-            $crtUserAgent = filter_var($_SERVER['HTTP_USER_AGENT'], FILTER_UNSAFE_RAW, FILTER_NULL_ON_FAILURE);
-        } else {
-            $crtUserAgent = null;
-        }
-        return $crtUserAgent;
-    }
-
-    /**
      * Builds a <select> based on a given array
      *
      * @version 20080618
