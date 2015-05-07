@@ -33,7 +33,7 @@ namespace danielgp\common_lib;
  *
  * @author Daniel Popiniuc
  */
-class CommonLibLocale
+trait CommonLibLocale
 {
 
     protected $commonLibFlags = null;

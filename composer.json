@@ -25,9 +25,9 @@
     },
     "autoload": {
         "classmap": [
+            "source/CommonLibLocale.php",
             "source/BrowserAgentInfosByDanielGP.php",
             "source/CommonCode.php",
-            "source/CommonLibLocale.php",
             "source/DomComponentsByDanielGP.php",
             "source/DomComponentsByDanielGPwithCDN.php",
             "source/MySQLiByDanielGPqueries.php",

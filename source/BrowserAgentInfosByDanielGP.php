@@ -121,7 +121,7 @@ trait BrowserAgentInfosByDanielGP
             'family'       => ($browserFamily !== false ? $browserFamily : 'Unknown'),
             'host'         => $_SERVER['HTTP_HOST'],
             'referrer'     => (isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : ''),
-            'user_agent'   => $deviceDetectorClass->getUserAgentByCommonLib(),
+            'user_agent'   => $this->getUserAgentByCommonLib(),
                 ], $deviceDetectorClass->getClient(), $this->getClientBrowserAccepted());
         // more digestable details about version
         $browserInformation['version_major'] = explode('.', $browserInformation['version'])[0];
