@@ -175,10 +175,10 @@ trait CommonCode
         curl_setopt($ch, CURLOPT_FAILONERROR, true);
         $responseJsonFromClientOriginal = curl_exec($ch);
         if (curl_errno($ch)) {
-            $aReturn['info']     = [
+            $aReturn['info']     = $this->setArrayToJson([
                 '#'           => curl_errno($ch),
                 'description' => curl_error($ch)
-            ];
+            ]);
             $aReturn['response'] = '';
         } else {
             $aReturn['info']     = $this->setArrayToJson(curl_getinfo($ch));
@@ -210,9 +210,15 @@ trait CommonCode
     protected function getContentFromUrlThroughCurlAsArrayIfJson($fullURL, $features = null)
     {
         $result = $this->setJsonToArray($this->getContentFromUrlThroughCurl($fullURL, $features));
-        ksort($result['info']);
-        if (is_array($result['response'])) {
-            ksort($result['response']);
+        if (isset($result['info'])) {
+            if (is_array($result['info'])) {
+                ksort($result['info']);
+            }
+        }
+        if (isset($result['response'])) {
+            if (is_array($result['response'])) {
+                ksort($result['response']);
+            }
         }
         return $result;
     }
