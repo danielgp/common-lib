@@ -17,31 +17,34 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 msgid "i18n_Error_ExtensionNotLoaded"
-msgstr "Extensia CURL nu e disponibilă..."
+msgstr "CURL extension is not available..."
 
 msgid "i18n_Error_GivenFileDoesNotExist"
-msgstr "Fişierul dat nu există...(%s)"
+msgstr "Given file does not exist...(%s)"
 
 msgid "i18n_Error_GivenInputIsNotArray"
-msgstr "Argumentul dat nu este de tip matrice (array)!"
+msgstr "Given input is not an array!"
 
 msgid "i18n_Error_GivenInputIsNotJson"
-msgstr "Argumentul dat nu este JSON!"
+msgstr "Given input is not JSON!"
 
 msgid "i18n_Error_GivenPathDoesNotExist"
-msgstr "Dosarul dat nu există...(%s)"
+msgstr "Given path does not exist...(%s)"
 
 msgid "i18n_Error_GivenPathIsNotValid"
-msgstr "Dosarul dat nu este valid...(%s)"
+msgstr "Given path is not valid...(%s)"
 
 msgid "i18n_Error_GivenPathIsNotFolder"
-msgstr "Dosarul dat nu este un dosar!"
+msgstr "Given path is not a folder/director!"
 
 msgid "i18n_Error_GivenUrlIsNotValid"
-msgstr "URL-ul dat nu e valid!"
+msgstr "Given URL is not valid!"
 
 msgid "i18n_Error_UnknownReturnType"
-msgstr "Tipul de returnat dat nu e definit/standard...(%s)"
+msgstr "Unknown return type...(%s)"
+
+msgid "i18n_Generic_Unknown"
+msgstr "unknown"
 
 msgid "i18n_MySQL_ConnectionError"
 msgstr "Connection error (no.: %d, message from server: %s, host = %s, port: %s, username: %s, database: %s)"

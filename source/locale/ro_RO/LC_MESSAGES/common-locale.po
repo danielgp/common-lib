@@ -17,31 +17,34 @@ msgstr ""
 "Plural-Forms: nplurals=3; plural=(n==1?0:(((n%100>19)||((n%100==0)&&(n!=0)))?2:1));\n"
 
 msgid "i18n_Error_ExtensionNotLoaded"
-msgstr "CURL extension is not available..."
+msgstr "Extensia CURL nu e disponibilă..."
 
 msgid "i18n_Error_GivenFileDoesNotExist"
-msgstr "Given file does not exist...(%s)"
+msgstr "Fişierul dat nu există...(%s)"
 
 msgid "i18n_Error_GivenInputIsNotArray"
-msgstr "Given input is not an array!"
+msgstr "Argumentul dat nu este de tip matrice (array)!"
 
 msgid "i18n_Error_GivenInputIsNotJson"
-msgstr "Given input is not JSON!"
+msgstr "Argumentul dat nu este JSON!"
 
 msgid "i18n_Error_GivenPathDoesNotExist"
-msgstr "Given path does not exist...(%s)"
+msgstr "Dosarul dat nu există...(%s)"
 
 msgid "i18n_Error_GivenPathIsNotValid"
-msgstr "Given path is not valid...(%s)"
+msgstr "Dosarul dat nu este valid...(%s)"
 
 msgid "i18n_Error_GivenPathIsNotFolder"
-msgstr "Given path is not a folder/director!"
+msgstr "Dosarul dat nu este un dosar!"
 
 msgid "i18n_Error_GivenUrlIsNotValid"
-msgstr "Given URL is not valid!"
+msgstr "URL-ul dat nu e valid!"
 
 msgid "i18n_Error_UnknownReturnType"
-msgstr "Unknown return type...(%s)"
+msgstr "Tipul de returnat dat nu e definit/standard...(%s)"
+
+msgid "i18n_Generic_Unknown"
+msgstr "necunoscut"
 
 msgid "i18n_MySQL_ConnectionError"
 msgstr "Eroare la conectare (nr.: %d, mesaj de la server: %s, nume server = %s, port: %s, nume utilizator: %s, baza de date: %s)"
