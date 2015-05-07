@@ -547,40 +547,4 @@ trait DomComponentsByDanielGP
         }
         return '<' . $sTag . $attributes . '>' . $sString . '</' . $sTag . '>';
     }
-
-    /**
-     * Create an upper right box with choices for languages
-     * (requires flag-icon.min.css to be loaded)
-     * (makes usage of custom class "upperRightBox" and id = "visibleOnHover", provided here as scss file)
-     *
-     * @param array $aAvailableLanguages
-     * @return string
-     */
-    protected function setUppeRightBoxLanguages($aAvailableLanguages)
-    {
-        $sReturn   = [];
-        $sReturn[] = '<div style="text-align:right;">'
-                . '<span class="flag-icon flag-icon-' . strtolower(substr($_SESSION['lang'], -2))
-                . '" style="margin-right:2px;">&nbsp;</span>'
-                . $aAvailableLanguages[$_SESSION['lang']]
-                . '</div><!-- default Language -->';
-        if (isset($_REQUEST)) {
-            $linkWithoutLanguage = $this->setArrayToStringForUrl('&amp;', $_REQUEST, ['lang']) . '&amp;';
-        } else {
-            $linkWithoutLanguage = '';
-        }
-        $sReturn[] = '<div id="visibleOnHover">';
-        foreach ($aAvailableLanguages as $key => $value) {
-            if ($_SESSION['lang'] !== $key) {
-                $sReturn[] = '<a href="?' . $linkWithoutLanguage . 'lang=' . $key . '" style="display:block;">'
-                        . '<span class="flag-icon flag-icon-' . strtolower(substr($key, -2))
-                        . '" style="margin-right:2px;">&nbsp;</span>'
-                        . $value . '</a>';
-            }
-        }
-        $sReturn[] = '</div><!-- visibleOnHover end -->';
-        return '<div class="upperRightBox">'
-                . implode('', $sReturn)
-                . '</div><!-- upperRightBox end -->';
-    }
 }
