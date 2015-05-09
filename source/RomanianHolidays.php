@@ -49,27 +49,31 @@ trait RomanianHolidays
         $daying = $this->setHolidaysFixed($lngDate);
         if ($includeCatholicEaster) {
             // Catholic easter is already known by PHP
-            $cathorlicEasterDays = [];
             if ($yr == '2005') {
                 // in Windows returns a faulty day so I treated special
-                $cathorlicEasterDays[] = mktime(0, 0, 0, 3, 27, 2005); // Easter 1st day (Catholic)
-                $cathorlicEasterDays[] = mktime(0, 0, 0, 3, 28, 2005); // Easter 2nd day (Catholic)
+                $daying[] = mktime(0, 0, 0, 3, 27, 2005); // Easter 1st day (Catholic)
+                $daying[] = mktime(0, 0, 0, 3, 28, 2005); // Easter 2nd day (Catholic)
             } else {
-                $cathorlicEasterDays[] = easter_date($yr); // Easter 1st day (Catholic)
-                $cathorlicEasterDays[] = strtotime('+1 day', easter_date($yr)); // Easter 2nd day (Catholic)
+                $daying[] = easter_date($yr); // Easter 1st day (Catholic)
+                $daying[] = strtotime('+1 day', easter_date($yr)); // Easter 2nd day (Catholic)
             }
-            $daying = array_merge($daying, $cathorlicEasterDays);
         }
-        if (($yr >= 2001) && ($yr >= 2005)) {
-            $daying = array_merge($daying, $this->setHolidaysEasterBetween2001and2005($lngDate));
-        } elseif (($yr >= 2006) && ($yr >= 2010)) {
-            $daying = array_merge($daying, $this->setHolidaysEasterBetween2006and2010($lngDate));
-        } elseif (($yr >= 2011) && ($yr >= 2015)) {
-            $daying = array_merge($daying, $this->setHolidaysEasterBetween2011and2015($lngDate));
-        } elseif (($yr >= 2016) && ($yr >= 2020)) {
-            $daying = array_merge($daying, $this->setHolidaysEasterBetween2016and2020($lngDate));
+        if (($yr >= 2001) && ($yr <= 2005)) {
+            $holidays = $this->setHolidaysEasterBetween2001and2005($lngDate);
+        } elseif (($yr >= 2006) && ($yr <= 2010)) {
+            $holidays = $this->setHolidaysEasterBetween2006and2010($lngDate);
+        } elseif (($yr >= 2011) && ($yr <= 2015)) {
+            $holidays = $this->setHolidaysEasterBetween2011and2015($lngDate);
+        } elseif (($yr >= 2016) && ($yr <= 2020)) {
+            $holidays = $this->setHolidaysEasterBetween2016and2020($lngDate);
+        }
+        if (is_array($holidays)) {
+            foreach ($holidays as $value) {
+                $daying[] = $value;
+            }
         }
         sort($daying);
+        // unique logic needs to be applies as in some years catholic and orthodox years does match
         return array_unique($daying);
     }
 
@@ -134,9 +138,7 @@ trait RomanianHolidays
         ];
         $daying           = [];
         if (in_array($yr, array_keys($variableHolidays))) {
-            foreach ($variableHolidays[$yr] as $value) {
-                $daying[] = $value;
-            }
+            $daying = $variableHolidays[$yr];
         }
         return $daying;
     }
@@ -178,9 +180,7 @@ trait RomanianHolidays
         ];
         $daying           = [];
         if (in_array($yr, array_keys($variableHolidays))) {
-            foreach ($variableHolidays[$yr] as $value) {
-                $daying[] = $value;
-            }
+            $daying = $variableHolidays[$yr];
         }
         return $daying;
     }
@@ -228,9 +228,7 @@ trait RomanianHolidays
         ];
         $daying           = [];
         if (in_array($yr, array_keys($variableHolidays))) {
-            foreach ($variableHolidays[$yr] as $value) {
-                $daying[] = $value;
-            }
+            $daying = $variableHolidays[$yr];
         }
         return $daying;
     }
@@ -278,9 +276,7 @@ trait RomanianHolidays
         ];
         $daying           = [];
         if (in_array($yr, array_keys($variableHolidays))) {
-            foreach ($variableHolidays[$yr] as $value) {
-                $daying[] = $value;
-            }
+            $daying = $variableHolidays[$yr];
         }
         return $daying;
     }
@@ -289,31 +285,53 @@ trait RomanianHolidays
      * returns working days in a given month
      *
      * @param date $lngDate
-     * @param int $includeEaster
+     * @param int $includeCatholicEaster
      * @return int
      */
-    protected function setWorkingDaysInMonth($lngDate, $includeEaster = false)
+    protected function setHolidaysInMonth($lngDate, $includeCatholicEaster = false)
     {
-        $yr                   = date('Y', $lngDate);
-        $firstDayNextMonth    = mktime(0, 0, 0, date('m', $lngDate) + 1, 1, $yr);
-        $firstDayCrtMonth     = mktime(0, 0, 0, date('m', $lngDate), 1, $yr);
-        $noOfDaysInGivenMonth = round(($firstDayNextMonth - $firstDayCrtMonth) / (60 * 60 * 24), 0);
-        $workingDays          = 0;
-        $holidaysInGivenYear  = $this->setHolidays($lngDate, $includeEaster);
-        for ($counter = 1; $counter <= $noOfDaysInGivenMonth; $counter++) {
-            $currentDay = mktime(0, 0, 0, date('m', $lngDate), $counter, $yr);
-            if (in_array($currentDay, $holidaysInGivenYear)) {
-                $workingDays += 0;
-            } else {
-                switch (strftime('%w', $currentDay)) {
-                    case 0:
-                    case 6:
+        $holidaysInGivenYear = $this->setHolidays($lngDate, $includeCatholicEaster);
+        $firstDayGivenMonth  = strtotime('first day of', $lngDate);
+        $lastDayInGivenMonth = strtotime('last day of', $lngDate);
+        $secondsInOneDay     = 24 * 60 * 60;
+        $thisMonthDays       = range($firstDayGivenMonth, $lastDayInGivenMonth, $secondsInOneDay);
+        $holidays            = 0;
+        foreach ($thisMonthDays as $value) {
+            if (in_array($value, $holidaysInGivenYear)) {
+                $holidays += 1;
+            }
+        }
+        return $holidays;
+    }
+
+    /**
+     * returns working days in a given month
+     *
+     * @param date $lngDate
+     * @param int $includeCatholicEaster
+     * @return int
+     */
+    protected function setWorkingDaysInMonth($lngDate, $includeCatholicEaster = false)
+    {
+        $holidaysInGivenYear = $this->setHolidays($lngDate, $includeCatholicEaster);
+        $firstDayGivenMonth  = strtotime('first day of', $lngDate);
+        $lastDayInGivenMonth = strtotime('last day of', $lngDate);
+        $secondsInOneDay     = 24 * 60 * 60;
+        $thisMonthDays       = range($firstDayGivenMonth, $lastDayInGivenMonth, $secondsInOneDay);
+        $workingDays         = 0;
+        foreach ($thisMonthDays as $value) {
+            switch (strftime('%w', $value)) {
+                case 0:
+                case 6:
+                    $workingDays += 0;
+                    break;
+                default:
+                    if (in_array($value, $holidaysInGivenYear)) {
                         $workingDays += 0;
-                        break;
-                    default:
+                    } else {
                         $workingDays += 1;
-                        break;
-                }
+                    }
+                    break;
             }
         }
         return $workingDays;
