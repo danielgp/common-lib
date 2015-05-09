@@ -40,21 +40,25 @@ trait RomanianHolidays
      * List of legal holidays
      *
      * @param date $lngDate
-     * @param int $include_easter
+     * @param int $includeCatholicEaster
      * @return array
      */
-    protected function setHolidays($lngDate, $include_easter = 0)
+    protected function setHolidays($lngDate, $includeCatholicEaster = false)
     {
-        $yr = date('Y', $lngDate);
-        if ($include_easter == 0) {
+        $yr     = date('Y', $lngDate);
+        $daying = $this->setHolidaysFixed($lngDate);
+        if ($includeCatholicEaster) {
+            // Catholic easter is already known by PHP
+            $cathorlicEasterDays = [];
             if ($yr == '2005') {
                 // in Windows returns a faulty day so I treated special
-                $daying[] = mktime(0, 0, 0, 3, 27, 2005); // Easter 1st day (Catholic)
-                $daying[] = mktime(0, 0, 0, 3, 28, 2005); // Easter 2nd day (Catholic)
+                $cathorlicEasterDays[] = mktime(0, 0, 0, 3, 27, 2005); // Easter 1st day (Catholic)
+                $cathorlicEasterDays[] = mktime(0, 0, 0, 3, 28, 2005); // Easter 2nd day (Catholic)
             } else {
-                $daying[] = easter_date($yr); // Easter 1st day (Catholic)
-                $daying[] = strtotime('+1 day', easter_date($yr)); // Easter 2nd day (Catholic)
+                $cathorlicEasterDays[] = easter_date($yr); // Easter 1st day (Catholic)
+                $cathorlicEasterDays[] = strtotime('+1 day', easter_date($yr)); // Easter 2nd day (Catholic)
             }
+            $daying = array_merge($daying, $cathorlicEasterDays);
         }
         if (($yr >= 2001) && ($yr >= 2005)) {
             $daying = array_merge($daying, $this->setHolidaysEasterBetween2001and2005($lngDate));
@@ -65,7 +69,7 @@ trait RomanianHolidays
         } elseif (($yr >= 2016) && ($yr >= 2020)) {
             $daying = array_merge($daying, $this->setHolidaysEasterBetween2016and2020($lngDate));
         }
-        $daying = array_merge($daying, $this->setHolidaysFixed($lngDate));
+        sort($daying);
         return array_unique($daying);
     }
 
@@ -285,24 +289,33 @@ trait RomanianHolidays
      * returns working days in a given month
      *
      * @param date $lngDate
-     * @param int $include_easter
+     * @param int $includeEaster
      * @return int
      */
-    protected function setWorkingDaysInMonth($lngDate, $include_easter)
+    protected function setWorkingDaysInMonth($lngDate, $includeEaster = false)
     {
-        $yr                  = date('Y', $lngDate);
-        $firstDayNextMonth   = mktime(0, 0, 0, date('m', $lngDate) + 1, 1, $yr);
-        $firstDayCrtMonth    = mktime(0, 0, 0, date('m', $lngDate), 1, $yr);
-        $days_in_given_month = round(($firstDayNextMonth - $firstDayCrtMonth) / (60 * 60 * 24), 0);
-        $tmp_value           = 0;
-        for ($counter = 1; $counter <= $days_in_given_month; $counter++) {
-            $current_day = mktime(0, 0, 0, date('m', $lngDate), $counter, $yr);
-            if (!in_array($current_day, $this->setHolidays($lngDate, $include_easter))) {
-                if ((strftime('%w', $current_day) != 0) && (strftime('%w', $current_day) != 6)) {
-                    $tmp_value += 1;
+        $yr                   = date('Y', $lngDate);
+        $firstDayNextMonth    = mktime(0, 0, 0, date('m', $lngDate) + 1, 1, $yr);
+        $firstDayCrtMonth     = mktime(0, 0, 0, date('m', $lngDate), 1, $yr);
+        $noOfDaysInGivenMonth = round(($firstDayNextMonth - $firstDayCrtMonth) / (60 * 60 * 24), 0);
+        $workingDays          = 0;
+        $holidaysInGivenYear  = $this->setHolidays($lngDate, $includeEaster);
+        for ($counter = 1; $counter <= $noOfDaysInGivenMonth; $counter++) {
+            $currentDay = mktime(0, 0, 0, date('m', $lngDate), $counter, $yr);
+            if (in_array($currentDay, $holidaysInGivenYear)) {
+                $workingDays += 0;
+            } else {
+                switch (strftime('%w', $currentDay)) {
+                    case 0:
+                    case 6:
+                        $workingDays += 0;
+                        break;
+                    default:
+                        $workingDays += 1;
+                        break;
                 }
             }
         }
-        return $tmp_value;
+        return $workingDays;
     }
 }
