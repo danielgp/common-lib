@@ -29,9 +29,9 @@
 namespace danielgp\common_lib;
 
 /**
- * Description of BrowserAgentInfosByDanielGP
+ * Trait to expose various information from user browser
  *
- * @author E303778
+ * @author Daniel Popiniuc
  */
 trait BrowserAgentInfosByDanielGP
 {
@@ -118,7 +118,7 @@ trait BrowserAgentInfosByDanielGP
         $browserInformation                  = array_merge([
             'architecture' => $this->getArchitectureFromUserAgent($userAgent, 'browser'),
             'connection'   => $_SERVER['HTTP_CONNECTION'],
-            'family'       => ($browserFamily !== false ? $browserFamily : 'Unknown'),
+            'family'       => ($browserFamily !== false ? $browserFamily : '---'),
             'host'         => $_SERVER['HTTP_HOST'],
             'referrer'     => (isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : ''),
             'user_agent'   => $this->getUserAgentByCommonLib(),
