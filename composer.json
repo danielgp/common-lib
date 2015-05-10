@@ -16,12 +16,15 @@
         "ext-mysqli": "*",
         "components/flag-icon-css": "*",
         "doctrine/cache": "*",
-        "piwik/device-detector": "*",
         "fortawesome/font-awesome": "*",
         "gettext/gettext": "*",
+        "piwik/device-detector": "*",
         "phpoffice/phpexcel": "*",
         "symfony/finder": "*",
         "symfony/filesystem": "*"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "*"
     },
     "autoload": {
         "classmap": [

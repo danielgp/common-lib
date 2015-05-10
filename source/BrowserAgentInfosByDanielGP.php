@@ -97,7 +97,7 @@ trait BrowserAgentInfosByDanielGP
                 break;
             default:
                 $aReturn = [
-                    'name' => 'Unknown target to analyze...'
+                    'name' => '---'
                 ];
                 break;
         }
@@ -113,19 +113,23 @@ trait BrowserAgentInfosByDanielGP
      */
     private function getClientBrowser(\DeviceDetector\DeviceDetector $deviceDetectorClass, $userAgent)
     {
-        $br                                  = new \DeviceDetector\Parser\Client\Browser();
-        $browserFamily                       = $br->getBrowserFamily($deviceDetectorClass->getClient('short_name'));
-        $browserInformation                  = array_merge([
+        $br                 = new \DeviceDetector\Parser\Client\Browser();
+        $browserFamily      = $br->getBrowserFamily($deviceDetectorClass->getClient('short_name'));
+        $browserInformation = array_merge([
             'architecture' => $this->getArchitectureFromUserAgent($userAgent, 'browser'),
-            'connection'   => $_SERVER['HTTP_CONNECTION'],
+            'connection'   => (isset($_SERVER['HTTP_CONNECTION']) ? $_SERVER['HTTP_CONNECTION'] : ''),
             'family'       => ($browserFamily !== false ? $browserFamily : '---'),
-            'host'         => $_SERVER['HTTP_HOST'],
+            'host'         => (isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : ''),
             'referrer'     => (isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : ''),
             'user_agent'   => $this->getUserAgentByCommonLib(),
-                ], $deviceDetectorClass->getClient(), $this->getClientBrowserAccepted());
-        // more digestable details about version
-        $browserInformation['version_major'] = explode('.', $browserInformation['version'])[0];
-        $browserInformation['version_minor'] = explode('.', $browserInformation['version'])[1];
+                ], $this->getClientBrowserAccepted());
+        $clientDetails      = $deviceDetectorClass->getClient();
+        if (is_array($clientDetails)) {
+            $browserInformation                  = array_merge($browserInformation, $clientDetails);
+            // more digestable details about version
+            $browserInformation['version_major'] = explode('.', $browserInformation['version'])[0];
+            $browserInformation['version_minor'] = explode('.', $browserInformation['version'])[1];
+        }
         ksort($browserInformation);
         return $browserInformation;
     }
@@ -137,8 +141,10 @@ trait BrowserAgentInfosByDanielGP
      */
     private function getClientBrowserAccepted()
     {
-        $sReturn           = [];
-        $sReturn['accept'] = $_SERVER['HTTP_ACCEPT'];
+        $sReturn = [];
+        if (isset($_SERVER['HTTP_ACCEPT'])) {
+            $sReturn['accept'] = $_SERVER['HTTP_ACCEPT'];
+        }
         if (isset($_SERVER['HTTP_ACCEPT_CHARSET'])) {
             $sReturn['accept_charset'] = $_SERVER['HTTP_ACCEPT_CHARSET'];
         }
@@ -146,16 +152,11 @@ trait BrowserAgentInfosByDanielGP
             $sReturn['accept_encoding'] = $_SERVER['HTTP_ACCEPT_ENCODING'];
         }
         if (isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
-            $sReturn['accept_language'] = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
+            $sReturn['accept_language']     = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
             preg_match_all('/([a-z]{2})(?:-[a-zA-Z]{2})?/', $_SERVER['HTTP_ACCEPT_LANGUAGE'], $m);
-        } else {
-            $m = [
-                '',
-                '',
-            ];
+            $sReturn['preferred locale']    = $m[0];
+            $sReturn['preferred languages'] = array_values(array_unique(array_values($m[1])));
         }
-        $sReturn['preferred locale']    = $m[0];
-        $sReturn['preferred languages'] = array_values(array_unique(array_values($m[1])));
         return $sReturn;
     }
 
@@ -251,7 +252,7 @@ trait BrowserAgentInfosByDanielGP
      */
     protected function getUserAgentByCommonLib()
     {
-        if (filter_has_var(INPUT_SERVER, 'HTTP_USER_AGENT')) {
+        if (filter_has_var(INPUT_SERVER, $_SERVER['HTTP_USER_AGENT'])) {
             $crtUserAgent = filter_input(INPUT_SERVER, 'HTTP_USER_AGENT', FILTER_UNSAFE_RAW, FILTER_NULL_ON_FAILURE);
         } elseif (isset($_SERVER['HTTP_USER_AGENT'])) {
             $crtUserAgent = filter_var($_SERVER['HTTP_USER_AGENT'], FILTER_UNSAFE_RAW, FILTER_NULL_ON_FAILURE);

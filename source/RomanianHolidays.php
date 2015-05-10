@@ -40,7 +40,7 @@ trait RomanianHolidays
      * List of legal holidays
      *
      * @param date $lngDate
-     * @param int $includeCatholicEaster
+     * @param boolean $includeCatholicEaster
      * @return array
      */
     protected function setHolidays($lngDate, $includeCatholicEaster = false)
@@ -49,14 +49,8 @@ trait RomanianHolidays
         $daying = $this->setHolidaysFixed($lngDate);
         if ($includeCatholicEaster) {
             // Catholic easter is already known by PHP
-            if ($yr == '2005') {
-                // in Windows returns a faulty day so I treated special
-                $daying[] = mktime(0, 0, 0, 3, 27, 2005); // Easter 1st day (Catholic)
-                $daying[] = mktime(0, 0, 0, 3, 28, 2005); // Easter 2nd day (Catholic)
-            } else {
-                $daying[] = easter_date($yr); // Easter 1st day (Catholic)
-                $daying[] = strtotime('+1 day', easter_date($yr)); // Easter 2nd day (Catholic)
-            }
+            $daying[] = easter_date($yr); // Easter 1st day (Catholic)
+            $daying[] = strtotime('+1 day', easter_date($yr)); // Easter 2nd day (Catholic)
         }
         if (($yr >= 2001) && ($yr <= 2005)) {
             $holidays = $this->setHolidaysEasterBetween2001and2005($lngDate);
@@ -89,15 +83,15 @@ trait RomanianHolidays
         $yr        = date('Y', $lngDate);
         $daying [] = mktime(0, 0, 0, 1, 1, $yr); // Happy New Year
         $daying[]  = mktime(0, 0, 0, 1, 2, $yr); // recovering from New Year party
-        $daying[]  = mktime(0, 0, 0, 5, 1, $yr); // May 1st
+        if ($yr >= 2015) {
+            $daying[] = mktime(0, 0, 0, 1, 24, $yr); // Unirea Principatelor Romane
+        }
+        $daying[] = mktime(0, 0, 0, 5, 1, $yr); // May 1st
         if ($yr >= 2009) {
             $daying[] = mktime(0, 0, 0, 8, 15, $yr); // St. Marry
         }
         if ($yr >= 2012) {
             $daying[] = mktime(0, 0, 0, 11, 30, $yr); // St. Andrew
-        }
-        if ($yr >= 2015) {
-            $daying[] = mktime(0, 0, 0, 1, 24, $yr); // Unirea Principatelor Romane
         }
         $daying[]  = mktime(0, 0, 0, 12, 1, $yr); // Romanian National Day
         $daying [] = mktime(0, 0, 0, 12, 25, $yr); // December 25th
@@ -282,10 +276,10 @@ trait RomanianHolidays
     }
 
     /**
-     * returns working days in a given month
+     * returns bank holidays in a given month
      *
      * @param date $lngDate
-     * @param int $includeCatholicEaster
+     * @param boolean $includeCatholicEaster
      * @return int
      */
     protected function setHolidaysInMonth($lngDate, $includeCatholicEaster = false)
@@ -308,7 +302,7 @@ trait RomanianHolidays
      * returns working days in a given month
      *
      * @param date $lngDate
-     * @param int $includeCatholicEaster
+     * @param boolean $includeCatholicEaster
      * @return int
      */
     protected function setWorkingDaysInMonth($lngDate, $includeCatholicEaster = false)
