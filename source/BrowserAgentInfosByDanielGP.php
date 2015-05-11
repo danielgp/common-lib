@@ -252,7 +252,7 @@ trait BrowserAgentInfosByDanielGP
      */
     protected function getUserAgentByCommonLib()
     {
-        if (filter_has_var(INPUT_SERVER, $_SERVER['HTTP_USER_AGENT'])) {
+        if (filter_has_var(INPUT_SERVER, 'HTTP_USER_AGENT')) {
             $crtUserAgent = filter_input(INPUT_SERVER, 'HTTP_USER_AGENT', FILTER_UNSAFE_RAW, FILTER_NULL_ON_FAILURE);
         } elseif (isset($_SERVER['HTTP_USER_AGENT'])) {
             $crtUserAgent = filter_var($_SERVER['HTTP_USER_AGENT'], FILTER_UNSAFE_RAW, FILTER_NULL_ON_FAILURE);
