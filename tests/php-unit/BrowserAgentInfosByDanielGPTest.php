@@ -28,7 +28,8 @@
 class BrowserAgentInfosByDanielGPTest extends PHPUnit_Framework_TestCase
 {
 
-    use \danielgp\common_lib\BrowserAgentInfosByDanielGP;
+    use \danielgp\common_lib\NetworkComponentsByDanielGP,
+        \danielgp\common_lib\BrowserAgentInfosByDanielGP;
 
     public function testArchitectureBrowserAMD64()
     {
@@ -75,14 +76,15 @@ class BrowserAgentInfosByDanielGPTest extends PHPUnit_Framework_TestCase
         $this->assertContains('---', $a['name']);
     }
 
-    public function testClientBrowserDetails()
+    public function testClientDetails()
     {
         // Arrange
-        $a = $this->getClientBrowserDetails(['Browser'], 'c:\\Users\\e303778\\AppData\\LocalLow\\Temp');
+        $a = $this->getClientBrowserDetails([
+            'Browser',
+            'Device',
+            'OS',
+                ], 'c:\\Users\\e303778\\AppData\\LocalLow\\Temp');
         // Assert
-        $this->assertArrayHasKey('name', $a);
-//        $this->assertContains('Firefox', $a['name']);
-//        $this->assertContains('39.0', $a['version']);
-//        $this->assertContains('Gecko', $a['family']);
+        $this->assertNotEmpty($a);
     }
 }

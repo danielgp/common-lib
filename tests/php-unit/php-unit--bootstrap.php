@@ -30,3 +30,4 @@ $_SERVER['HTTP_ACCEPT']          = 'text/html,application/xhtml+xml,application/
 $_SERVER['HTTP_ACCEPT_CHARSET']  = '';
 $_SERVER['HTTP_ACCEPT_ENCODING'] = 'gzip, deflate';
 $_SERVER['HTTP_ACCEPT_LANGUAGE'] = 'en-US,en;q=0.7,ro;q=0.3';
+$_SERVER['REMOTE_ADDR']          = '127.0.0.1';
