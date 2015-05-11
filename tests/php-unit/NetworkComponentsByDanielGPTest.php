@@ -94,6 +94,14 @@ class NetworkComponentsByDanielGPTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(167773449, $a);
     }
 
+    public function testConvertIpToNumberInvlidIP()
+    {
+        // Arrange
+        $a = $this->convertIpToNumber('10.99');
+        // Assert
+        $this->assertEquals('invalid IP', $a);
+    }
+
     public function testConvertIpToNumberOfIpV6()
     {
         // Arrange
