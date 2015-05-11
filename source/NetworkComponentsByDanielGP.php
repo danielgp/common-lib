@@ -109,7 +109,11 @@ trait NetworkComponentsByDanielGP
                 $ips     = explode('.', $ip);
                 $sReturn = $ips[3] + $ips[2] * 256 + $ips[1] * 65536 + $ips[0] * 16777216;
             } elseif (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
-                $sReturn = inet_ntop($ip);
+                $binNum = '';
+                foreach (unpack('C*', inet_pton($ip)) as $byte) {
+                    $binNum .= str_pad(decbin($byte), 8, "0", STR_PAD_LEFT);
+                }
+                $sReturn = base_convert(ltrim($binNum, '0'), 2, 10);
             }
         } else {
             $sReturn = 'invalid IP';
