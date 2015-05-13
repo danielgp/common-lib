@@ -152,6 +152,33 @@ trait MySQLiByDanielGPqueries
                 . 'GROUP BY `ENGINE`;';
     }
 
+    protected function sQueryMySqlColumns($filterArray = null)
+    {
+        return 'SELECT ' . implode(', ', [
+                    '`C`.`TABLE_SCHEMA`',
+                    '`C`.`TABLE_NAME`',
+                    '`C`.`COLUMN_NAME`',
+                    '`C`.`ORDINAL_POSITION`',
+                    '`C`.`COLUMN_DEFAULT`',
+                    '`C`.`IS_NULLABLE`',
+                    '`C`.`DATA_TYPE`',
+                    '`C`.`CHARACTER_MAXIMUM_LENGTH`',
+                    '`C`.`NUMERIC_PRECISION`',
+                    '`C`.`NUMERIC_SCALE`',
+                    '`C`.`DATETIME_PRECISION`',
+                    '`C`.`CHARACTER_SET_NAME`',
+                    '`C`.`COLLATION_NAME`',
+                    '`C`.`COLUMN_TYPE`',
+                    '`C`.`COLUMN_KEY`',
+                    '`C`.`COLUMN_COMMENT`',
+                ]) . ') '
+                . 'FROM `information_schema`.`COLUMNS` `C` '
+                . 'LEFT JOIN `information_schema`.`KEY_COLUMN_USAGE` `KCU` '
+                . $this->sManageDynamicFilters($filterArray, 'C')
+                . 'GROUP BY `C`.`TABLE_SCHEMA`, `C`.`TABLE_NAME`, `C`.`COLUMN_NAME` '
+                . 'ORDER BY `C`.`TABLE_SCHEMA`, `C`.`TABLE_NAME`, `C`.`ORDINAL_POSITION`;';
+    }
+
     /**
      * Query to list Global Variables
      *
@@ -190,15 +217,15 @@ trait MySQLiByDanielGPqueries
                 . ', `RC`.`UPDATE_RULE` '
                 . ', `RC`.`DELETE_RULE` '
                 . 'FROM `information_schema`.`KEY_COLUMN_USAGE` `KCU` '
-                . 'INNER JOIN `information_schema`.`COLUMNS` `C` ON (' . implode(') AND (', [
+                . 'INNER JOIN `information_schema`.`COLUMNS` `C` ON ((' . implode(') AND (', [
                     '`C`.`TABLE_SCHEMA` = `KCU`.`TABLE_SCHEMA`',
                     '`C`.`TABLE_NAME` = `KCU`.`TABLE_NAME`',
                     '`C`.`COLUMN_NAME` = `KCU`.`COLUMN_NAME`',
-                ]) . ') '
-                . 'LEFT JOIN `information_schema`.`REFERENTIAL_CONSTRAINTS` `RC` ON (' . implode(') AND (', [
+                ]) . ')) '
+                . 'LEFT JOIN `information_schema`.`REFERENTIAL_CONSTRAINTS` `RC` ON ((' . implode(') AND (', [
                     '`KCU`.`CONSTRAINT_SCHEMA` = `RC`.`CONSTRAINT_SCHEMA`',
                     '`KCU`.`CONSTRAINT_NAME` = `RC`.`CONSTRAINT_NAME`',
-                ]) . ') '
+                ]) . ')) '
                 . $this->sManageDynamicFilters($filterArray, 'KCU')
                 . 'ORDER BY `KCU`.`TABLE_SCHEMA`, `KCU`.`TABLE_NAME`' . $xtraSorting . ';';
     }
