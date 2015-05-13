@@ -25,14 +25,25 @@
  * SOFTWARE.
  *
  */
-session_start();
+class CommonLibLocaleTest extends PHPUnit_Framework_TestCase
+{
 
-$_SERVER['HTTP_USER_AGENT']      = 'Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:39.0) Gecko/20100101 Firefox/39.0';
-$_SERVER['HTTP_ACCEPT']          = 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8';
-$_SERVER['HTTP_ACCEPT_CHARSET']  = '';
-$_SERVER['HTTP_ACCEPT_ENCODING'] = 'gzip, deflate';
-$_SERVER['HTTP_ACCEPT_LANGUAGE'] = 'en-US,en;q=0.7,ro;q=0.3';
-$_SERVER['REMOTE_ADDR']          = '127.0.0.1';
-$_SESSION                        = [
-    'lang' => 'en_US'
-];
+    use \danielgp\common_lib\DomComponentsByDanielGP,
+        \danielgp\common_lib\CommonLibLocale;
+
+    public function testLocalMessage()
+    {
+        $actual = $this->lclMsgCmn('i18n_Generic_Unknown');
+        $this->assertEquals('unknown', $actual);
+    }
+
+    public function testUppeRightBoxLanguages()
+    {
+        $actual = $this->setUppeRightBoxLanguages([
+            'en_US' => 'US English',
+            'ro_RO' => 'Română',
+            'it_IT' => 'Italiano',
+        ]);
+        $this->assertContains('Română', $actual);
+    }
+}

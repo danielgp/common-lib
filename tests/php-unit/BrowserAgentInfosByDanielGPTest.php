@@ -87,4 +87,22 @@ class BrowserAgentInfosByDanielGPTest extends PHPUnit_Framework_TestCase
         // Assert
         $this->assertNotEmpty($a);
     }
+
+    public function testClientDetailsNoCacheSpecified()
+    {
+        // Arrange
+        $a = $this->getClientBrowserDetails([
+            'Browser',
+            'Device',
+            'OS',
+        ]);
+        // Assert
+        $this->assertNotEmpty($a);
+    }
+
+    public function UserAgent()
+    {
+        $actual = $this->getUserAgentByCommonLib();
+        $this->assertEquals('Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:39.0) Gecko/20100101 Firefox/39.0', $actual);
+    }
 }
