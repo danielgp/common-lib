@@ -117,6 +117,16 @@ trait MySQLiByDanielGP
     }
 
     /**
+     * returns a list of MySQL indexes (w. choice of to choose any combination of db/table/column)
+     *
+     * @return array
+     */
+    protected function getMySQLlistColumns($filterArray = null)
+    {
+        return $this->getMySQLlistMultiple('Columns', 'full_array_key_numbered', $filterArray);
+    }
+
+    /**
      * returns a list of MySQL databases (w. choice of exclude/include the system ones)
      *
      * @return array
