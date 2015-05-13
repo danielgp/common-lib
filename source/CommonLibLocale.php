@@ -69,7 +69,7 @@ trait CommonLibLocale
      *
      * @returns NOTHING
      */
-    protected function initCommomLibParameters()
+    private function initCommomLibParameters()
     {
         $this->commonLibFlags = [
             'available_languages' => [
@@ -107,7 +107,10 @@ trait CommonLibLocale
      */
     protected function setUppeRightBoxLanguages($aAvailableLanguages)
     {
-        $sReturn   = [];
+        $sReturn = [];
+        if (!isset($_SESSION['lang'])) {
+            $_SESSION['lang'] = array_keys($aAvailableLanguages)[0];
+        }
         $sReturn[] = '<div style="text-align:right;">'
                 . '<span class="flag-icon flag-icon-' . strtolower(substr($_SESSION['lang'], -2))
                 . '" style="margin-right:2px;">&nbsp;</span>'
