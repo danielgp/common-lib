@@ -134,11 +134,14 @@ trait DomComponentsByDanielGP
      */
     protected function setArrayToStringForUrl($sSeparator, $aElements, $aExceptedElements = [''])
     {
-        if (!is_array($aElements)) {
+        if (is_array($aElements)) {
+            if (count($aElements) == 0) {
+                return '';
+            }
+        } else {
             return '';
         }
         $sReturn = [];
-        reset($aElements);
         foreach ($aElements as $key => $value) {
             if (!in_array($key, $aExceptedElements)) {
                 if (is_array($aElements[$key])) {
