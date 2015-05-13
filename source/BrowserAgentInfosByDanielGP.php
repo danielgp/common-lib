@@ -171,10 +171,10 @@ trait BrowserAgentInfosByDanielGP
         if (isset($_GET['ua'])) {
             $userAgent = $_GET['ua'];
         } else {
-            if (PHP_SAPI === 'cli' || empty($_SERVER['REMOTE_ADDR'])) {  // command line
-                $userAgent = 'PHP/' . PHP_VERSION . ' comand-line';
-            } else {
+            if (isset($_SERVER['HTTP_USER_AGENT'])) {
                 $userAgent = $_SERVER['HTTP_USER_AGENT'];
+            } elseif (PHP_SAPI === 'cli' || empty($_SERVER['REMOTE_ADDR'])) {  // command line
+                $userAgent = 'PHP/' . PHP_VERSION . ' comand-line';
             }
         }
         $dd = new \DeviceDetector\DeviceDetector($userAgent);
