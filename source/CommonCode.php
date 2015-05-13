@@ -692,10 +692,7 @@ trait CommonCode
      */
     protected function setArrayValuesAsKey($inArray)
     {
-        $outArray = [];
-        foreach ($inArray as $value) {
-            $outArray[$value] = $value;
-        }
+        $outArray = array_combine($inArray, $inArray);
         ksort($outArray);
         return $outArray;
     }
