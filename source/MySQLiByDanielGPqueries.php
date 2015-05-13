@@ -154,24 +154,22 @@ trait MySQLiByDanielGPqueries
 
     protected function sQueryMySqlColumns($filterArray = null)
     {
-        return 'SELECT ' . implode(', ', [
-                    '`C`.`TABLE_SCHEMA`',
-                    '`C`.`TABLE_NAME`',
-                    '`C`.`COLUMN_NAME`',
-                    '`C`.`ORDINAL_POSITION`',
-                    '`C`.`COLUMN_DEFAULT`',
-                    '`C`.`IS_NULLABLE`',
-                    '`C`.`DATA_TYPE`',
-                    '`C`.`CHARACTER_MAXIMUM_LENGTH`',
-                    '`C`.`NUMERIC_PRECISION`',
-                    '`C`.`NUMERIC_SCALE`',
-                    '`C`.`DATETIME_PRECISION`',
-                    '`C`.`CHARACTER_SET_NAME`',
-                    '`C`.`COLLATION_NAME`',
-                    '`C`.`COLUMN_TYPE`',
-                    '`C`.`COLUMN_KEY`',
-                    '`C`.`COLUMN_COMMENT`',
-                ]) . ') '
+        return 'SELECT `C`.`TABLE_SCHEMA`'
+                . ', `C`.`TABLE_NAME`'
+                . ', `C`.`COLUMN_NAME`'
+                . ', `C`.`ORDINAL_POSITION`'
+                . ', `C`.`COLUMN_DEFAULT`'
+                . ', `C`.`IS_NULLABLE`'
+                . ', `C`.`DATA_TYPE`'
+                . ', `C`.`CHARACTER_MAXIMUM_LENGTH`'
+                . ', `C`.`NUMERIC_PRECISION`'
+                . ', `C`.`NUMERIC_SCALE`'
+                . ', `C`.`DATETIME_PRECISION`'
+                . ', `C`.`CHARACTER_SET_NAME`'
+                . ', `C`.`COLLATION_NAME`'
+                . ', `C`.`COLUMN_TYPE`'
+                . ', `C`.`COLUMN_KEY`'
+                . ', `C`.`COLUMN_COMMENT`'
                 . 'FROM `information_schema`.`COLUMNS` `C` '
                 . 'LEFT JOIN `information_schema`.`KEY_COLUMN_USAGE` `KCU` '
                 . $this->sManageDynamicFilters($filterArray, 'C')
