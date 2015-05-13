@@ -186,13 +186,13 @@ trait CommonCode
         }
         curl_close($ch);
         $sReturn = '';
-        if ($this->isJson($aReturn['info'])) {
+        if ($this->isJsonByDanielGP($aReturn['info'])) {
             $sReturn = '"info": ' . $aReturn['info'];
         } else {
             $sReturn = '"info": {' . $aReturn['info'] . ' }';
         }
         $sReturn .= ', ';
-        if ($this->isJson($aReturn['response'])) {
+        if ($this->isJsonByDanielGP($aReturn['response'])) {
             $sReturn .= '"response": ' . $aReturn['response'];
         } else {
             $sReturn .= '"response": { ' . $aReturn['response'] . ' }';
@@ -421,7 +421,7 @@ trait CommonCode
      * @param string $inputJson
      * @return boolean|string
      */
-    protected function isJson($inputJson)
+    protected function isJsonByDanielGP($inputJson)
     {
         if (is_string($inputJson)) {
             json_decode($inputJson);
@@ -705,7 +705,7 @@ trait CommonCode
      */
     protected function setJsonToArray($inputJson)
     {
-        if (!$this->isJson($inputJson)) {
+        if (!$this->isJsonByDanielGP($inputJson)) {
             return [
                 'error' => $this->lclMsgCmn('i18n_Error_GivenInputIsNotJson')
             ];
