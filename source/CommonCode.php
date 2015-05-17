@@ -353,7 +353,7 @@ trait CommonCode
             } else {
                 $l = $defaultNA;
             }
-            $finalInformation[$value['name']] = [
+            $finalInformation = [
                 'Aging'            => (isset($value['time']) ? $interval->format('%a days ago') : $defaultNA),
                 'Description'      => (isset($value['description']) ? $value['description'] : $defaultNA),
                 'Homepage'         => (isset($value['homepage']) ? $value['homepage'] : $defaultNA),
