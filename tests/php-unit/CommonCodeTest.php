@@ -54,6 +54,47 @@ class CommonCodeTest extends PHPUnit_Framework_TestCase
         $this->assertArrayHasKey('error', $actual);
     }
 
+    public function testGetContentFromUrlThroughCurl()
+    {
+        $actual = $this->getContentFromUrlThroughCurl('http://127.0.0.1/informator/source/info/?Label=ClientInfo');
+        $this->assertJson($actual);
+    }
+
+    public function testGetContentFromUrlThroughCurlAsArrayIfJson()
+    {
+        $actual = $this->getContentFromUrlThroughCurlAsArrayIfJson('http://127.0.0.1/informator/source/info/?Label=ClientInfo')['response'];
+        $this->assertArrayHasKey('Browser', $actual);
+    }
+
+    public function testGetContentFromUrlThroughCurlInvalid()
+    {
+        $actual = $this->getContentFromUrlThroughCurl('127.0.0.1/informator/source/info/?Label=ClientInfo');
+        $this->assertJson($actual);
+    }
+
+    public function testGetContentFromUrlThroughCurlSecure()
+    {
+        $actual = $this->getContentFromUrlThroughCurl('https://127.0.0.1/informator/source/info/?Label=ClientInfo', [
+            'forceSSLverification'
+        ]);
+        $this->assertJson($actual);
+    }
+
+    public function testGetPackageDetailsFromGivenComposerLockFile()
+    {
+        $pathParts = explode(DIRECTORY_SEPARATOR, __DIR__);
+        $file      = implode(DIRECTORY_SEPARATOR, array_diff($pathParts, ['tests', 'php-unit']))
+                . DIRECTORY_SEPARATOR . 'composer.lock';
+        $actual    = $this->getPackageDetailsFromGivenComposerLockFile($file);
+        $this->assertArrayHasKey('Aging', $actual);
+    }
+
+    public function testGetPackageDetailsFromGivenComposerLockFileError()
+    {
+        $actual = $this->getPackageDetailsFromGivenComposerLockFile('composer.not');
+        $this->assertArrayHasKey('error', $actual);
+    }
+
     public function testListOfFilesExisting()
     {
         $actual = $this->getListOfFiles(__DIR__);
@@ -70,5 +111,29 @@ class CommonCodeTest extends PHPUnit_Framework_TestCase
     {
         $actual = $this->getListOfFiles(__FILE__);
         $this->assertArrayHasKey('error', $actual);
+    }
+
+    public function testGetTimestampArray()
+    {
+        $actual = $this->getTimestamp('array');
+        $this->assertArrayHasKey('float', $actual);
+    }
+
+    public function testGetTimestampFloat()
+    {
+        $actual = $this->getTimestamp('float');
+        $this->assertGreaterThan(strtotime('now'), $actual);
+    }
+
+    public function testGetTimestampString()
+    {
+        $actual = $this->getTimestamp('string');
+        $this->assertEquals(date('[Y-m-d H:i:s', strtotime('now')), substr(strip_tags($actual), 0, 20));
+    }
+
+    public function testGetTimestampUnknownReturnType()
+    {
+        $actual = $this->getTimestamp('just time');
+        $this->assertEquals(sprintf($this->lclMsgCmn('i18n_Error_UnknownReturnType'), 'just time'), $actual);
     }
 }
