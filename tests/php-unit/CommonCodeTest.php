@@ -86,7 +86,7 @@ class CommonCodeTest extends PHPUnit_Framework_TestCase
         $file      = implode(DIRECTORY_SEPARATOR, array_diff($pathParts, ['tests', 'php-unit']))
                 . DIRECTORY_SEPARATOR . 'composer.lock';
         $actual    = $this->getPackageDetailsFromGivenComposerLockFile($file);
-        $this->assertArrayHasKey('Aging', $actual);
+        $this->assertArrayHasKey('Aging', $actual['gettext/gettext']);
     }
 
     public function testGetPackageDetailsFromGivenComposerLockFileError()
@@ -135,5 +135,50 @@ class CommonCodeTest extends PHPUnit_Framework_TestCase
     {
         $actual = $this->getTimestamp('just time');
         $this->assertEquals(sprintf($this->lclMsgCmn('i18n_Error_UnknownReturnType'), 'just time'), $actual);
+    }
+
+    public function testIsJsonByDanielGP()
+    {
+        $actual = $this->isJsonByDanielGP(['array']);
+        $this->assertEquals($this->lclMsgCmn('i18n_Error_GivenInputIsNotJson'), $actual);
+    }
+
+    public function testSetArrayToExcel()
+    {
+        $this->setArrayToExcel([
+            'contentArray' => [
+                [
+                    'First Column'  => 10,
+                    'Second Column' => 20,
+                ]
+            ],
+            'filename'     => 'D:/test.xls',
+            'properties'   => [
+                'Creator'        => 'PHPunit test',
+                'LastModifiedBy' => 'PHPunit test',
+                'description'    => 'PHPunit test description',
+                'subject'        => 'PHPunit test subject',
+                'title'          => 'PHPunit test title',
+            ],
+        ]);
+        $this->assertFileExists('D:/test.xlsx');
+    }
+
+    public function testSetArrayToJsonInvalid()
+    {
+        $actual = $this->setArrayToJson('string');
+        $this->assertEquals($this->lclMsgCmn('i18n_Error_GivenInputIsNotArray'), $actual);
+    }
+
+    public function testSetArrayValuesAsKey()
+    {
+        $actual = $this->setArrayValuesAsKey(['one', 'two']);
+        $this->assertArrayHasKey('one', $actual);
+    }
+
+    public function testSetJsonToArrayInvalid()
+    {
+        $actual = $this->setJsonToArray('one');
+        $this->assertArrayHasKey('error', $actual);
     }
 }

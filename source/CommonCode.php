@@ -288,10 +288,6 @@ trait CommonCode
             $aFiles = [
                 'error' => sprintf($this->lclMsgCmn('i18n_Error_GivenPathIsNotValid'), $pathAnalised)
             ];
-        } elseif (!file_exists($pathAnalised)) {
-            $aFiles = [
-                'error' => sprintf($this->lclMsgCmn('i18n_Error_GivenPathDoesNotExist'), $pathAnalised)
-            ];
         } elseif (!is_dir($pathAnalised)) {
             $aFiles = [
                 'error' => $this->lclMsgCmn('i18n_Error_GivenPathIsNotFolder')
@@ -353,7 +349,7 @@ trait CommonCode
             } else {
                 $l = $defaultNA;
             }
-            $finalInformation = [
+            $finalInformation[$value['name']] = [
                 'Aging'            => (isset($value['time']) ? $interval->format('%a days ago') : $defaultNA),
                 'Description'      => (isset($value['description']) ? $value['description'] : $defaultNA),
                 'Homepage'         => (isset($value['homepage']) ? $value['homepage'] : $defaultNA),
@@ -511,8 +507,24 @@ trait CommonCode
      */
     protected function setArrayToExcel($inFeatures)
     {
-        if (!is_array($inFeatures['contentArray'])) {
-            echo 'no data!!!';
+        if (is_array($inFeatures)) {
+            if (isset($inFeatures['filename'])) {
+                if (is_string($inFeatures['filename'])) {
+                    $inFeatures['filename'] = filter_var($inFeatures['filename'], FILTER_SANITIZE_STRING);
+                } else {
+                    return 'Provided filename is not a string!';
+                }
+            } else {
+                return 'No filename provided';
+            }
+            if (!isset($inFeatures['worksheetname'])) {
+                $inFeatures['worksheetname'] = 'Worksheet1';
+            }
+            if (!is_array($inFeatures['contentArray'])) {
+                return 'No content!';
+            }
+        } else {
+            return 'Missing parameters!';
         }
         $xlFileName  = str_replace('.xls', '', $inFeatures['filename']) . '.xlsx';
         // Create an instance
@@ -605,7 +617,7 @@ trait CommonCode
             // activate AutoFilter
             $objPHPExcel->getActiveSheet()->setAutoFilter('A1:' . $crCol . ($counter - 1));
             // margin is set in inches (0.7cm)
-            $margin    = 0.7 / 2.54;
+            $margin = 0.7 / 2.54;
             $objPHPExcel->getActiveSheet()->getPageMargins()->setHeader($margin);
             $objPHPExcel->getActiveSheet()->getPageMargins()->setTop($margin * 2);
             $objPHPExcel->getActiveSheet()->getPageMargins()->setBottom($margin);
@@ -617,12 +629,14 @@ trait CommonCode
             $objPHPExcel->getActiveSheet()->getPageSetup()->setRowsToRepeatAtTopByStartAndEnd(1, 1);
             // activate printing of gridlines
             $objPHPExcel->getActiveSheet()->setPrintGridlines(true);
-            // output the created content to the browser
-            header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-            header('Pragma: private');
-            header('Cache-control: private, must-revalidate');
-            header('Content-Disposition: attachment;filename="' . $xlFileName . '"');
-            header('Cache-Control: max-age=0');
+            if (!in_array(PHP_SAPI, ['cli', 'cli-server'])) {
+                // output the created content to the browser
+                header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+                header('Pragma: private');
+                header('Cache-control: private, must-revalidate');
+                header('Content-Disposition: attachment;filename="' . $xlFileName . '"');
+                header('Cache-Control: max-age=0');
+            }
             $objWriter = new \PHPExcel_Writer_Excel2007($objPHPExcel);
             $objWriter->save('php://output');
             unset($objPHPExcel);
@@ -671,13 +685,9 @@ trait CommonCode
         if (!is_array($inArray)) {
             return $this->lclMsgCmn('i18n_Error_GivenInputIsNotArray');
         }
-        if (version_compare(phpversion(), "5.4.0", ">=")) {
-            $rtrn = utf8_encode(json_encode($inArray, JSON_FORCE_OBJECT | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
-        } else {
-            $rtrn = json_encode($inArray);
-        }
+        $rtrn      = utf8_encode(json_encode($inArray, JSON_FORCE_OBJECT | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
         $jsonError = $this->setJsonErrorInPlainEnglish();
-        if ($jsonError == '') {
+        if (is_null($jsonError)) {
             return $rtrn;
         } else {
             return $jsonError;
@@ -712,7 +722,7 @@ trait CommonCode
         }
         $sReturn   = (json_decode($inputJson, true));
         $jsonError = $this->setJsonErrorInPlainEnglish();
-        if ($jsonError == '') {
+        if (is_null($jsonError)) {
             return $sReturn;
         } else {
             return [
