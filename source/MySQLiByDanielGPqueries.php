@@ -171,7 +171,11 @@ trait MySQLiByDanielGPqueries
                 . ', `C`.`COLUMN_KEY`'
                 . ', `C`.`COLUMN_COMMENT`'
                 . 'FROM `information_schema`.`COLUMNS` `C` '
-                . 'LEFT JOIN `information_schema`.`KEY_COLUMN_USAGE` `KCU` '
+                . 'LEFT JOIN `information_schema`.`KEY_COLUMN_USAGE` `KCU` ON ((' . implode(') AND (', [
+                    '`C`.`TABLE_SCHEMA` = `KCU`.`TABLE_SCHEMA`',
+                    '`C`.`TABLE_NAME` = `KCU`.`TABLE_NAME`',
+                    '`C`.`COLUMN_NAME` = `KCU`.`COLUMN_NAME`',
+                ]) . ')) '
                 . $this->sManageDynamicFilters($filterArray, 'C')
                 . 'GROUP BY `C`.`TABLE_SCHEMA`, `C`.`TABLE_NAME`, `C`.`COLUMN_NAME` '
                 . 'ORDER BY `C`.`TABLE_SCHEMA`, `C`.`TABLE_NAME`, `C`.`ORDINAL_POSITION`;';
