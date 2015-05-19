@@ -638,7 +638,11 @@ trait CommonCode
                 header('Cache-Control: max-age=0');
             }
             $objWriter = new \PHPExcel_Writer_Excel2007($objPHPExcel);
-            $objWriter->save('php://output');
+            if (in_array(PHP_SAPI, ['cli', 'cli-server'])) {
+                $objWriter->save($xlFileName);
+            } else {
+                $objWriter->save('php://output');
+            }
             unset($objPHPExcel);
         }
     }
