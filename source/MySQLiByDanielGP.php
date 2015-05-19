@@ -174,6 +174,9 @@ trait MySQLiByDanielGP
             }
         } else {
             switch ($returnChoice) {
+                case 'Columns':
+                    $q = $this->sQueryMySqlColumns($additionalFeatures);
+                    break;
                 case 'Databases':
                     $q = $this->sQueryMySqlActiveDatabases($additionalFeatures);
                     break;
