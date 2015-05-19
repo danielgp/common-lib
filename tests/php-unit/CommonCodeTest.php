@@ -152,7 +152,7 @@ class CommonCodeTest extends PHPUnit_Framework_TestCase
                     'Second Column' => 20,
                 ]
             ],
-            'filename'     => 'D:/test.xls',
+            'filename'     => 'C:/Windows/Temp/test.xls',
             'properties'   => [
                 'Creator'        => 'PHPunit test',
                 'LastModifiedBy' => 'PHPunit test',
@@ -161,7 +161,7 @@ class CommonCodeTest extends PHPUnit_Framework_TestCase
                 'title'          => 'PHPunit test title',
             ],
         ]);
-        $this->assertFileExists('D:/test.xlsx');
+        $this->assertFileExists('C:/Windows/Temp/test.xlsx');
     }
 
     public function testSetArrayToJsonInvalid()
