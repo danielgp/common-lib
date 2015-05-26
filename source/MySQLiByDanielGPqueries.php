@@ -263,7 +263,10 @@ trait MySQLiByDanielGPqueries
                 . ', `ENGINE` '
                 . ', `VERSION` '
                 . ', `ROW_FORMAT` '
+                . ', `AUTO_INCREMENT` '
                 . ', `TABLE_COLLATION` '
+                . ', `CREATE_TIME` '
+                . ', `CREATE_OPTIONS` '
                 . ', `TABLE_COMMENT` '
                 . 'FROM `information_schema`.`TABLES` `T` '
                 . $this->sManageDynamicFilters($filterArray, 'T')
