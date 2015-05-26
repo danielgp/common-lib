@@ -143,6 +143,15 @@ class CommonCodeTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($this->lclMsgCmn('i18n_Error_GivenInputIsNotJson'), $actual);
     }
 
+    public function testRemoveFilesOlderThanGivenRule()
+    {
+        $actual = $this->removeFilesOlderThanGivenRule([
+            'path'     => 'D:\\www\\other\\logs\\PHP\\PHP56\\',
+            'dateRule' => strtotime('1 sec ago'),
+        ]);
+        $this->assertFileNotExists('D:\\www\\other\\logs\\PHP\\PHP56\\errors.log');
+    }
+
     public function testSetArrayToExcel()
     {
         $this->setArrayToExcel([

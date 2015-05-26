@@ -485,6 +485,7 @@ trait CommonCode
                     ->ignoreUnreadableDirs(true)
                     ->followLinks()
                     ->in($inputArray['path']);
+            $aFiles   = null;
             foreach ($iterator as $file) {
                 if ($file->getATime() < strtotime($inputArray['dateRule'])) {
                     if ($file->getMTime() < strtotime($inputArray['dateRule'])) {
@@ -492,9 +493,13 @@ trait CommonCode
                     }
                 }
             }
-            $filesystem = new \Symfony\Component\Filesystem\Filesystem();
-            $filesystem->remove($aFiles);
-            return $this->setArrayToJson($aFiles);
+            if (is_null($aFiles)) {
+                return null;
+            } else {
+                $filesystem = new \Symfony\Component\Filesystem\Filesystem();
+                $filesystem->remove($aFiles);
+                return $this->setArrayToJson($aFiles);
+            }
         } else {
             return $error;
         }

@@ -45,10 +45,11 @@ trait DomComponentsByDanielGP
      */
     private function calculateSelectOptionsSize($aElements, $aFeatures = [])
     {
-        if (!is_array($aElements)) {
-            return '';
-        } else {
-            if (in_array('size', array_keys($aFeatures))) {
+        if (is_null($aFeatures)) {
+            $aFeatures = [];
+        }
+        if (is_array($aElements)) {
+            if (isset($aFeatures['size'])) {
                 if ($aFeatures['size'] == 0) {
                     $selectSize = count($aElements);
                 } else {
@@ -61,6 +62,8 @@ trait DomComponentsByDanielGP
                 $selectSize++;
             }
             return $selectSize;
+        } else {
+            return '';
         }
     }
 
@@ -96,7 +99,7 @@ trait DomComponentsByDanielGP
         $string2return = '<select name="' . $select_name . $select_id
                 . '" size="' . $this->calculateSelectOptionsSize($aElements, $features_array) . '"';
         if (is_array($features_array)) {
-            if (in_array('additional_javascript_action', array_keys($features_array))) {
+            if (isset($features_array['additional_javascript_action'])) {
                 $temporary_string = $features_array['additional_javascript_action'];
             } else {
                 $temporary_string = '';
