@@ -170,6 +170,7 @@ trait MySQLiByDanielGPqueries
                 . ', `C`.`COLUMN_TYPE`'
                 . ', `C`.`COLUMN_KEY`'
                 . ', `C`.`COLUMN_COMMENT`'
+                . ', `C`.`EXTRA`'
                 . 'FROM `information_schema`.`COLUMNS` `C` '
                 . 'LEFT JOIN `information_schema`.`KEY_COLUMN_USAGE` `KCU` ON ((' . implode(') AND (', [
                     '`C`.`TABLE_SCHEMA` = `KCU`.`TABLE_SCHEMA`',
