@@ -468,10 +468,10 @@ trait CommonCode
         if (is_array($inputArray)) {
             if (!isset($inputArray['path'])) {
                 $proceedWithDeletion = false;
-                $error[]             = '`path` has not been provided';
+                $error               = '`path` has not been provided';
             } elseif (!isset($inputArray['dateRule'])) {
                 $proceedWithDeletion = false;
-                $error[]             = '`dateRule` has not been provided';
+                $error               = '`dateRule` has not been provided';
             } else {
                 $proceedWithDeletion = true;
             }

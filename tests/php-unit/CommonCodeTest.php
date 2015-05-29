@@ -152,6 +152,22 @@ class CommonCodeTest extends PHPUnit_Framework_TestCase
         $this->assertFileNotExists('D:\\www\\other\\logs\\PHP\\PHP56\\errors.log');
     }
 
+    public function testRemoveFilesOlderThanGivenRuleNoDateRule()
+    {
+        $actual = $this->removeFilesOlderThanGivenRule([
+            'path' => 'D:\\www\\other\\logs\\PHP\\PHP56\\',
+        ]);
+        $this->assertEquals('`dateRule` has not been provided', $actual);
+    }
+
+    public function testRemoveFilesOlderThanGivenRuleNoPath()
+    {
+        $actual = $this->removeFilesOlderThanGivenRule([
+            'dateRule' => strtotime('1 sec ago'),
+        ]);
+        $this->assertEquals('`path` has not been provided', $actual);
+    }
+
     public function testSetArrayToExcel()
     {
         $this->setArrayToExcel([

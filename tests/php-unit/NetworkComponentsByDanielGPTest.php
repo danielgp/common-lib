@@ -109,4 +109,10 @@ class NetworkComponentsByDanielGPTest extends PHPUnit_Framework_TestCase
         // Assert
         $this->assertEquals(4294967295, $a);
     }
+
+    public function testGetClientRealIpAddress()
+    {
+        $a = $this->getClientRealIpAddress();
+        $this->assertEquals('127.0.0.1', $a);
+    }
 }
