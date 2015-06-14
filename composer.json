@@ -35,8 +35,7 @@
             "source/DomComponentsByDanielGPwithCDN.php",
             "source/MySQLiByDanielGPqueries.php",
             "source/MySQLiByDanielGP.php",
-            "source/NetworkComponentsByDanielGP.php",
-            "source/RomanianHolidays.php"
+            "source/NetworkComponentsByDanielGP.php"
         ]
     },
     "minimum-stability": "stable",

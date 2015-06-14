@@ -147,7 +147,7 @@ class CommonCodeTest extends PHPUnit_Framework_TestCase
     {
         $actual = $this->removeFilesOlderThanGivenRule([
             'path'     => 'D:\\www\\other\\logs\\PHP\\PHP56\\',
-            'dateRule' => strtotime('1 sec ago'),
+            'dateRule' => strtotime('0 sec ago'),
         ]);
         $this->assertFileNotExists('D:\\www\\other\\logs\\PHP\\PHP56\\errors.log');
     }
