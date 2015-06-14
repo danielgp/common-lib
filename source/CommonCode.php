@@ -42,8 +42,7 @@ trait CommonCode
         MySQLiByDanielGPqueries,
         MySQLiByDanielGP,
         NetworkComponentsByDanielGP,
-        BrowserAgentInfosByDanielGP,
-        RomanianHolidays;
+        BrowserAgentInfosByDanielGP;
 
     /**
      * Returns an array with meaningfull content of permissions
