@@ -168,27 +168,6 @@ class CommonCodeTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('`path` has not been provided', $actual);
     }
 
-    public function testSetArrayToExcel()
-    {
-        $this->setArrayToExcel([
-            'contentArray' => [
-                [
-                    'First Column'  => 10,
-                    'Second Column' => 20,
-                ]
-            ],
-            'filename'     => 'C:/Windows/Temp/test.xls',
-            'properties'   => [
-                'Creator'        => 'PHPunit test',
-                'LastModifiedBy' => 'PHPunit test',
-                'description'    => 'PHPunit test description',
-                'subject'        => 'PHPunit test subject',
-                'title'          => 'PHPunit test title',
-            ],
-        ]);
-        $this->assertFileExists('C:/Windows/Temp/test.xlsx');
-    }
-
     public function testSetArrayToJsonInvalid()
     {
         $actual = $this->setArrayToJson('string');

@@ -19,7 +19,6 @@
         "fortawesome/font-awesome": "*",
         "gettext/gettext": "*",
         "piwik/device-detector": "*",
-        "phpoffice/phpexcel": "*",
         "symfony/finder": "*",
         "symfony/filesystem": "*"
     },
