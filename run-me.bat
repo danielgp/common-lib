@@ -1,1 +1,1 @@
-composer update --profile
+composer update --profile --verbose

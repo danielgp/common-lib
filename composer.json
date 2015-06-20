@@ -14,13 +14,11 @@
         "php": ">=5.4",
         "ext-curl": "*",
         "ext-mysqli": "*",
-        "components/flag-icon-css": "*",
-        "doctrine/cache": "*",
-        "fortawesome/font-awesome": "*",
-        "gettext/gettext": "*",
-        "piwik/device-detector": "*",
-        "symfony/finder": "*",
-        "symfony/filesystem": "*"
+        "danielgp/browser-agent-info": ">=1.0",
+        "danielgp/network-components": ">=1.0",
+        "gettext/gettext": ">=3.4",
+        "symfony/finder": ">=2.7",
+        "symfony/filesystem": ">2.7"
     },
     "require-dev": {
         "phpunit/phpunit": "*"
@@ -28,13 +26,11 @@
     "autoload": {
         "classmap": [
             "source/CommonLibLocale.php",
-            "source/BrowserAgentInfosByDanielGP.php",
             "source/CommonCode.php",
             "source/DomComponentsByDanielGP.php",
             "source/DomComponentsByDanielGPwithCDN.php",
             "source/MySQLiByDanielGPqueries.php",
-            "source/MySQLiByDanielGP.php",
-            "source/NetworkComponentsByDanielGP.php"
+            "source/MySQLiByDanielGP.php"
         ]
     },
     "minimum-stability": "stable",

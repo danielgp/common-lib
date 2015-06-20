@@ -37,12 +37,11 @@ trait CommonCode
 {
 
     use CommonLibLocale,
+        \danielgp\browser_agent_info\BrowserAgentInfosByDanielGP,
         DomComponentsByDanielGP,
         DomComponentsByDanielGPwithCDN,
         MySQLiByDanielGPqueries,
-        MySQLiByDanielGP,
-        NetworkComponentsByDanielGP,
-        BrowserAgentInfosByDanielGP;
+        MySQLiByDanielGP;
 
     /**
      * Returns an array with meaningfull content of permissions
@@ -487,9 +486,7 @@ trait CommonCode
             $aFiles   = null;
             foreach ($iterator as $file) {
                 if ($file->getATime() < strtotime($inputArray['dateRule'])) {
-                    if ($file->getMTime() < strtotime($inputArray['dateRule'])) {
-                        $aFiles[] = $file->getRealPath();
-                    }
+                    $aFiles[] = $file->getRealPath();
                 }
             }
             if (is_null($aFiles)) {
