@@ -574,10 +574,9 @@ trait CommonCode
             JSON_ERROR_UTF8           => 'Malformed UTF-8 characters, possibly incorrectly encoded',
         ];
         $currentError = json_last_error();
+        $sReturn      = null;
         if (in_array($currentError, $knownErrors)) {
             $sReturn = $knownErrors[$currentError];
-        } else {
-            $sReturn = null;
         }
         return $sReturn;
     }

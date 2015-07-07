@@ -14,6 +14,7 @@
         "php": ">=5.4",
         "ext-curl": "*",
         "ext-mysqli": "*",
+        "components/flag-icon-css": "*",
         "danielgp/browser-agent-info": ">=1.0",
         "danielgp/network-components": ">=1.0",
         "gettext/gettext": ">=3.4",
