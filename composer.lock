@@ -46,16 +46,16 @@
         },
         {
             "name": "danielgp/browser-agent-info",
-            "version": "1.0.2",
+            "version": "1.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/danielgp/browser-agent-info.git",
-                "reference": "c33f48a3dbc11936c4220828f9317b6c3d74377d"
+                "reference": "06e69ee55144dfb19eb834c64228d310621afd08"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/danielgp/browser-agent-info/zipball/c33f48a3dbc11936c4220828f9317b6c3d74377d",
-                "reference": "c33f48a3dbc11936c4220828f9317b6c3d74377d",
+                "url": "https://api.github.com/repos/danielgp/browser-agent-info/zipball/06e69ee55144dfb19eb834c64228d310621afd08",
+                "reference": "06e69ee55144dfb19eb834c64228d310621afd08",
                 "shasum": ""
             },
             "require": {
@@ -89,7 +89,7 @@
                 }
             ],
             "description": "Get client information from browser agent string",
-            "time": "2015-06-22 11:35:28"
+            "time": "2015-07-10 13:46:31"
         },
         {
             "name": "danielgp/network-components",
