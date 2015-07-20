@@ -430,7 +430,7 @@ trait DomComponentsByDanielGP
     protected function setJavascriptFileContent($jsFileName)
     {
         $sReturn[] = '<script type="text/javascript"><!-- ';
-        $sReturn[] = $this->getExternalFileContent($jsFileName);
+        $sReturn[] = file_get_contents($jsFileName, true);
         $sReturn[] = ' //--></script>';
         return implode('', $sReturn);
     }
