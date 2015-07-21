@@ -40,13 +40,13 @@ trait CommonLibLocale
     protected $tCmnLb         = null;
 
     /**
-     * Takes care of instatiation of localization libraries
-     * used within current module for multi-languages support
+     * Stores given language or default one into global session variable
      *
      * @return NOTHING
      */
-    private function handleLocalizationCommon()
+    private function handleLanguageIntoSession()
     {
+        $this->settingsCommonLib();
         if (isset($_GET['lang'])) {
             $_SESSION['lang'] = filter_var($_GET['lang'], FILTER_SANITIZE_STRING);
         } elseif (!isset($_SESSION['lang'])) {
@@ -56,31 +56,23 @@ trait CommonLibLocale
         if (!in_array($_SESSION['lang'], array_keys($this->commonLibFlags['available_languages']))) {
             $_SESSION['lang'] = $this->commonLibFlags['default_language'];
         }
+    }
+
+    /**
+     * Takes care of instatiation of localization libraries
+     * used within current module for multi-languages support
+     *
+     * @return NOTHING
+     */
+    private function handleLocalizationCommon()
+    {
+        $this->handleLanguageIntoSession();
         $localizationFile = __DIR__ . '/locale/' . $_SESSION['lang'] . '/LC_MESSAGES/'
                 . $this->commonLibFlags['localization_domain']
                 . '.mo';
         $translations     = \Gettext\Extractors\Mo::fromFile($localizationFile);
         $this->tCmnLb     = new \Gettext\Translator();
         $this->tCmnLb->loadTranslations($translations);
-    }
-
-    /**
-     * Takes care of instatiation of common flags used internally winthin current trait
-     *
-     * @returns NOTHING
-     */
-    private function initCommomLibParameters()
-    {
-        $this->commonLibFlags = [
-            'available_languages' => [
-                'en_US' => 'US English',
-                'ro_RO' => 'Română',
-                'it_IT' => 'Italiano',
-            ],
-            'default_language'    => 'en_US',
-            'localization_domain' => 'common-locale'
-        ];
-        $this->handleLocalizationCommon();
     }
 
     /**
@@ -92,7 +84,8 @@ trait CommonLibLocale
     protected function lclMsgCmn($localizedStringCode)
     {
         if (is_null($this->commonLibFlags)) {
-            $this->initCommomLibParameters();
+            $this->settingsCommonLib();
+            $this->handleLocalizationCommon();
         }
         return $this->tCmnLb->gettext($localizedStringCode);
     }
@@ -107,19 +100,16 @@ trait CommonLibLocale
      */
     protected function setUppeRightBoxLanguages($aAvailableLanguages)
     {
-        $sReturn = [];
-        if (!isset($_SESSION['lang'])) {
-            $_SESSION['lang'] = array_keys($aAvailableLanguages)[0];
-        }
-        $sReturn[] = '<div style="text-align:right;">'
+        $sReturn             = [];
+        $this->handleLanguageIntoSession();
+        $sReturn[]           = '<div style="text-align:right;">'
                 . '<span class="flag-icon flag-icon-' . strtolower(substr($_SESSION['lang'], -2))
                 . '" style="margin-right:2px;">&nbsp;</span>'
                 . $aAvailableLanguages[$_SESSION['lang']]
                 . '</div><!-- default Language -->';
+        $linkWithoutLanguage = '';
         if (isset($_REQUEST)) {
             $linkWithoutLanguage = $this->setArrayToStringForUrl('&amp;', $_REQUEST, ['lang']) . '&amp;';
-        } else {
-            $linkWithoutLanguage = '';
         }
         $sReturn[] = '<div id="visibleOnHover">';
         foreach ($aAvailableLanguages as $key => $value) {
@@ -134,5 +124,23 @@ trait CommonLibLocale
         return '<div class="upperRightBox">'
                 . implode('', $sReturn)
                 . '</div><!-- upperRightBox end -->';
+    }
+
+    /**
+     * Settings
+     *
+     * @return NOTHING
+     */
+    private function settingsCommonLib()
+    {
+        $this->commonLibFlags = [
+            'available_languages' => [
+                'en_US' => 'US English',
+                'ro_RO' => 'Română',
+                'it_IT' => 'Italiano',
+            ],
+            'default_language'    => 'en_US',
+            'localization_domain' => 'common-locale'
+        ];
     }
 }
