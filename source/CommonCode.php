@@ -43,6 +43,26 @@ trait CommonCode
         MySQLiByDanielGPqueries,
         MySQLiByDanielGP;
 
+    protected function arrayDiffAssocRecursive($array1, $array2)
+    {
+        $difference = array();
+        foreach ($array1 as $key => $value) {
+            if (is_array($value)) {
+                if (!isset($array2[$key]) || !is_array($array2[$key])) {
+                    $difference[$key] = $value;
+                } else {
+                    $workingDiff = $this->arrayDiffAssocRecursive($value, $array2[$key]);
+                    if (!empty($workingDiff)) {
+                        $difference[$key] = $workingDiff;
+                    }
+                }
+            } elseif (!array_key_exists($key, $array2) || $array2[$key] !== $value) {
+                $difference[$key] = $value;
+            }
+        }
+        return $difference;
+    }
+
     /**
      * Returns an array with meaningfull content of permissions
      *
@@ -219,6 +239,19 @@ trait CommonCode
             }
         }
         return $result;
+    }
+
+    protected function getFeedbackMySQLAffectedRecords()
+    {
+        if (is_null($this->mySQLconnection)) {
+            $message = 'No MySQL';
+        } else {
+            $ar      = $this->mySQLconnection->affected_rows;
+            $message = sprintf($this->lclMsgCmnNumber('i18n_Record', 'i18n_Records', $ar), $ar);
+        }
+        return '<div>'
+                . $message
+                . '</div>';
     }
 
     /**
@@ -522,6 +555,345 @@ trait CommonCode
     }
 
     /**
+     * Replace space with break line for each key element
+     *
+     * @param array $aElements
+     * @return array
+     */
+    public function setArrayToArrayKbr($aElements)
+    {
+        foreach ($aElements as $key => $value) {
+            $aReturn[str_replace(' ', '<br/>', $key)] = $value;
+        }
+        return $aReturn;
+    }
+
+    /**
+     * Returns a table from an query
+     *
+     * @param array $gArray
+     * @param array $features
+     * @param boolean $bKeepFullPage
+     * @return string
+     */
+    public function setArrayToTable($aElements, $ftrs = null, $bKpFlPge = true)
+    {
+        if (isset($ftrs['limits'])) {
+            $ftrs['limits'][1] = min($ftrs['limits'][1], $ftrs['limits'][2]);
+            if ($ftrs['limits'][2] > $ftrs['limits'][1]) {
+                $iStartingPageRecord = 1;
+            }
+        }
+        $rows = count($aElements);
+        if ($rows == 0) {
+            return $this->setFeedbackModern('error', 'Error', $this->lclMsgCmn('i18n_NoData'));
+        }
+        $sReturn = '';
+        if (isset($ftrs['hidden_columns'])) {
+            $hdClmns = $this->setArrayValuesAsKey($ftrs['hidden_columns']);
+        } else {
+            $hdClmns = [''];
+        }
+        if ((isset($ftrs['actions']['checkbox_inlineEdit'])) || (isset($ftrs['actions']['checkbox']))) {
+            $checkboxFormId = 'frm' . date('YmdHis');
+            $sReturn .= '<form id="' . $checkboxFormId . '" ' . 'name="' . $checkboxFormId
+                    . '" method="post" ' . ' action="' . $_SERVER['PHP_SELF'] . '" >';
+        }
+        if (!isset($ftrs['grouping_cell_type'])) {
+            $ftrs['grouping_cell_type'] = 'row';
+        }
+        $tbl['Def'] = '<table'
+                . (isset($ftrs['table_style']) ? ' style="' . $ftrs['table_style'] . '"' : '')
+                . (isset($ftrs['table_class']) ? ' class="' . $ftrs['table_class'] . '"' : '')
+                . '>';
+        switch ($ftrs['grouping_cell_type']) {
+            case 'row':
+                $sReturn .= $tbl['Def'];
+                break;
+            case 'tab':
+                $sReturn .= '<div class="tabber" id="tab">';
+                break;
+        }
+        $iTableColumns           = 0;
+        $remebered_value         = -1;
+        $remember_grouping_value = null;
+        $color_no                = null;
+        if (!isset($ftrs['headers_breaked'])) {
+            $ftrs['headers_breaked'] = true;
+        }
+        for ($rCntr = 0; $rCntr < $rows; $rCntr++) {
+            if ($rCntr == 0) {
+                $header        = array_diff_key($aElements[$rCntr], $hdClmns);
+                $iTableColumns = count($header);
+                if (isset($ftrs['computed_columns'])) {
+                    $iTableColumns += count($ftrs['computed_columns']);
+                }
+                if (isset($ftrs['actions'])) {
+                    $iTableColumns += 1;
+                }
+                if (isset($ftrs['grouping_cell'])) {
+                    $iTableColumns -= 1;
+                }
+                $tbl['Head'] = '<thead>';
+                if ($ftrs['grouping_cell_type'] == 'row') {
+                    $sReturn .= $tbl['Head'];
+                }
+                if (isset($iStartingPageRecord)) {
+                    $sReturn .= $this->setStringIntoTag($this->setStringIntoTag($this->setPagination($ftrs['limits'][0], $ftrs['limits'][1], $ftrs['limits'][2], $bKpFlPge), 'th', array('colspan' => $iTableColumns)), 'tr');
+                }
+                $tbl['Header'] = '<tr>';
+// Grouping columns
+                if (isset($ftrs['grouping_cell'])) {
+                    $header = array_diff_key($header, array($ftrs['grouping_cell'] => ''));
+                }
+// Action column
+                if (isset($ftrs['actions'])) {
+                    $tbl['Header'] .= '<th>&nbsp;</th>';
+                }
+//Exclude style columns from displaying
+                if (isset($ftrs['RowStyle'])) {
+                    $tmpClmns = $this->setArrayValuesAsKey(array($ftrs['RowStyle']));
+                    $header   = array_diff_key($header, $tmpClmns);
+                    $hdClmns  = array_merge($hdClmns, $tmpClmns);
+                    unset($tmpClmns);
+                }
+// Regular columns
+                $tbl['Header'] .= $this->setTableHeader($header, $ftrs['headers_breaked']);
+// Computed columns
+                if (isset($ftrs['computed_columns'])) {
+                    $tbl['Header'] .= $this->setTableHeader($ftrs['computed_columns'], $ftrs['headers_breaked']);
+                }
+                $tbl['Header'] .= '</tr></thead><tbody>';
+                if ($ftrs['grouping_cell_type'] == 'row') {
+                    $sReturn .= $tbl['Header'];
+                }
+            }
+            $row_current = array_diff_key($aElements[$rCntr], $hdClmns);
+            if (isset($ftrs['row_colored_alternated'])) {
+                if ($ftrs['row_colored_alternated'][0] == '#') {
+                    $color_column_value = $rCntr;
+                } else {
+                    $color_column_value = $row_current[$ftrs['row_colored_alternated'][0]];
+                }
+                if ($remebered_value != $color_column_value) {
+                    if (@$color_no != 2) {
+                        $color_no = 2;
+                    } else {
+                        $color_no = 1;
+                    }
+                    $remebered_value = $color_column_value;
+                }
+                $color = ' style="background-color: ' . $ftrs['row_colored_alternated'][$color_no] . ';"';
+            } else {
+                if (isset($ftrs['RowStyle'])) {
+                    $color = ' style="' . $aElements[$rCntr][$ftrs['RowStyle']] . '"';
+                } else {
+                    $color = '';
+                }
+            }
+            $tbl['tr_Color'] = '<tr' . $color . '>';
+// Grouping column
+            $rowNeeded       = false;
+            if (isset($ftrs['grouping_cell'])) {
+                $rowNeeded = true;
+                foreach ($aElements[$rCntr] as $key => $value) {
+                    if (($ftrs['grouping_cell'] == $key) && ($remember_grouping_value != $value)) {
+                        switch ($ftrs['grouping_cell_type']) {
+                            case 'row':
+                                $sReturn .= $tbl['tr_Color'] . '<td ' . 'colspan="' . $iTableColumns . '">'
+                                        . $this->setStringIntoTag($value, 'div', array('class' => 'rowGroup rounded'))
+                                        . '</td></tr>';
+                                break;
+                            case 'tab':
+                                if ($remember_grouping_value != null) {
+                                    $sReturn .= '</tbody></table></div>';
+                                }
+                                $sReturn .= '<div class="tabbertab'
+                                        . (@$ftrs['grouping_default_tab'] == $value ? ' tabbertabdefault' : '')
+                                        . '" title="' . $value . '">' . $tbl['Def'] . $tbl['Head'] . $tbl['Header'];
+                                break;
+                        }
+                        $remember_grouping_value = $value;
+                    }
+                }
+            }
+            $sReturn .= $tbl['tr_Color'];
+// Action column
+            if (isset($ftrs['actions'])) {
+                $sReturn .= '<td style="white-space:nowrap;">';
+                $action_argument = 0;
+                if (isset($ftrs['actions']['key'])) {
+                    $action_key = $ftrs['actions']['key'];
+                } else {
+                    $action_key = 'view';
+                }
+                if (isset($ftrs['action_prefix'])) {
+                    $actPrfx    = $ftrs['action_prefix'] . '&amp;';
+                    $action_key = 'view2';
+                } else {
+                    $actPrfx = '';
+                }
+                foreach ($ftrs['actions'] as $key => $value) {
+                    if ($action_argument != 0) {
+                        $sReturn .= '&nbsp;';
+                    }
+                    switch ($key) {
+                        case 'checkbox':
+                            $checkboxName  = $value . '[]';
+                            $checkboxNameS = $value;
+                            $sReturn .= '&nbsp;<input type="checkbox" name="' . $checkboxName . '" id="n' . $aElements[$rCntr][$value] . '" value="' . $aElements[$rCntr][$value] . '" ';
+                            if (isset($_REQUEST[$checkboxNameS])) {
+                                if (is_array($_REQUEST[$checkboxNameS])) {
+                                    if (in_array($aElements[$rCntr][$value], $_REQUEST[$checkboxNameS])) {
+                                        $sReturn .= 'checked="checked" ';
+                                    }
+                                } else {
+                                    if ($aElements[$rCntr][$value] == $_REQUEST[$checkboxNameS]) {
+                                        $sReturn .= 'checked="checked" ';
+                                    }
+                                }
+                            }
+                            if (strpos(@$_REQUEST['action'], 'multiEdit') !== false) {
+                                $sReturn .= 'disabled="disabled" ';
+                            }
+                            $sReturn .= '/>';
+                            break;
+                        case 'checkbox_inlineEdit':
+                            $checkboxName  = $value . '[]';
+                            $checkboxNameS = $value;
+                            $sReturn .= '&nbsp;<input type="checkbox" name="' . $checkboxName
+                                    . '" id="n' . $aElements[$rCntr][$value] . '" value="'
+                                    . $aElements[$rCntr][$value] . '"/>';
+                            break;
+                        case 'edit':
+                            $edt           = '';
+                            if (isset($_REQUEST['NoAjaxEditing'])) {
+                                $edt .= $_SERVER['PHP_SELF'] . '?' . $actPrfx
+                                        . $action_key . '=' . $value[0] . '&amp;';
+                                $iActArgs = count($value[1]);
+                                for ($cntr2 = 0; $cntr2 < $iActArgs; $cntr2++) {
+                                    $edt .= $value[1][$cntr2] . '=' . $aElements[$rCntr][$value[1][$cntr2]];
+                                }
+                                $sReturn .= '<a href="' . $edt . '"><i class="fa fa-pencil">&nbsp;</i></a>';
+                            } else {
+                                $edt .= 'javascript:loadAE(\'' . $_SERVER['PHP_SELF'] . '?'
+                                        . $actPrfx . $action_key . '=' . $value[0] . '&amp;';
+                                $iActArgs = count($value[1]);
+                                for ($cntr2 = 0; $cntr2 < $iActArgs; $cntr2++) {
+                                    $edt .= $value[1][$cntr2] . '=' . $aElements[$rCntr][$value[1][$cntr2]];
+                                }
+                                $edt .= '\');';
+                                $sReturn .= '<a href="#" onclick="' . $edt . '">'
+                                        . '<i class="fa fa-pencil">&nbsp;</i></a>';
+                            }
+                            break;
+                        case 'list2':
+                            $sReturn .= '<a href="?' . $actPrfx . $action_key . '=' . $value[0] . '&amp;';
+                            $iActArgs = count($value[1]);
+                            for ($cntr2 = 0; $cntr2 < $iActArgs; $cntr2++) {
+                                $sReturn .= $value[1][$cntr2] . '=' . $aElements[$rCntr][$value[1][$cntr2]];
+                            }
+                            $sReturn .= '"><i class="fa fa-pencil">&nbsp;</i></a>';
+                            break;
+                        case 'delete':
+                            $sReturn .= '<a href="javascript:setQuest(\'' . $value[0] . '\',\'';
+                            $iActArgs = count($value[1]);
+                            for ($cntr2 = 0; $cntr2 < $iActArgs; $cntr2++) {
+                                $sReturn .= $value[1][$cntr2] . '=' . $aElements[$rCntr][$value[1][$cntr2]];
+                            }
+                            $sReturn .= '\');"><i class="fa fa-times">&nbsp;</i></a>';
+                            break;
+                    }
+                    $action_argument += 1;
+                }
+                $sReturn .= '</td>';
+            }
+// Regular columns
+            $sReturn .= $this->setTableCell($row_current, $ftrs);
+// Computed columns
+            if (isset($ftrs['computed_columns'])) {
+                foreach ($ftrs['computed_columns'] as $key => $value) {
+                    if ($value[0] == '%') {
+                        $dec = $value[2] + 2;
+                    } else {
+                        $dec = $value[2];
+                    }
+                    switch ($value[1]) {
+                        case '/':
+                            $aElements[$rCntr][$key] = $this->setDividedResult($aElements[$rCntr][$value[3]], $aElements[$rCntr][$value[4]], $dec);
+                            break;
+                        case '+':
+                            $aTemp                   = array_diff($value, $this->setArrayValues2Keys(array($value[0], $value[1], $value[2]), true));
+                            $aElements[$rCntr][$key] = 0;
+                            foreach ($aTemp as $sValue) {
+                                $aElements[$rCntr][$key] += $aElements[$rCntr][$sValue];
+                            }
+                            break;
+                        default:
+                            $row_computed[$key] = '';
+                            break;
+                    }
+                    if ($value[0] == '%') {
+                        $row_computed[$key] = ($aElements[$rCntr][$key] * 100);
+                        $dec -= 2;
+                    } else {
+                        $row_computed[$key] = $aElements[$rCntr][$key];
+                    }
+                    $decimals[$key] = $dec;
+                }
+// displaying them
+                $sReturn .= $this->setTableCell($row_computed, array('decimals' => $decimals));
+            }
+            $sReturn .= '</tr>';
+        }
+        if (isset($iStartingPageRecord)) {
+            $sReturn .= '<tr>' . $this->setStringIntoTag($this->setPagination($ftrs['limits'][0], $ftrs['limits'][1], $ftrs['limits'][2]), 'th', array('colspan' => $iTableColumns)) . '</tr>';
+        }
+        $sReturn .= '</tbody></table>';
+        if ($ftrs['grouping_cell_type'] == 'tab') {
+            $sReturn .= '</div></div>';
+        }
+        if (isset($ftrs['actions']['checkbox'])) {
+            if (strpos(@$_REQUEST['action'], 'multiEdit') === false) {
+                $sReturn .= '<a href="#" onclick="javascript:checking(\'' . $checkboxFormId . '\',\'' . $checkboxName . '\',true);">Check All</a>&nbsp;&nbsp;'
+                        . '<a href="#" onclick="javascript:checking(\'' . $checkboxFormId . '\',\'' . $checkboxName . '\',false);">Uncheck All</a>&nbsp;&nbsp;'
+                        . '<input type="hidden" name="action" value="multiEdit_' . $checkboxNameS . '" />';
+                if (isset($ftrs['hiddenInput'])) {
+                    if (is_array($ftrs['hiddenInput'])) {
+                        foreach ($ftrs['hiddenInput'] as $valueF) {
+                            $sReturn .= '<input type="hidden" name="' . $valueF . '" value="' . $_REQUEST[$valueF] . '" />';
+                        }
+                    } else {
+                        $sReturn .= '<input type="hidden" name="' . $ftrs['hiddenInput'] . '" value="' . $_REQUEST[$ftrs['hiddenInput']] . '" />';
+                    }
+                }
+                $sReturn .= '<input style="margin: 0 3em 0 3em;" type="submit" ' . 'value="Edit selected" />';
+            }
+            $sReturn .= '</form>';
+        }
+        if (isset($ftrs['actions']['checkbox_inlineEdit'])) {
+            $sReturn .= '<a href="#" onclick="javascript:checking(\'' . $checkboxFormId . '\',\'' . $checkboxName . '\',true);">Check All</a>&nbsp;&nbsp;'
+                    . '<a href="#" onclick="javascript:checking(\'' . $checkboxFormId . '\',\'' . $checkboxName . '\',false);">Uncheck All</a>&nbsp;&nbsp;';
+            if (isset($ftrs['visibleInput'])) {
+                $sReturn .= $ftrs['visibleInput'];
+            }
+            $sReturn .= '<input type="hidden" name="view" value="save_' . $checkboxNameS . '" />';
+            if (isset($ftrs['hiddenInput'])) {
+                if (is_array($ftrs['hiddenInput'])) {
+                    foreach ($ftrs['hiddenInput'] as $valueF) {
+                        $sReturn .= '<input type="hidden" name="' . $valueF . '" value="' . $_REQUEST[$valueF] . '" />';
+                    }
+                } else {
+                    $sReturn .= '<input type="hidden" name="' . $ftrs['hiddenInput'] . '" value="' . $_REQUEST[$ftrs['hiddenInput']] . '" />';
+                }
+            }
+            $sReturn .= '<input style="margin: 0 3em 0 3em;" type="submit" value="Store the modification" />';
+            $sReturn .= '</form>';
+        }
+        return $sReturn;
+    }
+
+    /**
      * Converts a single-child array into an parent-child one
      *
      * @param type $inArray
@@ -532,6 +904,29 @@ trait CommonCode
         $outArray = array_combine($inArray, $inArray);
         ksort($outArray);
         return $outArray;
+    }
+
+    /**
+     * Provides a list of all known JSON errors and their description
+     *
+     * @return type
+     */
+    private function setJsonErrorInPlainEnglish()
+    {
+        $knownErrors  = [
+            JSON_ERROR_NONE           => null,
+            JSON_ERROR_DEPTH          => 'Maximum stack depth exceeded',
+            JSON_ERROR_STATE_MISMATCH => 'Underflow or the modes mismatch',
+            JSON_ERROR_CTRL_CHAR      => 'Unexpected control character found',
+            JSON_ERROR_SYNTAX         => 'Syntax error, malformed JSON',
+            JSON_ERROR_UTF8           => 'Malformed UTF-8 characters, possibly incorrectly encoded',
+        ];
+        $currentError = json_last_error();
+        $sReturn      = null;
+        if (in_array($currentError, $knownErrors)) {
+            $sReturn = $knownErrors[$currentError];
+        }
+        return $sReturn;
     }
 
     /**
@@ -559,25 +954,95 @@ trait CommonCode
     }
 
     /**
-     * Provides a list of all known JSON errors and their description
+     * Generates a table cell
      *
-     * @return type
+     * @version 20080521
+     * @param array $aElements
+     * @param array $features
+     * @return string
      */
-    private function setJsonErrorInPlainEnglish()
+    private function setTableCell($aElements, $features = null)
     {
-        $knownErrors  = [
-            JSON_ERROR_NONE           => null,
-            JSON_ERROR_DEPTH          => 'Maximum stack depth exceeded',
-            JSON_ERROR_STATE_MISMATCH => 'Underflow or the modes mismatch',
-            JSON_ERROR_CTRL_CHAR      => 'Unexpected control character found',
-            JSON_ERROR_SYNTAX         => 'Syntax error, malformed JSON',
-            JSON_ERROR_UTF8           => 'Malformed UTF-8 characters, possibly incorrectly encoded',
-        ];
-        $currentError = json_last_error();
-        $sReturn      = null;
-        if (in_array($currentError, $knownErrors)) {
-            $sReturn = $knownErrors[$currentError];
+        $sReturn            = null;
+        $previous_key_value = null;
+        $counter            = 0;
+        foreach ($aElements as $key => $value) {
+            $value = str_replace(array('& ', '\"', "\'"), array('&amp; ', '"', "'"), $value);
+            if ((isset($features['grouping_cell'])) && ($features['grouping_cell'] == $key)) {
+//$sReturn = '<td>&nbsp;</td>';
+            } else {
+                $sReturn .= '<td ';
+                if (isset($features['column_formatting'][$key])) {
+                    switch ($features['column_formatting'][$key]) {
+                        case '@':
+                            $sReturn .= 'style="text-align:left;">' . $value;
+                            break;
+                        case 'right':
+                            $sReturn .= 'style="text-align:right;">' . $value;
+                            break;
+                        default:
+                            $sReturn .= '???';
+                            break;
+                    }
+                } else {
+                    if (is_numeric($value)) {
+                        if (isset($features['no_of_decimals'])) {
+                            $decimals = $features['no_of_decimals'];
+                        } else {
+                            $decimals = 0;
+                        }
+                        if (isset($features['decimals'])) {
+                            if (in_array($key, array_keys($features['decimals']))) {
+                                $decimals = $features['decimals'][$key];
+                            }
+                        }
+                        $sReturn .= 'style="text-align: right;">';
+                        $sReturn .= $this->setNumberFormat($value, [
+                            'MinFractionDigits' => $decimals,
+                            'MaxFractionDigits' => $decimals
+                        ]);
+                    } else {
+                        $outputet = false;
+                        if (strpos($value, '-') !== false) {
+                            if (strlen($value) == 10) {
+                                if (preg_match("([0-9]{4})-([0-9]{1,2})-([0-9]{1,2})", $value, $regs)) {
+                                    $outputet = true;
+                                    $sReturn .= 'style="text-align:right;width: 10px;">'
+                                            . $regs[3] . '.' . $regs[2] . '.' . $regs[1];
+                                }
+                            }
+                        }
+                        if (!$outputet) {
+                            $sReturn .= 'style="text-align:left;">' . $value;
+                        }
+                    }
+                }
+                $sReturn .= '</td>';
+                $previous_key_value = $value;
+                $counter++;
+            }
         }
         return $sReturn;
+    }
+
+    /**
+     * Generates a table header
+     *
+     * @param array $aElements
+     * @param boolean $bHeadersBreaked
+     * @return string
+     */
+    private function setTableHeader($aElements, $bHeadersBreaked)
+    {
+        if ($bHeadersBreaked) {
+            $aTableHeader = $this->setArrayToArrayKbr($aElements);
+        } else {
+            $aTableHeader = $aElements;
+        }
+        $sReturn[] = null;
+        foreach (array_keys($aTableHeader) as $value) {
+            $sReturn[] = $this->setStringIntoTag($value, 'th');
+        }
+        return implode('', $sReturn);
     }
 }
