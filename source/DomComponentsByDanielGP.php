@@ -251,6 +251,49 @@ trait DomComponentsByDanielGP
     }
 
     /**
+     * Builds a structured modern message
+     *
+     * @param string $sType
+     * @param string $sTitle
+     * @param string $sMsg
+     * @param boolean $skipBr
+     */
+    protected function setFeedbackModern($sType, $sTitle, $sMsg, $skipBr = false)
+    {
+        $formatTitle[]   = 'margin-top:-5px;margin-right:20px;padding:5px;';
+        $formatMessage[] = 'display:inline;padding-right:5px;padding-bottom:5px;';
+        switch ($sType) {
+            case 'alert':
+                $formatTitle[]   = 'border:medium solid orange;background-color:orange;color:navy;';
+                $formatMessage[] = 'background-color:navy;color:orange;border:medium solid orange;';
+                break;
+            case 'check':
+                $formatTitle[]   = 'border:medium solid green;background-color:green;color:white;';
+                $formatMessage[] = 'background-color:yellow;color:green;border:medium solid green;';
+                break;
+            case 'error':
+                $formatTitle[]   = 'border:medium solid red;background-color:red;color:white;';
+                $formatMessage[] = 'background-color:yellow;color:red;border:medium solid red;';
+                break;
+            case 'info':
+                $formatTitle[]   = 'border:medium solid black;background-color:black;color:white;font-weight:bold;';
+                $formatMessage[] = 'background-color: white; color: black;border:medium solid black;';
+                break;
+        }
+        if ($sTitle == 'light') {
+            echo $sMsg;
+        } else {
+            $legend = $this->setStringIntoTag($sTitle, 'legend', ['style' => implode('', $formatTitle)]);
+            return implode('', [
+                ($skipBr ? '' : '<br/>'),
+                $this->setStringIntoTag($legend . $sMsg, 'fieldset', [
+                    'style' => implode('', $formatMessage)
+                ]),
+            ]);
+        }
+    }
+
+    /**
      * Outputs an HTML footer
      *
      * @param array $footerInjected
@@ -259,15 +302,19 @@ trait DomComponentsByDanielGP
     protected function setFooterCommon($footerInjected = null)
     {
         $sReturn = [];
-        if (!is_null($footerInjected)) {
-            if (is_array($footerInjected)) {
-                $sReturn[] = implode('', $footerInjected);
-            } else {
-                $sReturn[] = $footerInjected;
+        if (isset($_REQUEST['specialHook']) && (in_array('noFooter', $_REQUEST['specialHook']))) {
+            $sReturn[] = ''; // no Footer
+        } else {
+            if (!is_null($footerInjected)) {
+                if (is_array($footerInjected)) {
+                    $sReturn[] = implode('', $footerInjected);
+                } else {
+                    $sReturn[] = $footerInjected;
+                }
             }
+            $sReturn[] = '</body>';
+            $sReturn[] = '</html>';
         }
-        $sReturn[] = '</body>';
-        $sReturn[] = '</html>';
         return implode('', $sReturn);
     }
 
@@ -302,66 +349,70 @@ trait DomComponentsByDanielGP
      */
     protected function setHeaderCommon($headerFeatures = null)
     {
-        $fixedHeaderElements = [
-            'start'    => '<!DOCTYPE html>',
-            'lang'     => '<html lang="en-US">',
-            'head'     => '<head>',
-            'charset'  => '<meta charset="utf-8" />',
-            'viewport' => '<meta name="viewport" content="' . implode(', ', [
-                'width=device-width',
-                'height=device-height',
-                'initial-scale=1',
-            ]) . '" />',
-        ];
-        $sReturn             = [];
-        if (!is_null($headerFeatures)) {
-            if (is_array($headerFeatures)) {
-                $aFeatures = [];
-                foreach ($headerFeatures as $key => $value) {
-                    switch ($key) {
-                        case 'css':
-                            if (is_array($value)) {
-                                foreach ($value as $value2) {
-                                    $aFeatures[] = $this->setCssFile(filter_var($value2, FILTER_SANITIZE_URL));
+        $sReturn = [];
+        if (isset($_REQUEST['specialHook']) && (in_array('noHeader', $_REQUEST['specialHook']))) {
+            $sReturn[] = ''; // no Header
+        } else {
+            $fixedHeaderElements = [
+                'start'    => '<!DOCTYPE html>',
+                'lang'     => '<html lang="en-US">',
+                'head'     => '<head>',
+                'charset'  => '<meta charset="utf-8" />',
+                'viewport' => '<meta name="viewport" content="' . implode(', ', [
+                    'width=device-width',
+                    'height=device-height',
+                    'initial-scale=1',
+                ]) . '" />',
+            ];
+            if (!is_null($headerFeatures)) {
+                if (is_array($headerFeatures)) {
+                    $aFeatures = [];
+                    foreach ($headerFeatures as $key => $value) {
+                        switch ($key) {
+                            case 'css':
+                                if (is_array($value)) {
+                                    foreach ($value as $value2) {
+                                        $aFeatures[] = $this->setCssFile(filter_var($value2, FILTER_SANITIZE_URL));
+                                    }
+                                } else {
+                                    $aFeatures[] = $this->setCssFile(filter_var($value, FILTER_SANITIZE_URL));
                                 }
-                            } else {
-                                $aFeatures[] = $this->setCssFile(filter_var($value, FILTER_SANITIZE_URL));
-                            }
-                            break;
-                        case 'javascript':
-                            if (is_array($value)) {
-                                foreach ($value as $value2) {
-                                    $aFeatures[] = $this->setJavascriptFile(filter_var($value2, FILTER_SANITIZE_URL));
+                                break;
+                            case 'javascript':
+                                if (is_array($value)) {
+                                    foreach ($value as $value2) {
+                                        $aFeatures[] = $this->setJavascriptFile(filter_var($value2, FILTER_SANITIZE_URL));
+                                    }
+                                } else {
+                                    $aFeatures[] = $this->setJavascriptFile(filter_var($value, FILTER_SANITIZE_URL));
                                 }
-                            } else {
-                                $aFeatures[] = $this->setJavascriptFile(filter_var($value, FILTER_SANITIZE_URL));
-                            }
-                            break;
-                        case 'lang':
-                            $fixedHeaderElements['lang'] = '<html lang="'
-                                    . filter_var($value, FILTER_SANITIZE_STRING) . '">';
-                            break;
-                        case 'title':
-                            $aFeatures[]                 = '<title>'
-                                    . filter_var($value, FILTER_SANITIZE_STRING) . '</title>';
-                            break;
+                                break;
+                            case 'lang':
+                                $fixedHeaderElements['lang'] = '<html lang="'
+                                        . filter_var($value, FILTER_SANITIZE_STRING) . '">';
+                                break;
+                            case 'title':
+                                $aFeatures[]                 = '<title>'
+                                        . filter_var($value, FILTER_SANITIZE_STRING) . '</title>';
+                                break;
+                        }
                     }
+                    $sReturn[] = implode('', $fixedHeaderElements)
+                            . implode('', $aFeatures)
+                            . '</head>'
+                            . '<body>';
+                } else {
+                    $sReturn[] = implode('', $fixedHeaderElements)
+                            . '</head>'
+                            . '<body>'
+                            . '<p style="background-color:red;color:#FFF;">The parameter sent to '
+                            . __FUNCTION__ . ' must be an array</p>'
+                            . $this->setFooterCommon();
+                    throw new \Exception($sReturn);
                 }
-                $sReturn[] = implode('', $fixedHeaderElements)
-                        . implode('', $aFeatures);
-            } else {
-                $sReturn = implode('', $fixedHeaderElements)
-                        . '</head>'
-                        . '<body>'
-                        . '<p style="background-color:red;color:#FFF;">The parameter sent to '
-                        . __FUNCTION__ . ' must be an array</p>'
-                        . $this->setFooterCommon();
-                throw new \Exception($sReturn);
             }
         }
-        return implode('', $sReturn)
-                . '</head>'
-                . '<body>';
+        return implode('', $sReturn);
     }
 
     /**
@@ -393,6 +444,26 @@ trait DomComponentsByDanielGP
     }
 
     /**
+     * Returns javascript function to support Add or Edit through Ajax
+     *
+     * @return string
+     */
+    protected function setJavascriptAddEditByAjax()
+    {
+        return $this->setJavascriptContent(implode('', [
+                    'function loadAE(action) {',
+                    'document.getElementById("tabStandard").tabber.tabShow(1);',
+                    '$("#DynamicAddEditSpacer").load(action',
+                    '+"&specialHook[]=noHeader"',
+                    '+"&specialHook[]=noMenu"',
+                    '+"&specialHook[]=noContainer"',
+                    '+"&specialHook[]=noFooter"',
+                    ');',
+                    '}',
+        ]));
+    }
+
+    /**
      * Returns javascript codes
      *
      * @param string $javascriptContent
@@ -401,6 +472,22 @@ trait DomComponentsByDanielGP
     protected function setJavascriptContent($javascriptContent)
     {
         return '<script type="text/javascript">' . $javascriptContent . '</script>';
+    }
+
+    /**
+     * Builds up a confirmation dialog and return delection if Yes
+     *
+     * @return string
+     */
+    protected function setJavascriptDeleteWithConfirmation()
+    {
+        return $this->setJavascriptContent(' function setQuest(a, b) { '
+                        . 'c = a.indexOf("_"); switch(a.slice(0, c)) { '
+                        . 'case \'delete\': '
+                        . 'if (confirm(\'' . $this->lclMsgCmn('i18n_ActionDelete_ConfirmationQuestion') . '\')) { '
+                        . 'window.location = document.location.protocol + "//" + '
+                        . 'document.location.host + document.location.pathname + '
+                        . '"?view=" + a + "&" + b; } break; } }');
     }
 
     /**
@@ -556,5 +643,28 @@ trait DomComponentsByDanielGP
             }
         }
         return '<' . $sTag . $attributes . '>' . $sString . '</' . $sTag . '>';
+    }
+
+    private function setViewModernLinkAdd($identifier, $ftrs = null)
+    {
+        $sArgmnts = '';
+        if (isset($ftrs['injectAddArguments'])) {
+            foreach ($ftrs['injectAddArguments'] as $key => $value) {
+                $sArgmnts .= '&amp;' . $key . '=' . $value;
+            }
+        }
+        $addingUrl = $_SERVER['PHP_SELF'] . '?view=add_' . $identifier . $sArgmnts;
+        if (!isset($ftrs['NoAjax'])) {
+            $addingUrl = 'javascript:loadAE(\'' . $addingUrl . '\');';
+        }
+        $btnText = '<i class="fa fa-plus-square">&nbsp;</i>' . '&nbsp;'
+                . $this->lclMsgCmn('i18n_AddNewRecord');
+        return $this->setStringIntoTag($btnText, 'a', [
+                    'href'  => $addingUrl,
+                    'style' => implode(';', [
+                        'margin: 5px 0px 10px 0px',
+                        'display: inline-block'
+                    ])
+        ]);
     }
 }
