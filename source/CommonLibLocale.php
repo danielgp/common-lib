@@ -39,6 +39,19 @@ trait CommonLibLocale
     protected $commonLibFlags = null;
     protected $tCmnLb         = null;
 
+    private function getCommonLocaleFolder()
+    {
+        $pathes     = explode(DIRECTORY_SEPARATOR, __DIR__);
+        $pathDepth  = count($pathes);
+        $localePath = [];
+        foreach ($pathes as $key => $value) {
+            if ($key < ($pathDepth - 1)) {
+                $localePath[] = $value;
+            }
+        }
+        return implode(DIRECTORY_SEPARATOR, $localePath);
+    }
+
     /**
      * Stores given language or default one into global session variable
      *
@@ -67,7 +80,8 @@ trait CommonLibLocale
     private function handleLocalizationCommon()
     {
         $this->handleLanguageIntoSession();
-        $localizationFile = __DIR__ . '/locale/' . $_SESSION['lang'] . '/LC_MESSAGES/'
+        $localizationFile = $this->getCommonLocaleFolder() . '/locale/'
+                . $_SESSION['lang'] . '/LC_MESSAGES/'
                 . $this->commonLibFlags['localization_domain']
                 . '.mo';
         $translations     = \Gettext\Extractors\Mo::fromFile($localizationFile);
@@ -88,6 +102,38 @@ trait CommonLibLocale
             $this->handleLocalizationCommon();
         }
         return $this->tCmnLb->gettext($localizedStringCode);
+    }
+
+    protected function lclMsgCmnNumber($singularString, $pluralString, $numberToEvaluate)
+    {
+        if (is_null($this->commonLibFlags)) {
+            $this->settingsCommonLib();
+            $this->handleLocalizationCommon();
+        }
+        return $this->tCmnLb->ngettext($singularString, $pluralString, $numberToEvaluate);
+    }
+
+    protected function setNumberFormat($content, $features = null)
+    {
+        if (is_null($features)) {
+            $features = [
+                'locale'            => $_SESSION['lang'],
+                'style'             => \NumberFormatter::DECIMAL,
+                'MinFractionDigits' => 0,
+                'MaxFractionDigits' => 0
+            ];
+        } else {
+            if (!isset($features['locale'])) {
+                $features['locale'] = $_SESSION['lang'];
+            }
+            if (!isset($features['style'])) {
+                $features['style'] = \NumberFormatter::DECIMAL;
+            }
+        }
+        $fmt = new \NumberFormatter($features['locale'], $features['style']);
+        $fmt->setAttribute(\NumberFormatter::MIN_FRACTION_DIGITS, $features['MinFractionDigits']);
+        $fmt->setAttribute(\NumberFormatter::MAX_FRACTION_DIGITS, $features['MaxFractionDigits']);
+        return $fmt->format($content);
     }
 
     /**
