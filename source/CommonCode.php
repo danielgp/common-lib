@@ -676,10 +676,10 @@ trait CommonCode
                     $color_column_value = $row_current[$ftrs['row_colored_alternated'][0]];
                 }
                 if ($remebered_value != $color_column_value) {
-                    if (@$color_no != 2) {
-                        $color_no = 2;
-                    } else {
+                    if (isset($color_no)) {
                         $color_no = 1;
+                    } else {
+                        $color_no = 2;
                     }
                     $remebered_value = $color_column_value;
                 }
@@ -693,9 +693,7 @@ trait CommonCode
             }
             $tbl['tr_Color'] = '<tr' . $color . '>';
 // Grouping column
-            $rowNeeded       = false;
             if (isset($ftrs['grouping_cell'])) {
-                $rowNeeded = true;
                 foreach ($aElements[$rCntr] as $key => $value) {
                     if (($ftrs['grouping_cell'] == $key) && ($remember_grouping_value != $value)) {
                         switch ($ftrs['grouping_cell_type']) {
@@ -705,12 +703,15 @@ trait CommonCode
                                         . '</td></tr>';
                                 break;
                             case 'tab':
-                                if ($remember_grouping_value != null) {
+                                if (!is_null($remember_grouping_value)) {
                                     $sReturn .= '</tbody></table></div>';
                                 }
-                                $sReturn .= '<div class="tabbertab'
-                                        . (@$ftrs['grouping_default_tab'] == $value ? ' tabbertabdefault' : '')
-                                        . '" title="' . $value . '">' . $tbl['Def'] . $tbl['Head'] . $tbl['Header'];
+                                $sReturn .= '<div class="tabbertab';
+                                if (isset($ftrs['grouping_default_tab'])) {
+                                    $sReturn .= ($ftrs['grouping_default_tab'] == $value ? ' tabbertabdefault' : '');
+                                }
+                                $sReturn .= '" title="' . $value . '">'
+                                        . $tbl['Def'] . $tbl['Head'] . $tbl['Header'];
                                 break;
                         }
                         $remember_grouping_value = $value;
@@ -753,7 +754,7 @@ trait CommonCode
                                     }
                                 }
                             }
-                            if (strpos(@$_REQUEST['action'], 'multiEdit') !== false) {
+                            if (strpos($_REQUEST['view'], 'multiEdit') !== false) {
                                 $sReturn .= 'disabled="disabled" ';
                             }
                             $sReturn .= '/>';
@@ -854,7 +855,7 @@ trait CommonCode
             $sReturn .= '</div></div>';
         }
         if (isset($ftrs['actions']['checkbox'])) {
-            if (strpos(@$_REQUEST['action'], 'multiEdit') === false) {
+            if (strpos($_REQUEST['view'], 'multiEdit') === false) {
                 $sReturn .= '<a href="#" onclick="javascript:checking(\'' . $checkboxFormId . '\',\'' . $checkboxName . '\',true);">Check All</a>&nbsp;&nbsp;'
                         . '<a href="#" onclick="javascript:checking(\'' . $checkboxFormId . '\',\'' . $checkboxName . '\',false);">Uncheck All</a>&nbsp;&nbsp;'
                         . '<input type="hidden" name="action" value="multiEdit_' . $checkboxNameS . '" />';
@@ -963,13 +964,12 @@ trait CommonCode
      */
     private function setTableCell($aElements, $features = null)
     {
-        $sReturn            = null;
-        $previous_key_value = null;
-        $counter            = 0;
+        $sReturn = null;
+        $counter = 0;
         foreach ($aElements as $key => $value) {
             $value = str_replace(array('& ', '\"', "\'"), array('&amp; ', '"', "'"), $value);
             if ((isset($features['grouping_cell'])) && ($features['grouping_cell'] == $key)) {
-//$sReturn = '<td>&nbsp;</td>';
+                // just skip
             } else {
                 $sReturn .= '<td ';
                 if (isset($features['column_formatting'][$key])) {
@@ -1018,7 +1018,6 @@ trait CommonCode
                     }
                 }
                 $sReturn .= '</td>';
-                $previous_key_value = $value;
                 $counter++;
             }
         }
