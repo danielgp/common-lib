@@ -1,0 +1,94 @@
+# Romanian translations for Common-lib package.
+# Copyright (C) 2015 Daniel Popiniuc
+# This file is distributed under the same license as the PACKAGE package.
+# Automatically generated, 2014.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: CommonLib\n"
+"POT-Creation-Date: 2015-01-20 16:09+0200\n"
+"PO-Revision-Date: 2015-01-20 17:04+0200\n"
+"Last-Translator: Daniel Popiniuc <danielpopiniuc@gmail.com>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: ro_RO\n"
+"Plural-Forms: nplurals=3; plural=(n==1?0:(((n%100>19)||((n%100==0)&&(n!=0)))?2:1));\n"
+
+msgid "i18n_AddNewRecord"
+msgstr "Adaugă o nouă înregistrare"
+
+msgid "i18n_ActionDelete_ConfirmationQuestion"
+msgstr "Sunteţi sigur că doriţi să ştergeţi?"
+
+msgid "i18n_Error_ExtensionNotLoaded"
+msgstr "Extensia CURL nu e disponibilă..."
+
+msgid "i18n_Error_GivenFileDoesNotExist"
+msgstr "Fişierul dat nu există...(%s)"
+
+msgid "i18n_Error_GivenInputIsNotArray"
+msgstr "Argumentul dat nu este de tip matrice (array)!"
+
+msgid "i18n_Error_GivenInputIsNotJson"
+msgstr "Argumentul dat nu este JSON!"
+
+msgid "i18n_Error_GivenPathDoesNotExist"
+msgstr "Dosarul dat nu există...(%s)"
+
+msgid "i18n_Error_GivenPathIsNotValid"
+msgstr "Dosarul dat nu este valid...(%s)"
+
+msgid "i18n_Error_GivenPathIsNotFolder"
+msgstr "Dosarul dat nu este un dosar!"
+
+msgid "i18n_Error_GivenUrlIsNotValid"
+msgstr "URL-ul dat nu e valid!"
+
+msgid "i18n_Error_UnknownReturnType"
+msgstr "Tipul de returnat dat nu e definit/standard...(%s)"
+
+msgid "i18n_Generic_Unknown"
+msgstr "necunoscut"
+
+msgid "i18n_MySQL_ConnectionError"
+msgstr "Eroare la conectare (nr.: %d, mesaj de la server: %s, nume server = %s, port: %s, nume utilizator: %s, baza de date: %s)"
+
+msgid "i18n_MySQL_ConnectionNotExisting"
+msgstr "În acest moment nu conexiunea MySQL nu există! Verificați, vă rog, dacă această conexiune a fost corect inițalizată și deasemenea verificați dacă serverul MySQL folosit rulează în parametrii normali."
+
+msgid "i18n_MySQL_QueryError"
+msgstr "Eroare interogare MySQL (nr.: %d, mesajul primit de la server este: %s)"
+
+msgid "i18n_MySQL_QueryInvalidReturnTypeSpecified"
+msgstr "Tipul de returnare specificat (%s) nu este definit în funcţia %s"
+
+msgid "i18n_MySQL_QueryNoReturnTypeSpecified"
+msgstr "Nu s-a specificat nici un fel de tip de returnare la apelarea funcţiei %s"
+
+msgid "i18n_MySQL_QueryResultExpected1ColumnResultedOther"
+msgstr "Interogarea MySQL a returnat %d coloane deşi se aşteptau una singură..."
+
+msgid "i18n_MySQL_QueryResultExpected1ResultedOther"
+msgstr "Interogarea MySQL a returnat %d înregistrări deşi se aştepta o singură valoare..."
+
+msgid "i18n_MySQL_QueryResultExpected1OrMoreRows0Resulted"
+msgstr "Interogarea MySQL nu a returnat nici o înregistrăre deşi se aştepta cel puţin una singură..."
+
+msgid "i18n_MySQL_QueryResultExpected1RowManyColumnsResultedOther"
+msgstr "Interogarea MySQL a returnat %d înregistrări şi %d coloane deşi se aştepta o singură înregistrare cu coloane multiple..."
+
+msgid "i18n_MySQL_QueryResultExpected2ColumnsResultedOther"
+msgstr "Interogarea MySQL a returnat %d coloane deşi se aşteptau 2 coloane..."
+
+msgid "i18n_MySQL_QueryResultExpectedAtLeast2ColsResultedOther"
+msgstr "Interogarea MySQL a returnat %d coloane deşi se aşteptau cel puţin 2 coloane..."
+
+msgid "i18n_NoData"
+msgstr "În acest moment nu există nici o înregistrare... (ținând cont de eventualele filtre aplicate)"
+
+msgid "i18n_Record"
+msgid_plural "i18n_Records"
+msgstr[0] "%d înregistrare"
+msgstr[1] "%d înregistrări"
