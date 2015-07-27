@@ -560,7 +560,7 @@ trait CommonCode
      * @param array $aElements
      * @return array
      */
-    public function setArrayToArrayKbr($aElements)
+    protected function setArrayToArrayKbr($aElements)
     {
         foreach ($aElements as $key => $value) {
             $aReturn[str_replace(' ', '<br/>', $key)] = $value;
@@ -576,7 +576,7 @@ trait CommonCode
      * @param boolean $bKeepFullPage
      * @return string
      */
-    public function setArrayToTable($aElements, $ftrs = null, $bKpFlPge = true)
+    protected function setArrayToTable($aElements, $ftrs = null, $bKpFlPge = true)
     {
         if (isset($ftrs['limits'])) {
             $ftrs['limits'][1] = min($ftrs['limits'][1], $ftrs['limits'][2]);

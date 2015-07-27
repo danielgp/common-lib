@@ -144,7 +144,7 @@ trait CommonLibLocale
      * @param array $aAvailableLanguages
      * @return string
      */
-    protected function setUppeRightBoxLanguages($aAvailableLanguages)
+    protected function setUpperRightBoxLanguages($aAvailableLanguages)
     {
         $sReturn             = [];
         $this->handleLanguageIntoSession();
