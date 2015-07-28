@@ -45,7 +45,7 @@ trait CommonCode
 
     protected function arrayDiffAssocRecursive($array1, $array2)
     {
-        $difference = array();
+        $difference = [];
         foreach ($array1 as $key => $value) {
             if (is_array($value)) {
                 if (!isset($array2[$key]) || !is_array($array2[$key])) {
@@ -639,12 +639,15 @@ trait CommonCode
                     $sReturn .= $tbl['Head'];
                 }
                 if (isset($iStartingPageRecord)) {
-                    $sReturn .= $this->setStringIntoTag($this->setStringIntoTag($this->setPagination($ftrs['limits'][0], $ftrs['limits'][1], $ftrs['limits'][2], $bKpFlPge), 'th', array('colspan' => $iTableColumns)), 'tr');
+                    $pg = $this->setPagination($ftrs['limits'][0], $ftrs['limits'][1], $ftrs['limits'][2], $bKpFlPge);
+                    $sReturn .= $this->setStringIntoTag($this->setStringIntoTag($pg, 'th', [
+                                'colspan' => $iTableColumns
+                            ]), 'tr');
                 }
                 $tbl['Header'] = '<tr>';
 // Grouping columns
                 if (isset($ftrs['grouping_cell'])) {
-                    $header = array_diff_key($header, array($ftrs['grouping_cell'] => ''));
+                    $header = array_diff_key($header, [$ftrs['grouping_cell'] => '']);
                 }
 // Action column
                 if (isset($ftrs['actions'])) {
@@ -652,7 +655,7 @@ trait CommonCode
                 }
 //Exclude style columns from displaying
                 if (isset($ftrs['RowStyle'])) {
-                    $tmpClmns = $this->setArrayValuesAsKey(array($ftrs['RowStyle']));
+                    $tmpClmns = $this->setArrayValuesAsKey([$ftrs['RowStyle']]);
                     $header   = array_diff_key($header, $tmpClmns);
                     $hdClmns  = array_merge($hdClmns, $tmpClmns);
                     unset($tmpClmns);
@@ -699,7 +702,7 @@ trait CommonCode
                         switch ($ftrs['grouping_cell_type']) {
                             case 'row':
                                 $sReturn .= $tbl['tr_Color'] . '<td ' . 'colspan="' . $iTableColumns . '">'
-                                        . $this->setStringIntoTag($value, 'div', array('class' => 'rowGroup rounded'))
+                                        . $this->setStringIntoTag($value, 'div', ['class' => 'rowGroup rounded'])
                                         . '</td></tr>';
                                 break;
                             case 'tab':
@@ -742,7 +745,9 @@ trait CommonCode
                         case 'checkbox':
                             $checkboxName  = $value . '[]';
                             $checkboxNameS = $value;
-                            $sReturn .= '&nbsp;<input type="checkbox" name="' . $checkboxName . '" id="n' . $aElements[$rCntr][$value] . '" value="' . $aElements[$rCntr][$value] . '" ';
+                            $sReturn .= '&nbsp;<input type="checkbox" name="' . $checkboxName
+                                    . '" id="n' . $aElements[$rCntr][$value]
+                                    . '" value="' . $aElements[$rCntr][$value] . '" ';
                             if (isset($_REQUEST[$checkboxNameS])) {
                                 if (is_array($_REQUEST[$checkboxNameS])) {
                                     if (in_array($aElements[$rCntr][$value], $_REQUEST[$checkboxNameS])) {
@@ -821,10 +826,21 @@ trait CommonCode
                     }
                     switch ($value[1]) {
                         case '/':
-                            $aElements[$rCntr][$key] = $this->setDividedResult($aElements[$rCntr][$value[3]], $aElements[$rCntr][$value[4]], $dec);
+                            // next variable is only to avoid a long line
+                            $shorter                 = [
+                                $aElements[$rCntr][$value[3]],
+                                $aElements[$rCntr][$value[4]],
+                            ];
+                            $aElements[$rCntr][$key] = $this->setDividedResult($shorter[0], $shorter[1], $dec);
                             break;
                         case '+':
-                            $aTemp                   = array_diff($value, $this->setArrayValues2Keys(array($value[0], $value[1], $value[2]), true));
+                            // next variable is only to avoid a long line
+                            $iTemp                   = $this->setArrayValuesAsKey([
+                                $value[0],
+                                $value[1],
+                                $value[2]
+                            ]);
+                            $aTemp                   = array_diff($value, $iTemp);
                             $aElements[$rCntr][$key] = 0;
                             foreach ($aTemp as $sValue) {
                                 $aElements[$rCntr][$key] += $aElements[$rCntr][$sValue];
@@ -843,12 +859,13 @@ trait CommonCode
                     $decimals[$key] = $dec;
                 }
 // displaying them
-                $sReturn .= $this->setTableCell($row_computed, array('decimals' => $decimals));
+                $sReturn .= $this->setTableCell($row_computed, ['decimals' => $decimals]);
             }
             $sReturn .= '</tr>';
         }
         if (isset($iStartingPageRecord)) {
-            $sReturn .= '<tr>' . $this->setStringIntoTag($this->setPagination($ftrs['limits'][0], $ftrs['limits'][1], $ftrs['limits'][2]), 'th', array('colspan' => $iTableColumns)) . '</tr>';
+            $pg = $this->setPagination($ftrs['limits'][0], $ftrs['limits'][1], $ftrs['limits'][2]);
+            $sReturn .= '<tr>' . $this->setStringIntoTag($pg, 'th', ['colspan' => $iTableColumns]) . '</tr>';
         }
         $sReturn .= '</tbody></table>';
         if ($ftrs['grouping_cell_type'] == 'tab') {
@@ -856,16 +873,20 @@ trait CommonCode
         }
         if (isset($ftrs['actions']['checkbox'])) {
             if (strpos($_REQUEST['view'], 'multiEdit') === false) {
-                $sReturn .= '<a href="#" onclick="javascript:checking(\'' . $checkboxFormId . '\',\'' . $checkboxName . '\',true);">Check All</a>&nbsp;&nbsp;'
-                        . '<a href="#" onclick="javascript:checking(\'' . $checkboxFormId . '\',\'' . $checkboxName . '\',false);">Uncheck All</a>&nbsp;&nbsp;'
+                $sReturn .= '<a href="#" onclick="javascript:checking(\'' . $checkboxFormId
+                        . '\',\'' . $checkboxName . '\',true);">Check All</a>&nbsp;&nbsp;'
+                        . '<a href="#" onclick="javascript:checking(\'' . $checkboxFormId
+                        . '\',\'' . $checkboxName . '\',false);">Uncheck All</a>&nbsp;&nbsp;'
                         . '<input type="hidden" name="action" value="multiEdit_' . $checkboxNameS . '" />';
                 if (isset($ftrs['hiddenInput'])) {
                     if (is_array($ftrs['hiddenInput'])) {
                         foreach ($ftrs['hiddenInput'] as $valueF) {
-                            $sReturn .= '<input type="hidden" name="' . $valueF . '" value="' . $_REQUEST[$valueF] . '" />';
+                            $sReturn .= '<input type="hidden" name="' . $valueF
+                                    . '" value="' . $_REQUEST[$valueF] . '" />';
                         }
                     } else {
-                        $sReturn .= '<input type="hidden" name="' . $ftrs['hiddenInput'] . '" value="' . $_REQUEST[$ftrs['hiddenInput']] . '" />';
+                        $sReturn .= '<input type="hidden" name="' . $ftrs['hiddenInput']
+                                . '" value="' . $_REQUEST[$ftrs['hiddenInput']] . '" />';
                     }
                 }
                 $sReturn .= '<input style="margin: 0 3em 0 3em;" type="submit" ' . 'value="Edit selected" />';
@@ -873,8 +894,10 @@ trait CommonCode
             $sReturn .= '</form>';
         }
         if (isset($ftrs['actions']['checkbox_inlineEdit'])) {
-            $sReturn .= '<a href="#" onclick="javascript:checking(\'' . $checkboxFormId . '\',\'' . $checkboxName . '\',true);">Check All</a>&nbsp;&nbsp;'
-                    . '<a href="#" onclick="javascript:checking(\'' . $checkboxFormId . '\',\'' . $checkboxName . '\',false);">Uncheck All</a>&nbsp;&nbsp;';
+            $sReturn .= '<a href="#" onclick="javascript:checking(\'' . $checkboxFormId
+                    . '\',\'' . $checkboxName . '\',true);">Check All</a>&nbsp;&nbsp;'
+                    . '<a href="#" onclick="javascript:checking(\'' . $checkboxFormId
+                    . '\',\'' . $checkboxName . '\',false);">Uncheck All</a>&nbsp;&nbsp;';
             if (isset($ftrs['visibleInput'])) {
                 $sReturn .= $ftrs['visibleInput'];
             }
@@ -882,10 +905,12 @@ trait CommonCode
             if (isset($ftrs['hiddenInput'])) {
                 if (is_array($ftrs['hiddenInput'])) {
                     foreach ($ftrs['hiddenInput'] as $valueF) {
-                        $sReturn .= '<input type="hidden" name="' . $valueF . '" value="' . $_REQUEST[$valueF] . '" />';
+                        $sReturn .= '<input type="hidden" name="' . $valueF
+                                . '" value="' . $_REQUEST[$valueF] . '" />';
                     }
                 } else {
-                    $sReturn .= '<input type="hidden" name="' . $ftrs['hiddenInput'] . '" value="' . $_REQUEST[$ftrs['hiddenInput']] . '" />';
+                    $sReturn .= '<input type="hidden" name="' . $ftrs['hiddenInput']
+                            . '" value="' . $_REQUEST[$ftrs['hiddenInput']] . '" />';
                 }
             }
             $sReturn .= '<input style="margin: 0 3em 0 3em;" type="submit" value="Store the modification" />';
@@ -905,6 +930,32 @@ trait CommonCode
         $outArray = array_combine($inArray, $inArray);
         ksort($outArray);
         return $outArray;
+    }
+
+    /**
+     * Returns proper result from a mathematical division in order to avoid Zero division erorr or Infinite results
+     *
+     * @param float $fAbove
+     * @param float $fBelow
+     * @param mixed $mArguments
+     * @return decimal
+     */
+    public function setDividedResult($fAbove, $fBelow, $mArguments = 0)
+    {
+        // prevent infinite result AND division by 0
+        if (($fAbove == 0) || ($fBelow == 0)) {
+            $nReturn = 0;
+        } else {
+            if (is_array($mArguments)) {
+                $nReturn = $this->setNumberFormat(($fAbove / $fBelow), [
+                    'MinFractionDigits' => $mArguments[1],
+                    'MaxFractionDigits' => $mArguments[1],
+                ]);
+            } else {
+                $nReturn = $this->setNumberFormat(round(($fAbove / $fBelow), $mArguments));
+            }
+        }
+        return $nReturn;
     }
 
     /**
@@ -967,7 +1018,7 @@ trait CommonCode
         $sReturn = null;
         $counter = 0;
         foreach ($aElements as $key => $value) {
-            $value = str_replace(array('& ', '\"', "\'"), array('&amp; ', '"', "'"), $value);
+            $value = str_replace(['& ', '\"', "\'"], ['&amp; ', '"', "'"], $value);
             if ((isset($features['grouping_cell'])) && ($features['grouping_cell'] == $key)) {
                 // just skip
             } else {

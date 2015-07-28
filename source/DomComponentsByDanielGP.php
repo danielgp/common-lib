@@ -381,7 +381,8 @@ trait DomComponentsByDanielGP
                             case 'javascript':
                                 if (is_array($value)) {
                                     foreach ($value as $value2) {
-                                        $aFeatures[] = $this->setJavascriptFile(filter_var($value2, FILTER_SANITIZE_URL));
+                                        $vl          = filter_var($value2, FILTER_SANITIZE_URL);
+                                        $aFeatures[] = $this->setJavascriptFile($vl);
                                     }
                                 } else {
                                     $aFeatures[] = $this->setJavascriptFile(filter_var($value, FILTER_SANITIZE_URL));
