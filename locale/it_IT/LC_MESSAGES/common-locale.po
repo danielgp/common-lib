@@ -16,8 +16,20 @@ msgstr ""
 "Language: it_IT\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
+msgid "i18n_Action_Confirmation"
+msgstr "Conferma di operazione"
+
 msgid "i18n_ActionDelete_ConfirmationQuestion"
 msgstr "Sei sicuro di voler cancellare?"
+
+msgid "i18n_ActionDelete_Failed"
+msgstr "La cancellazione non è riuscita..."
+
+msgid "i18n_ActionDelete_Impossible"
+msgstr "La cancellazione non è possible perche la tabela residente non estata definita..."
+
+msgid "i18n_ActionDelete_Success"
+msgstr "La cancellazione estata eseguita con successo!"
 
 msgid "i18n_AddNewRecord"
 msgstr "Aggiungi una nuova registrazione"

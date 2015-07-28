@@ -16,11 +16,23 @@ msgstr ""
 "Language: ro_RO\n"
 "Plural-Forms: nplurals=3; plural=(n==1?0:(((n%100>19)||((n%100==0)&&(n!=0)))?2:1));\n"
 
-msgid "i18n_AddNewRecord"
-msgstr "Adaugă o nouă înregistrare"
+msgid "i18n_Action_Confirmation"
+msgstr "Confirmare operație"
 
 msgid "i18n_ActionDelete_ConfirmationQuestion"
 msgstr "Sunteţi sigur că doriţi să ştergeţi?"
+
+msgid "i18n_ActionDelete_Failed"
+msgstr "Ştergerea înregistrării a eşuat..."
+
+msgid "i18n_ActionDelete_Impossible"
+msgstr "Ştergerea înregistrării nu este posibilă deoarece tabela asociată nu a fost definită..."
+
+msgid "i18n_ActionDelete_Success"
+msgstr "Ștergerea înregistrării s-a efectuat cu succes!"
+
+msgid "i18n_AddNewRecord"
+msgstr "Adaugă o nouă înregistrare"
 
 msgid "i18n_Error_ExtensionNotLoaded"
 msgstr "Extensia CURL nu e disponibilă..."

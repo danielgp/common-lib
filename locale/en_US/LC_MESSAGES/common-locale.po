@@ -16,8 +16,20 @@ msgstr ""
 "Language: en_US\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
+msgid "i18n_Action_Confirmation"
+msgstr "Operation confirmation"
+
 msgid "i18n_ActionDelete_ConfirmationQuestion"
 msgstr "Are you sure you want to delete?"
+
+msgid "i18n_ActionDelete_Failed"
+msgstr "Record deletion has failed..."
+
+msgid "i18n_ActionDelete_Impossible"
+msgstr "Record deletion is not possible as no resident table was defined..."
+
+msgid "i18n_ActionDelete_Success"
+msgstr "Record deletion has been performed successfully!"
 
 msgid "i18n_AddNewRecord"
 msgstr "Add a new record"
