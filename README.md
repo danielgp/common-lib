@@ -5,7 +5,6 @@ common-lib = Common functions to be used where needed
 [![Latest Stable Version](https://poser.pugx.org/danielgp/common-lib/v/stable)](https://packagist.org/packages/danielgp/common-lib)
 [![Total Downloads](https://poser.pugx.org/danielgp/common-lib/downloads)](https://packagist.org/packages/danielgp/common-lib)
 [![Latest Unstable Version](https://poser.pugx.org/danielgp/common-lib/v/unstable)](https://packagist.org/packages/danielgp/common-lib)
-[![Latest Unstable Version](https://poser.pugx.org/danielgp/common-lib/v/unstable)](https://packagist.org/packages/danielgp/common-lib)
 [![License](https://poser.pugx.org/danielgp/common-lib/license)](https://packagist.org/packages/danielgp/common-lib)
 ==========
 [![Monthly Downloads](https://poser.pugx.org/danielgp/common-lib/d/monthly)](https://packagist.org/packages/danielgp/common-lib)
