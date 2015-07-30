@@ -940,7 +940,7 @@ trait CommonCode
      * @param mixed $mArguments
      * @return decimal
      */
-    public function setDividedResult($fAbove, $fBelow, $mArguments = 0)
+    protected function setDividedResult($fAbove, $fBelow, $mArguments = 0)
     {
         // prevent infinite result AND division by 0
         if (($fAbove == 0) || ($fBelow == 0)) {
@@ -1008,7 +1008,6 @@ trait CommonCode
     /**
      * Generates a table cell
      *
-     * @version 20080521
      * @param array $aElements
      * @param array $features
      * @return string
