@@ -109,6 +109,19 @@ trait MySQLiByDanielGPqueries
     }
 
     /**
+     * Get all the row details from a table based on given filter
+     *
+     * @param array $parameters
+     * @return string
+     */
+    protected function sQueryRowsFromTable($parameters)
+    {
+        return 'SELECT * '
+                . 'FROM `' . $parameters[0] . '` '
+                . 'WHERE ' . $parameters[1] . ';';
+    }
+
+    /**
      * Query to list Databases
      *
      * @param type $excludeSystemDatabases

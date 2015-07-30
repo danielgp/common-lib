@@ -270,6 +270,26 @@ trait MySQLiByDanielGP
     }
 
     /**
+     * Reads data from table into $_REQUEST
+     *
+     * @param string $tableName
+     * @param array $filtersArray
+     */
+    protected function getRowDataFromTable($tableName, $filtersArray)
+    {
+        $query   = $this->sQueryRowsFromTable([
+            $tableName,
+            $this->setArrayToFilterValues($filtersArray),
+        ]);
+        $rawData = $this->setMySQLquery2Server($query, 'array_pairs_key_value');
+        if (!is_null($rawData)) {
+            foreach ($rawData as $key => $value) {
+                $_REQUEST[$key] = str_replace(['\\\\"', '\\"', "\\\\'", "\\'"], ['"', '"', "'", "'"], $value);
+            }
+        }
+    }
+
+    /**
      * Just to keep a list of type of language as array
      *
      * @return array
@@ -472,6 +492,54 @@ trait MySQLiByDanielGP
                 ]),
             ],
         ];
+    }
+
+    /**
+     * Transforms an array into usable filters
+     *
+     * @param array $entryArray
+     * @param string $referenceTable
+     * @return array
+     */
+    private function setArrayToFilterValues($entryArray, $referenceTable = '')
+    {
+        $filters = '';
+        if ($referenceTable != '') {
+            $referenceTable = '`' . $referenceTable . '`.';
+        }
+        foreach ($entryArray as $key => $value) {
+            if (is_array($value)) {
+                $filters2 = '';
+                foreach ($value as $value2) {
+                    if ($value2 != '') {
+                        if ($filters2 != '') {
+                            $filters2 .= ',';
+                        }
+                        $filters2 .= '"' . $value2 . '"';
+                    }
+                }
+                if ($filters2 != '') {
+                    if ($filters != '') {
+                        $filters .= ' AND ';
+                    }
+                    $filters .= ' ' . $referenceTable . '`' . $key
+                            . '` IN ("' . str_replace(',', '","', str_replace(["'", '"'], '', $filters2))
+                            . '")';
+                }
+            } else {
+                if (($filters != '') && (!in_array($value, ['', '%%']))) {
+                    $filters .= ' AND ';
+                }
+                if (!in_array($value, ['', '%%'])) {
+                    if ((substr($value, 0, 1) == '%') && (substr($value, -1) == '%')) {
+                        $filters .= ' ' . $key . ' LIKE "' . $value . '"';
+                    } else {
+                        $filters .= ' ' . $key . ' = "' . $value . '"';
+                    }
+                }
+            }
+        }
+        return $filters;
     }
 
     /**
