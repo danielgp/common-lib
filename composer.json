@@ -30,6 +30,7 @@
             "source/CommonCode.php",
             "source/DomComponentsByDanielGP.php",
             "source/DomComponentsByDanielGPwithCDN.php",
+            "source/MySQLiAdvancedOutput.php",
             "source/MySQLiByDanielGPqueries.php",
             "source/MySQLiByDanielGP.php"
         ]
