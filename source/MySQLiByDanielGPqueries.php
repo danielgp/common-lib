@@ -58,6 +58,10 @@ trait MySQLiByDanielGPqueries
                 case 'USER()':
                     $sReturn = '= ' . $filterValue;
                     break;
+                case 'IS NULL':
+                case 'IS NOT NULL':
+                    $sReturn = $filterValue;
+                    break;
                 case 'NOT NULL':
                 case 'NULL':
                     $sReturn = 'IS ' . $filterValue;
@@ -117,8 +121,8 @@ trait MySQLiByDanielGPqueries
     protected function sQueryRowsFromTable($parameters)
     {
         return 'SELECT * '
-                . 'FROM `' . $parameters[0] . '` '
-                . 'WHERE ' . $parameters[1] . ';';
+                . 'FROM `' . filter_var($parameters[0], FILTER_SANITIZE_STRING) . '` '
+                . 'WHERE ' . filter_var($parameters[1], FILTER_SANITIZE_STRING) . ';';
     }
 
     /**
@@ -193,6 +197,21 @@ trait MySQLiByDanielGPqueries
                 . $this->sManageDynamicFilters($filterArray, 'C')
                 . 'GROUP BY `C`.`TABLE_SCHEMA`, `C`.`TABLE_NAME`, `C`.`COLUMN_NAME` '
                 . 'ORDER BY `C`.`TABLE_SCHEMA`, `C`.`TABLE_NAME`, `C`.`ORDINAL_POSITION`;';
+    }
+
+    protected function sQueryGenericSelectKeyValue($prmtrs)
+    {
+        return 'SELECT ' . filter_var($prmtrs[0], FILTER_SANITIZE_STRING)
+                . ', ' . filter_var($prmtrs[1], FILTER_SANITIZE_STRING) . ' '
+                . 'FROM ' . filter_var($prmtrs[2], FILTER_SANITIZE_STRING) . ' '
+                . 'GROUP BY ' . filter_var($prmtrs[1], FILTER_SANITIZE_STRING) . ';';
+    }
+
+    protected function sQueryToDeleteSingleIdentifier($prmtrs)
+    {
+        return 'DELETE FROM `' . filter_var($prmtrs[0], FILTER_SANITIZE_STRING) . '` '
+                . 'WHERE `' . filter_var($prmtrs[1], FILTER_SANITIZE_STRING) . '` = "'
+                . filter_var($prmtrs[2], FILTER_SANITIZE_STRING) . '";';
     }
 
     /**
