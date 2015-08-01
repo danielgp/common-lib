@@ -170,7 +170,7 @@ trait MySQLiAdvancedOutput
                         $database = substr($table_source, 0, strpos($table_source, '`.`'));
                     }
                     $foreign_keys_array = $this->getForeignKeysToArray($database, $table_source, $value['COLUMN_NAME']);
-                    if ($foreign_keys_array == null) {
+                    if (is_null($foreign_keys_array)) {
                         unset($foreign_keys_array);
                     }
                 // intentioanlly left open
@@ -249,7 +249,7 @@ trait MySQLiAdvancedOutput
             case 'varchar':
                 if (($table_source != 'user_rights') && ($value['COLUMN_NAME'] != 'eid')) {
                     $foreign_keys_array = $this->getForeignKeysToArray($database, $table_source, $value['COLUMN_NAME']);
-                    if ($foreign_keys_array == null) {
+                    if (is_null($foreign_keys_array)) {
                         unset($foreign_keys_array);
                     }
                 }
@@ -481,7 +481,7 @@ trait MySQLiAdvancedOutput
         if ((strpos($ref_tbl, '`') !== false) && (substr($ref_tbl, 0, 1) != '`')) {
             $ref_tbl = '`' . $ref_tbl . '`';
         }
-        if (strpos($ref_tbl, '.') == false) { // in case the DB is ommited get the default one
+        if (strpos($ref_tbl, '.') === false) { // in case the DB is ommited get the default one
             $dt[0] = $this->advCache['workingDatabase'];
             $dt[1] = $ref_tbl;
         } else {

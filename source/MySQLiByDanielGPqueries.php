@@ -36,6 +36,19 @@ namespace danielgp\common_lib;
 trait MySQLiByDanielGPqueries
 {
 
+    private function sCleanParameters(&$parameters)
+    {
+        if (is_array($parameters)) {
+            $tmpArray = [];
+            foreach ($parameters as &$value) {
+                $tmpArray[] = filter_var($value, FILTER_SANITIZE_STRING);
+            }
+            $parameters = $tmpArray;
+        } else {
+            $parameters = filter_var($parameters, FILTER_SANITIZE_STRING);
+        }
+    }
+
     /**
      * Internal function to manage concatenation for filters
      *
@@ -201,17 +214,18 @@ trait MySQLiByDanielGPqueries
 
     protected function sQueryGenericSelectKeyValue($prmtrs)
     {
-        return 'SELECT ' . filter_var($prmtrs[0], FILTER_SANITIZE_STRING)
-                . ', ' . filter_var($prmtrs[1], FILTER_SANITIZE_STRING) . ' '
-                . 'FROM ' . filter_var($prmtrs[2], FILTER_SANITIZE_STRING) . ' '
-                . 'GROUP BY ' . filter_var($prmtrs[1], FILTER_SANITIZE_STRING) . ';';
+        $this->sCleanParameters($prmtrs);
+        return 'SELECT ' . $prmtrs[0]
+                . ', ' . $prmtrs[1] . ' '
+                . 'FROM ' . $prmtrs[2] . ' '
+                . 'GROUP BY ' . $prmtrs[1] . ';';
     }
 
     protected function sQueryToDeleteSingleIdentifier($prmtrs)
     {
-        return 'DELETE FROM `' . filter_var($prmtrs[0], FILTER_SANITIZE_STRING) . '` '
-                . 'WHERE `' . filter_var($prmtrs[1], FILTER_SANITIZE_STRING) . '` = "'
-                . filter_var($prmtrs[2], FILTER_SANITIZE_STRING) . '";';
+        $this->sCleanParameters($prmtrs);
+        return 'DELETE FROM `' . $prmtrs[0] . '` '
+                . 'WHERE `' . $prmtrs[1] . '` = "' . $prmtrs[2] . '";';
     }
 
     /**

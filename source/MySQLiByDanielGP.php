@@ -568,7 +568,7 @@ trait MySQLiByDanielGP
             unset($pos3);
         }
         unset($pos1);
-        if (strpos($field_full_type, 'unsigned') == false) {
+        if (strpos($field_full_type, 'unsigned') === false) {
             $unsigned = false;
         } else {
             $unsigned = true;
