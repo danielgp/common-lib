@@ -547,6 +547,28 @@ trait MySQLiAdvancedOutput
     }
 
     /**
+     * Manages features flag
+     *
+     * @param string $fieldName
+     * @param array $features
+     * @return string
+     */
+    private function handleFeatures($fieldName, $features)
+    {
+        $iar = null;
+        if (isset($features['readonly']) && in_array($fieldName, $features['readonly'])) {
+            $iar = ['readonly' => 'readonly', 'class' => 'input_readonly'];
+        }
+        if (isset($features['disabled']) && in_array($fieldName, $features['disabled'])) {
+            $iar = ['disabled' => 'disabled'];
+        }
+        if (isset($features['include_null']) && in_array($fieldName, $features['include_null'])) {
+            $iar = ['include_null'];
+        }
+        return $iar;
+    }
+
+    /**
      * Returns a generic form based on a given table
      *
      * @param string $ts Table Source
@@ -681,30 +703,13 @@ trait MySQLiAdvancedOutput
     private function setNeededFieldByType($tbl_src, $details, $features)
     {
         $sReturn = null;
-        if (isset($features['special'])) {
-            if (isset($features['special'][$details['COLUMN_NAME']])) {
-                $slctOpt = $this->setQuery2Server($features['special'][$details['COLUMN_NAME']], 'array_key_value');
-                $slctVl  = $this->getFieldValue($details);
-                $sReturn = $this->setArrayToSelect($slctOpt, $slctVl, $details['COLUMN_NAME'], ['size' => 1]);
-            }
-        }
-        if (is_null($sReturn)) {
-            $iar = null;
-            if (isset($features['readonly'])) {
-                if (in_array($details['COLUMN_NAME'], $features['readonly'])) {
-                    $iar = ['readonly' => 'readonly', 'class' => 'input_readonly'];
-                }
-            }
-            if (isset($features['disabled'])) {
-                if (in_array($details['COLUMN_NAME'], $features['disabled'])) {
-                    $iar = ['disabled' => 'disabled'];
-                }
-            }
-            if (isset($features['include_null'])) {
-                if (in_array($details['COLUMN_NAME'], $features['include_null'])) {
-                    $iar = ['include_null'];
-                }
-            }
+        if (isset($features['special']) && isset($features['special'][$details['COLUMN_NAME']])) {
+            $slctOpt = $this->setQuery2Server($features['special'][$details['COLUMN_NAME']], 'array_key_value');
+            $sReturn = $this->setArrayToSelect($slctOpt, $this->getFieldValue($details), $details['COLUMN_NAME'], [
+                'size' => 1
+            ]);
+        } else {
+            $iar = $this->handleFeatures($details['COLUMN_NAME'], $features);
             switch ($details['DATA_TYPE']) {
                 case 'bigint':
                 case 'int':

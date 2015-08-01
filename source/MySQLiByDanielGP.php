@@ -653,10 +653,6 @@ trait MySQLiByDanielGP
         } else {
             $result = $this->mySQLconnection->query($sQuery);
             if ($result) {
-                if (is_object($result)) {
-                    $iNoOfRows = $result->num_rows;
-                    $iNoOfCols = $result->field_count;
-                }
                 switch (strtolower($sReturnType)) {
                     case 'array_first_key_rest_values':
                     case 'array_key_value':
@@ -666,8 +662,8 @@ trait MySQLiByDanielGP
                     case 'array_pairs_key_value':
                     case 'full_array_key_numbered':
                         $aReturn           = $this->setMySQLquery2ServerByPattern([
-                            'NoOfColumns' => $iNoOfCols,
-                            'NoOfRows'    => $iNoOfRows,
+                            'NoOfColumns' => $result->field_count,
+                            'NoOfRows'    => $result->num_rows,
                             'QueryResult' => $result,
                             'returnType'  => $sReturnType,
                             'return'      => $aReturn
@@ -676,8 +672,8 @@ trait MySQLiByDanielGP
                     case 'full_array_key_numbered_with_record_number_prefix':
                     case 'full_array_key_numbered_with_prefix':
                         $aReturn           = $this->setMySQLquery2ServerByPattern([
-                            'NoOfColumns' => $iNoOfCols,
-                            'NoOfRows'    => $iNoOfRows,
+                            'NoOfColumns' => $result->field_count,
+                            'NoOfRows'    => $result->num_rows,
                             'QueryResult' => $result,
                             'returnType'  => $sReturnType,
                             'prefix'      => $ftrs['prefix'],
@@ -688,14 +684,14 @@ trait MySQLiByDanielGP
                         $aReturn['result'] = $this->mySQLconnection->insert_id;
                         break;
                     case 'lines':
-                        $aReturn['result'] = $iNoOfRows;
+                        $aReturn['result'] = $result->num_rows;
                         break;
                     case 'value':
-                        if (($iNoOfRows == 1) && ($iNoOfCols == 1)) {
+                        if (($result->num_rows == 1) && ($result->field_count == 1)) {
                             $aReturn['result'] = $result->fetch_row()[0];
                         } else {
                             $msg                    = $this->lclMsgCmn('i18n_MySQL_QueryResultExpected1ResultedOther');
-                            $aReturn['customError'] = sprintf($msg, $iNoOfRows);
+                            $aReturn['customError'] = sprintf($msg, $result->num_rows);
                         }
                         break;
                     default:
