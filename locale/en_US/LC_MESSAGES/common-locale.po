@@ -19,6 +19,18 @@ msgstr ""
 msgid "i18n_Action_Confirmation"
 msgstr "Operation confirmation"
 
+msgid "i18n_Action_Successful"
+msgstr "The action has completed successfully!"
+
+msgid "i18n_ActionAdd_RestrictionDetails"
+msgstr "Only the authenticated users can add records!"
+
+msgid "i18n_ActionAdd_RestrictionTitle"
+msgstr "Restriction to add in place"
+
+msgid "i18n_ActionAdd_Successful"
+msgstr "Insertion has been completed successfully!"
+
 msgid "i18n_ActionDelete_ConfirmationQuestion"
 msgstr "Are you sure you want to delete?"
 
@@ -30,6 +42,9 @@ msgstr "Record deletion is not possible as no resident table was defined..."
 
 msgid "i18n_ActionDelete_Success"
 msgstr "Record deletion has been performed successfully!"
+
+msgid "i18n_ActionUpdate_Successful"
+msgstr "Update has been completed successfully!"
 
 msgid "i18n_AddNewRecord"
 msgstr "Add a new record"
@@ -99,6 +114,12 @@ msgstr "The MySQL query returned %d columns although at least 2 were expected...
 
 msgid "i18n_NoData"
 msgstr "In this very moment there is no record... (taking account applied filters, if any)"
+
+msgid "i18n_NowYouAreInTheEditingModeOfExistingInformations"
+msgstr "Now you are in the editing mode of existing information"
+
+msgid "i18n_NowYouAreInTheNewInformationAddingMode"
+msgstr "Now you are in the new information adding mode"
 
 msgid "i18n_Record"
 msgid_plural "i18n_Records"

@@ -19,6 +19,18 @@ msgstr ""
 msgid "i18n_Action_Confirmation"
 msgstr "Confirmare operație"
 
+msgid "i18n_Action_Successful"
+msgstr "Acțiunea s-a terminat cu succes!"
+
+msgid "i18n_ActionAdd_RestrictionDetails"
+msgstr "Doar utilizatorii autentificați pot adăuga informații!"
+
+msgid "i18n_ActionAdd_RestrictionTitle"
+msgstr "Restricție de adăugare activă"
+
+msgid "i18n_ActionAdd_Successful"
+msgstr "Adăugarea s-a încheiat cu success!"
+
 msgid "i18n_ActionDelete_ConfirmationQuestion"
 msgstr "Sunteţi sigur că doriţi să ştergeţi?"
 
@@ -30,6 +42,9 @@ msgstr "Ştergerea înregistrării nu este posibilă deoarece tabela asociată n
 
 msgid "i18n_ActionDelete_Success"
 msgstr "Ștergerea înregistrării s-a efectuat cu succes!"
+
+msgid "i18n_ActionUpdate_Successful"
+msgstr "Actualizarea s-a terminat cu succes!"
 
 msgid "i18n_AddNewRecord"
 msgstr "Adaugă o nouă înregistrare"
@@ -99,6 +114,12 @@ msgstr "Interogarea MySQL a returnat %d coloane deşi se aşteptau cel puţin 2 
 
 msgid "i18n_NoData"
 msgstr "În acest moment nu există nici o înregistrare... (ținând cont de eventualele filtre aplicate)"
+
+msgid "i18n_NowYouAreInTheEditingModeOfExistingInformations"
+msgstr "Acum sunteți în modul de modificare a informațiilor existente"
+
+msgid "i18n_NowYouAreInTheNewInformationAddingMode"
+msgstr "Acum sunteți în modul de introducere informații noi"
 
 msgid "i18n_Record"
 msgid_plural "i18n_Records"

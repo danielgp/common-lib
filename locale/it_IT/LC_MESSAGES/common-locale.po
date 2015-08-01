@@ -19,6 +19,18 @@ msgstr ""
 msgid "i18n_Action_Confirmation"
 msgstr "Conferma di operazione"
 
+msgid "i18n_Action_Successful"
+msgstr "L`azione si e completata con successo!"
+
+msgid "i18n_ActionAdd_RestrictionDetails"
+msgstr "Solo gli utenti logati posono aggiungere informazioni!"
+
+msgid "i18n_ActionAdd_RestrictionTitle"
+msgstr "Restrizione di aggiungimento attiva"
+
+msgid "i18n_ActionAdd_Successful"
+msgstr "L`inserimento estato effetuato con sucesso!"
+
 msgid "i18n_ActionDelete_ConfirmationQuestion"
 msgstr "Sei sicuro di voler cancellare?"
 
@@ -30,6 +42,9 @@ msgstr "La cancellazione non è possible perche la tabela residente non estata d
 
 msgid "i18n_ActionDelete_Success"
 msgstr "La cancellazione estata eseguita con successo!"
+
+msgid "i18n_ActionUpdate_Successful"
+msgstr "L`aggiornamento estato completato con successo!"
 
 msgid "i18n_AddNewRecord"
 msgstr "Aggiungi una nuova registrazione"
@@ -99,6 +114,12 @@ msgstr "L`interogazione MySQL ha ritornato %d colonne ma si aspetavano almeno du
 
 msgid "i18n_NoData"
 msgstr "In questo momento non essiste nessuna registrazione... (tenendo conto degli eventuali filtri)"
+
+msgid "i18n_NowYouAreInTheEditingModeOfExistingInformations"
+msgstr "Adesso siete nel modo di modificare informazini essistenti"
+
+msgid "i18n_NowYouAreInTheNewInformationAddingMode"
+msgstr "Adesso siete nel modo di introdure informazioni nuone"
 
 msgid "i18n_Record"
 msgid_plural "i18n_Records"
