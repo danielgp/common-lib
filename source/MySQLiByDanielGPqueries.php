@@ -126,19 +126,6 @@ trait MySQLiByDanielGPqueries
     }
 
     /**
-     * Get all the row details from a table based on given filter
-     *
-     * @param array $parameters
-     * @return string
-     */
-    protected function sQueryRowsFromTable($parameters)
-    {
-        return 'SELECT * '
-                . 'FROM `' . filter_var($parameters[0], FILTER_SANITIZE_STRING) . '` '
-                . 'WHERE ' . filter_var($parameters[1], FILTER_SANITIZE_STRING) . ';';
-    }
-
-    /**
      * Query to list Databases
      *
      * @param type $excludeSystemDatabases
@@ -212,20 +199,12 @@ trait MySQLiByDanielGPqueries
                 . 'ORDER BY `C`.`TABLE_SCHEMA`, `C`.`TABLE_NAME`, `C`.`ORDINAL_POSITION`;';
     }
 
-    protected function sQueryGenericSelectKeyValue($prmtrs)
+    protected function sQueryGenericSelectKeyValue($parameters)
     {
-        $this->sCleanParameters($prmtrs);
-        return 'SELECT ' . $prmtrs[0]
-                . ', ' . $prmtrs[1] . ' '
-                . 'FROM ' . $prmtrs[2] . ' '
-                . 'GROUP BY ' . $prmtrs[1] . ';';
-    }
-
-    protected function sQueryToDeleteSingleIdentifier($prmtrs)
-    {
-        $this->sCleanParameters($prmtrs);
-        return 'DELETE FROM `' . $prmtrs[0] . '` '
-                . 'WHERE `' . $prmtrs[1] . '` = "' . $prmtrs[2] . '";';
+        $this->sCleanParameters($parameters);
+        return 'SELECT ' . $parameters[0] . ', ' . $parameters[1] . ' '
+                . 'FROM ' . $parameters[2] . ' '
+                . 'GROUP BY ' . $parameters[1] . ';';
     }
 
     /**
@@ -318,5 +297,27 @@ trait MySQLiByDanielGPqueries
                 . $this->sManageDynamicFilters($filterArray, 'T')
                 . $xtraSorting
                 . ';';
+    }
+
+    /**
+     * Get all the row details from a table based on given filter
+     *
+     * @param array $parameters
+     * @return string
+     */
+    protected function sQueryRowsFromTable($parameters)
+    {
+        $this->sCleanParameters($parameters);
+        return 'SELECT * '
+                . 'FROM `' . $parameters[0] . '` '
+                . 'WHERE ' . $parameters[1] . ';';
+    }
+
+    protected function sQueryToDeleteSingleIdentifier($parameters)
+    {
+        $this->sCleanParameters($parameters);
+        return 'DELETE '
+                . 'FROM `' . $parameters[0] . '` '
+                . 'WHERE `' . $parameters[1] . '` = "' . $parameters[2] . '";';
     }
 }
