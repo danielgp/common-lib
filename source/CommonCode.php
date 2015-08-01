@@ -1036,15 +1036,12 @@ trait CommonCode
                     }
                 } else {
                     if (is_numeric($value)) {
+                        $decimals = 0;
                         if (isset($features['no_of_decimals'])) {
                             $decimals = $features['no_of_decimals'];
-                        } else {
-                            $decimals = 0;
                         }
-                        if (isset($features['decimals'])) {
-                            if (in_array($key, array_keys($features['decimals']))) {
-                                $decimals = $features['decimals'][$key];
-                            }
+                        if (isset($features['decimals']) && array_key_exists($key, $features['decimals'])) {
+                            $decimals = $features['decimals'][$key];
                         }
                         $sReturn .= 'style="text-align: right;">';
                         $sReturn .= $this->setNumberFormat($value, [
@@ -1053,13 +1050,11 @@ trait CommonCode
                         ]);
                     } else {
                         $outputet = false;
-                        if (strpos($value, '-') !== false) {
-                            if (strlen($value) == 10) {
-                                if (preg_match("([0-9]{4})-([0-9]{1,2})-([0-9]{1,2})", $value, $regs)) {
-                                    $outputet = true;
-                                    $sReturn .= 'style="text-align:right;width: 10px;">'
-                                            . $regs[3] . '.' . $regs[2] . '.' . $regs[1];
-                                }
+                        if ((strpos($value, '-') !== false) && (strlen($value) == 10)) {
+                            if (preg_match("([0-9]{4})-([0-9]{1,2})-([0-9]{1,2})", $value, $regs)) {
+                                $outputet = true;
+                                $sReturn .= 'style="text-align:right;width: 10px;">'
+                                        . $regs[3] . '.' . $regs[2] . '.' . $regs[1];
                             }
                         }
                         if (!$outputet) {

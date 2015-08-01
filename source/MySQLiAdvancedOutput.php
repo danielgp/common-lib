@@ -131,14 +131,14 @@ trait MySQLiAdvancedOutput
             if ($this->getFieldValue($value) == '') {
                 $input = $this->setStringIntoTag('auto-numar', 'span', [
                     'id'    => $value['COLUMN_NAME'],
-                    'style' => 'font-style:italic;'
+                    'style' => 'font-style:italic;',
                 ]);
             } else {
                 $ia = [
                     'type'  => 'hidden',
                     'name'  => $value['COLUMN_NAME'],
                     'id'    => $value['COLUMN_NAME'],
-                    'value' => $this->getFieldValue($value)
+                    'value' => $this->getFieldValue($value),
                 ];
                 if (!is_null($iar)) {
                     $ia = array_merge($ia, $iar);
@@ -150,22 +150,11 @@ trait MySQLiAdvancedOutput
         } else {
             switch ($field_type) {
                 case 'bigint':
-                // intentioanlly left open
                 case 'int':
-                // intentioanlly left open
                 case 'mediumint':
-                // intentioanlly left open
                 case 'smallint':
-                // intentioanlly left open
                 case 'tinyint':
-                    switch ($table_source) {
-                        case 'user_rights':
-                            $database = 'usefull_security';
-                            break;
-                        default:
-                            $database = $this->advCache['workingDatabase'];
-                            break;
-                    }
+                    $database = $this->advCache['workingDatabase'];
                     if (strpos($table_source, '`.`')) {
                         $database = substr($table_source, 0, strpos($table_source, '`.`'));
                     }
@@ -175,11 +164,8 @@ trait MySQLiAdvancedOutput
                     }
                 // intentioanlly left open
                 case 'float':
-                // intentioanlly left open
                 case 'double':
-                // intentioanlly left open
                 case 'decimal':
-                // intentioanlly left open
                 case 'numeric':
                     if (isset($foreign_keys_array)) {
                         $q             = $this->sQueryGenericSelectKeyValue([
@@ -197,7 +183,6 @@ trait MySQLiAdvancedOutput
                             $ia = array_merge($ia, $iar);
                         }
                         $input = $this->setArrayToSelect($selectOptions, $selectValue, $value['COLUMN_NAME'], $ia);
-                        unset($foreign_keys_array);
                     } else {
                         $fn = $this->setFieldNumbers($value['COLUMN_TYPE']);
                         $ia = [
@@ -231,15 +216,8 @@ trait MySQLiAdvancedOutput
      */
     private function getFieldOutputText($table_source, $field_type, $value, $iar = null)
     {
-        $input = null;
-        switch ($table_source) {
-            case 'user_rights':
-                $database = 'usefull_security';
-                break;
-            default:
-                $database = $this->advCache['workingDatabase'];
-                break;
-        }
+        $input    = null;
+        $database = $this->advCache['workingDatabase'];
         if (strpos($table_source, '`.`')) {
             $database = substr($table_source, 0, strpos($table_source, '`.`'));
         }
@@ -710,6 +688,8 @@ trait MySQLiAdvancedOutput
                 case 'mediumint':
                 case 'smallint':
                 case 'tinyint':
+                case 'float':
+                case 'double':
                 case 'decimal':
                 case 'numeric':
                     $sReturn = $this->getFieldOutputNumeric($tbl_src, $details['DATA_TYPE'], $details, $iar);
@@ -764,7 +744,14 @@ trait MySQLiAdvancedOutput
             $dt = explode('.', str_replace('`', '', $ts));
         }
         if (is_null($this->advCache['tableStructureCache'][$dt[0]][$dt[1]])) {
-            $this->advCache['workingDatabase']                     = $dt[0];
+            switch ($dt[1]) {
+                case 'user_rights':
+                    $this->advCache['workingDatabase'] = 'usefull_security';
+                    break;
+                default:
+                    $this->advCache['workingDatabase'] = $dt[0];
+                    break;
+            }
             $this->advCache['tableStructureCache'][$dt[0]][$dt[1]] = $this->getMySQLlistColumns([
                 'TABLE_SCHEMA' => $dt[0],
                 'TABLE_NAME'   => $dt[1],

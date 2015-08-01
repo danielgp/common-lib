@@ -202,7 +202,8 @@ trait MySQLiByDanielGPqueries
     protected function sQueryGenericSelectKeyValue($parameters)
     {
         $this->sCleanParameters($parameters);
-        return 'SELECT ' . $parameters[0] . ', ' . $parameters[1] . ' '
+        return 'SELECT '
+                . $parameters[0] . ', ' . $parameters[1] . ' '
                 . 'FROM ' . $parameters[2] . ' '
                 . 'GROUP BY ' . $parameters[1] . ';';
     }
