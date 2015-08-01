@@ -372,6 +372,29 @@ trait MySQLiAdvancedOutput
     }
 
     /**
+     * Returns a Year field 2 use in a form
+     *
+     * @param array $details
+     * @param string $iar
+     * @return string
+     */
+    private function getFieldOutputYear($details, $iar)
+    {
+        for ($c = 1901; $c <= 2155; $c++) {
+            $listOfValues[$c] = $c;
+        }
+        if (is_null($iar)) {
+            $slDflt  = $this->getFieldValue($details);
+            $sReturn = $this->setArrayToSelect($listOfValues, $slDflt, $details['COLUMN_NAME'], [
+                'size' => 1
+            ]);
+        } else {
+            $sReturn = $this->getFieldOutputText('varchar', $details, $iar);
+        }
+        return $sReturn;
+    }
+
+    /**
      * Returns given value for a field from $_REQUEST
      *
      * @param array $details
@@ -718,17 +741,7 @@ trait MySQLiAdvancedOutput
                     $sReturn = $this->getFieldOutputTime($details['DATA_TYPE'], $details, $iar);
                     break;
                 case 'year':
-                    for ($c = 1901; $c <= 2155; $c++) {
-                        $listOfValues[$c] = $c;
-                    }
-                    if (is_null($iar)) {
-                        $slDflt  = $this->getFieldValue($details);
-                        $sReturn = $this->setArrayToSelect($listOfValues, $slDflt, $details['COLUMN_NAME'], [
-                            'size' => 1
-                        ]);
-                    } else {
-                        $sReturn = $this->getFieldOutputText('varchar', $details, $iar);
-                    }
+                    $sReturn = $this->getFieldOutputYear($details, $iar);
                     break;
             }
         }
