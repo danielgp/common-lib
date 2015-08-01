@@ -791,4 +791,44 @@ trait MySQLiAdvancedOutput
             $this->advCache['FKcol'][$dtbase][$tblName]    = $colWithFK;
         }
     }
+
+    /**
+     * Automatic handler for Record deletion
+     *
+     * @param string $tbl
+     * @param string $identifier
+     * @return string
+     */
+    protected function setViewModernDelete($tbl, $identifier)
+    {
+        $sReturn = [];
+        $tMsg    = [
+            'Confirmation' => $this->lclMsgCmn('i18n_Action_Confirmation'),
+            'Failed'       => $this->lclMsgCmn('i18n_ActionDelete_Failed'),
+            'Impossible'   => $this->lclMsgCmn('i18n_ActionDelete_Impossible'),
+            'Success'      => $this->lclMsgCmn('i18n_ActionDelete_Success'),
+        ];
+        if ($tbl == '') {
+            $sReturn[] = $this->setFeedbackModern('error', $tMsg['Confirmation'], $tMsg['Impossible']);
+        } else {
+            $q = $this->sQueryToDeleteSingleIdentifier([
+                $tbl,
+                $identifier,
+                $_REQUEST[$identifier]
+            ]);
+            $this->setMySQLquery2Server($q);
+            if ($this->mySQLconnection->affected_rows != 0) {
+                $sReturn[] = $this->setFeedbackModern('check', $tMsg['Confirmation'], $tMsg['Success']);
+            } else {
+                $sReturn[] = $this->setFeedbackModern('error', $tMsg['Confirmation'], $tMsg['Failed']);
+                $sReturn[] = '(' . $this->mySQLconnection->error . ')';
+            }
+        }
+        $finalJavascript = $this->setJavascriptContent(implode('', [
+            '$("#DeleteFeedback").fadeOut(4000, function() {',
+            '$(this).remove();',
+            '});',
+        ]));
+        return '<div id="DeleteFeedback">' . implode('', $sReturn) . '</div>' . $finalJavascript;
+    }
 }
