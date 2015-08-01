@@ -647,11 +647,11 @@ trait MySQLiByDanielGP
             'result'      => null
         ];
         if (is_null($sReturnType)) {
-            return $this->mySQLconnection->query($sQuery);
+            return $this->mySQLconnection->query(html_entity_decode($sQuery));
         } elseif (is_null($this->mySQLconnection)) {
             $aReturn['customError'] = $this->lclMsgCmn('i18n_MySQL_ConnectionNotExisting');
         } else {
-            $result = $this->mySQLconnection->query($sQuery);
+            $result = $this->mySQLconnection->query(html_entity_decode($sQuery));
             if ($result) {
                 switch (strtolower($sReturnType)) {
                     case 'array_first_key_rest_values':
