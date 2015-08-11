@@ -68,6 +68,67 @@ trait MySQLiByDanielGP
         }
     }
 
+    protected function executeMultipleRepetitiveValues($qry, $prmtrs)
+    {
+        $stmt     = $this->mySQLconnection->stmt_init();
+        $alocated = $stmt->prepare($qry);
+        if ($alocated) {
+            if ($stmt->param_count > 10) {
+                echo $this->setFeedbackModern('error', 'Limitation', 'This function (' . __FUNCTION__ . ' from file ' . __FILE__ . ') cannot handle more than 10 parameters (at least for the moment)... We`re sorry for any inconvenience this may cause to you!');
+                return false;
+            }
+            foreach ($prmtrs as $value) {
+                if ($stmt->param_count > 1) {
+                    foreach ($value as $value2) {
+                        $type[] = $this->setVariableTypeForMySqlStatements($value2);
+                    }
+                }
+                switch ($stmt->param_count) {
+                    case 1:
+                        $type = $this->setVariableTypeForMySqlStatements($value[0]);
+                        $stmt->bind_param($type, $value[0]);
+                        break;
+                    case 2:
+                        $stmt->bind_param(implode('', $type), $value[0], $value[1]);
+                        break;
+                    case 3:
+                        $stmt->bind_param(implode('', $type), $value[0], $value[1], $value[2]);
+                        break;
+                    case 4:
+                        $stmt->bind_param(implode('', $type), $value[0], $value[1], $value[2], $value[3]);
+                        break;
+                    case 5:
+                        $stmt->bind_param(implode('', $type), $value[0], $value[1], $value[2], $value[3], $value[4]);
+                        break;
+                    case 6:
+                        $stmt->bind_param(implode('', $type), $value[0], $value[1], $value[2], $value[3], $value[4], $value[5]);
+                        break;
+                    case 7:
+                        $stmt->bind_param(implode('', $type), $value[0], $value[1], $value[2], $value[3], $value[4], $value[5], $value[6]);
+                        break;
+                    case 8:
+                        $stmt->bind_param(implode('', $type), $value[0], $value[1], $value[2], $value[3], $value[4], $value[5], $value[6], $value[7]);
+                        break;
+                    case 9:
+                        $stmt->bind_param(implode('', $type), $value[0], $value[1], $value[2], $value[3], $value[4], $value[5], $value[6], $value[7], $value[8]);
+                    case 10:
+                        $stmt->bind_param(implode('', $type), $value[0], $value[1], $value[2], $value[3], $value[4], $value[5], $value[6], $value[7], $value[8], $value[9]);
+                        break;
+                }
+                unset($type);
+                $stmt->execute();
+                if ($stmt->errno != 0) {
+                    echo $this->setFeedbackModern('error', 'MySQL error', $stmt->error . ' (' . $qry . ')');
+                }
+            }
+            $stmt->close();
+        } else {
+            if ($stmt->errno != 0) {
+                echo $this->setFeedbackModern('error', 'MySQL error', $stmt->error . ' (' . $qry . ')');
+            }
+        }
+    }
+
     /**
      * returns a list of MySQL databases
      *
