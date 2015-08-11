@@ -1036,18 +1036,22 @@ trait CommonCode
                     }
                 } else {
                     if (is_numeric($value)) {
-                        $decimals = 0;
-                        if (isset($features['no_of_decimals'])) {
-                            $decimals = $features['no_of_decimals'];
+                        if (substr($value, 0, 1) === '0') {
+                            $sReturn .= 'style="text-align: right;">' . $value;
+                        } else {
+                            $decimals = 0;
+                            if (isset($features['no_of_decimals'])) {
+                                $decimals = $features['no_of_decimals'];
+                            }
+                            if (isset($features['decimals']) && array_key_exists($key, $features['decimals'])) {
+                                $decimals = $features['decimals'][$key];
+                            }
+                            $sReturn .= 'style="text-align: right;">';
+                            $sReturn .= $this->setNumberFormat($value, [
+                                'MinFractionDigits' => $decimals,
+                                'MaxFractionDigits' => $decimals
+                            ]);
                         }
-                        if (isset($features['decimals']) && array_key_exists($key, $features['decimals'])) {
-                            $decimals = $features['decimals'][$key];
-                        }
-                        $sReturn .= 'style="text-align: right;">';
-                        $sReturn .= $this->setNumberFormat($value, [
-                            'MinFractionDigits' => $decimals,
-                            'MaxFractionDigits' => $decimals
-                        ]);
                     } else {
                         $outputet = false;
                         if ((strpos($value, '-') !== false) && (strlen($value) == 10)) {
