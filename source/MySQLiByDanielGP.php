@@ -609,34 +609,11 @@ trait MySQLiByDanielGP
      * @param string $field_full_type
      * @return array
      */
-    protected function setFieldNumbers($field_full_type, $outputFormated = false)
+    protected function setFieldNumbers($fieldDetails, $outputFormated = false)
     {
-        $pos1 = strpos($field_full_type, '(');
-        if ($pos1 === false) {
-            $field_type = $field_full_type;
-        } else {
-            $field_type     = substr($field_full_type, 0, $pos1);
-            $pos2           = strpos($field_full_type, ')');
-            $initial_length = substr($field_full_type, ($pos1 + 1), ($pos2 - $pos1 - 1));
-            unset($pos2);
-            $pos3           = strpos($initial_length, ',');
-            if ($pos3 === false) {
-                $length = $initial_length;
-            } else {
-                $legth_elements = explode(',', $initial_length);
-                $length         = $legth_elements[0] + $legth_elements[1] + 1;
-            }
-            unset($pos3);
-        }
-        unset($pos1);
-        if (strpos($field_full_type, 'unsigned') === false) {
-            $unsigned = false;
-        } else {
-            $unsigned = true;
-        }
-        switch ($field_type) {
+        switch ($fieldDetails['DATA_TYPE']) {
             case 'bigint':
-                if ($unsigned) {
+                if (strpos($fieldDetails['COLUMN_TYPE'], 'unsigned') !== false) {
                     $aReturn = ['m' => 0, 'M' => 18446744072705500000, 'l' => 20];
                 } else {
                     $aReturn = ['m' => -9223372036854770000, 'M' => 9223372036854770000, 'l' => 20];
@@ -645,35 +622,36 @@ trait MySQLiByDanielGP
             case 'char':
             case 'varchar':
             case 'tinytext':
-                $aReturn = ['l' => $length];
+                $lgth    = str_replace([$fieldDetails['DATA_TYPE'], '(', ')'], '', $fieldDetails['COLUMN_TYPE']);
+                $aReturn = ['l' => $lgth];
                 break;
             case 'decimal':
             case 'numeric':
-                $aReturn = ['l' => $length, 'd' => $legth_elements[1]];
+                $aReturn = ['l' => $fieldDetails['NUMERIC_PRECISION'], 'd' => $fieldDetails['NUMERIC_SCALE']];
                 break;
             case 'int':
-                if ($unsigned) {
+                if (strpos($fieldDetails['COLUMN_TYPE'], 'unsigned') !== false) {
                     $aReturn = ['m' => 0, 'M' => 4294967295, 'l' => 10];
                 } else {
                     $aReturn = ['m' => -2147483648, 'M' => 2147483647, 'l' => 11];
                 }
                 break;
             case 'mediumint':
-                if ($unsigned) {
+                if (strpos($fieldDetails['COLUMN_TYPE'], 'unsigned') !== false) {
                     $aReturn = ['m' => 0, 'M' => 16777215, 'l' => 8];
                 } else {
                     $aReturn = ['m' => -8388608, 'M' => 8388607, 'l' => 8];
                 }
                 break;
             case 'smallint':
-                if ($unsigned) {
+                if (strpos($fieldDetails['COLUMN_TYPE'], 'unsigned') !== false) {
                     $aReturn = ['m' => 0, 'M' => 65535, 'l' => 5];
                 } else {
                     $aReturn = ['m' => -32768, 'M' => 32767, 'l' => 6];
                 }
                 break;
             case 'tinyint':
-                if ($unsigned) {
+                if (strpos($fieldDetails['COLUMN_TYPE'], 'unsigned') !== false) {
                     $aReturn = ['m' => 0, 'M' => 255, 'l' => 3];
                 } else {
                     $aReturn = ['m' => -128, 'M' => 127, 'l' => 4];

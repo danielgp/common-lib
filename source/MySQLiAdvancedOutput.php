@@ -146,56 +146,39 @@ trait MySQLiAdvancedOutput
                 $input = $this->setStringIntoTag($this->getFieldValue($value), 'b')
                         . $this->setStringIntoShortTag('input', $ia);
             }
-            return $input;
         } else {
-            switch ($field_type) {
-                case 'bigint':
-                case 'int':
-                case 'mediumint':
-                case 'smallint':
-                case 'tinyint':
-                    $database           = $this->advCache['workingDatabase'];
-                    $foreign_keys_array = $this->getForeignKeysToArray($database, $table_source, $value['COLUMN_NAME']);
-                    if (is_null($foreign_keys_array)) {
-                        unset($foreign_keys_array);
-                    }
-                // intentioanlly left open
-                case 'float':
-                case 'double':
-                case 'decimal':
-                case 'numeric':
-                    if (isset($foreign_keys_array)) {
-                        $q             = $this->sQueryGenericSelectKeyValue([
-                            $foreign_keys_array[$value['COLUMN_NAME']][1],
-                            $foreign_keys_array[$value['COLUMN_NAME']][2],
-                            $foreign_keys_array[$value['COLUMN_NAME']][0]
-                        ]);
-                        $selectOptions = $this->setMySQLquery2Server($q, 'array_key_value')['result'];
-                        $selectValue   = $this->getFieldValue($value);
-                        $ia            = ['size' => 1];
-                        if ($value['IS_NULLABLE'] == 'YES') {
-                            $ia = array_merge($ia, ['include_null']);
-                        }
-                        if (isset($iar)) {
-                            $ia = array_merge($ia, $iar);
-                        }
-                        $input = $this->setArrayToSelect($selectOptions, $selectValue, $value['COLUMN_NAME'], $ia);
-                    } else {
-                        $fn = $this->setFieldNumbers($value['COLUMN_TYPE']);
-                        $ia = [
-                            'type'      => 'text',
-                            'name'      => $value['COLUMN_NAME'],
-                            'id'        => $value['COLUMN_NAME'],
-                            'value'     => $this->getFieldValue($value),
-                            'size'      => min(50, $fn['l']),
-                            'maxlength' => min(50, $fn['l'])
-                        ];
-                        if (isset($iar)) {
-                            $ia = array_merge($ia, $iar);
-                        }
-                        $input = $this->setStringIntoShortTag('input', $ia);
-                    }
-                    break;
+            $database           = $this->advCache['workingDatabase'];
+            $foreign_keys_array = $this->getForeignKeysToArray($database, $table_source, $value['COLUMN_NAME']);
+            if (is_null($foreign_keys_array)) {
+                $fn = $this->setFieldNumbers($value);
+                $ia = [
+                    'type'      => 'text',
+                    'name'      => $value['COLUMN_NAME'],
+                    'id'        => $value['COLUMN_NAME'],
+                    'value'     => $this->getFieldValue($value),
+                    'size'      => min(50, $fn['l']),
+                    'maxlength' => min(50, $fn['l'])
+                ];
+                if (isset($iar)) {
+                    $ia = array_merge($ia, $iar);
+                }
+                $input = $this->setStringIntoShortTag('input', $ia);
+            } else {
+                $q             = $this->sQueryGenericSelectKeyValue([
+                    $foreign_keys_array[$value['COLUMN_NAME']][1],
+                    $foreign_keys_array[$value['COLUMN_NAME']][2],
+                    $foreign_keys_array[$value['COLUMN_NAME']][0]
+                ]);
+                $selectOptions = $this->setMySQLquery2Server($q, 'array_key_value')['result'];
+                $selectValue   = $this->getFieldValue($value);
+                $ia            = ['size' => 1];
+                if ($value['IS_NULLABLE'] == 'YES') {
+                    $ia = array_merge($ia, ['include_null']);
+                }
+                if (isset($iar)) {
+                    $ia = array_merge($ia, $iar);
+                }
+                $input = $this->setArrayToSelect($selectOptions, $selectValue, $value['COLUMN_NAME'], $ia);
             }
         }
         return $input;
@@ -248,7 +231,7 @@ trait MySQLiAdvancedOutput
                     $input = $this->setArrayToSelect($slct['Options'], $slct['Value'], $value['COLUMN_NAME'], $ia);
                     unset($foreign_keys_array);
                 } else {
-                    $fn = $this->setFieldNumbers($value['COLUMN_TYPE']);
+                    $fn = $this->setFieldNumbers($value);
                     $ia = [
                         'type'      => ($value['COLUMN_NAME'] == 'password' ? 'password' : 'text'),
                         'name'      => $value['COLUMN_NAME'],
