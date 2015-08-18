@@ -1015,7 +1015,6 @@ trait CommonCode
     private function setTableCell($aElements, $features = null)
     {
         $sReturn = null;
-        $counter = 0;
         foreach ($aElements as $key => $value) {
             $value = str_replace(['& ', '\"', "\'"], ['&amp; ', '"', "'"], $value);
             if ((isset($features['grouping_cell'])) && ($features['grouping_cell'] == $key)) {
@@ -1067,7 +1066,6 @@ trait CommonCode
                     }
                 }
                 $sReturn .= '</td>';
-                $counter++;
             }
         }
         return $sReturn;
