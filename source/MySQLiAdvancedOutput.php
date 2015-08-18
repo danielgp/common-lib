@@ -118,13 +118,12 @@ trait MySQLiAdvancedOutput
      * Returns a Numeric field 2 use in a form
      *
      * @param string $table_source
-     * @param string $field_type
      * @param array $value
      * @param array $features
      * @param string $iar
      * @return string
      */
-    private function getFieldOutputNumeric($table_source, $field_type, $value, $iar = null)
+    private function getFieldOutputNumeric($table_source, $value, $iar = null)
     {
         $input = null;
         if ($value['EXTRA'] == 'auto_increment') {
@@ -684,7 +683,7 @@ trait MySQLiAdvancedOutput
                 case 'double':
                 case 'decimal':
                 case 'numeric':
-                    $sReturn = $this->getFieldOutputNumeric($tbl_src, $details['DATA_TYPE'], $details, $iar);
+                    $sReturn = $this->getFieldOutputNumeric($tbl_src, $details, $iar);
                     break;
                 case 'char':
                 case 'tinytext':
