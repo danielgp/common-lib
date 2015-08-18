@@ -154,10 +154,7 @@ trait MySQLiAdvancedOutput
                 case 'mediumint':
                 case 'smallint':
                 case 'tinyint':
-                    $database = $this->advCache['workingDatabase'];
-                    if (strpos($table_source, '`.`')) {
-                        $database = substr($table_source, 0, strpos($table_source, '`.`'));
-                    }
+                    $database           = $this->advCache['workingDatabase'];
                     $foreign_keys_array = $this->getForeignKeysToArray($database, $table_source, $value['COLUMN_NAME']);
                     if (is_null($foreign_keys_array)) {
                         unset($foreign_keys_array);
@@ -488,39 +485,16 @@ trait MySQLiAdvancedOutput
         } else {
             $dt = explode('.', str_replace('`', '', $ref_tbl));
         }
-        if (!is_null($this->advCache['tableStructureCache'][$dt[0]][$dt[1]])) {
-            foreach ($this->advCache['tableStructureCache'][$dt[0]][$dt[1]] as $value) {
-                if ($value['COLUMN_NAME'] == $ref_col) {
-                    // TODO: make sure NULL if present is transmited
-//                    echo '<div style="margin:50px">';
-//                    var_dump($this->advCache['tableStructureCache'][$dt[0]][$dt[1]]);
-//                    echo '</div>';
-                    $shorterType       = substr($value['COLUMN_TYPE'], 0, strlen($value['COLUMN_TYPE']) - 1);
-                    $cleanedColumnType = str_replace(['enum(', 'set(', "'"], '', $shorterType);
-                    $enum_values       = explode(',', $cleanedColumnType);
-                    if ($value['IS_NULLABLE'] == 'YES') {
-                        $enum_values = array_merge('', $enum_values);
-                    }
+        foreach ($this->advCache['tableStructureCache'][$dt[0]][$dt[1]] as $value) {
+            if ($value['COLUMN_NAME'] == $ref_col) {
+                $cleanedColumnType = explode(',', str_replace(['enum(', 'set(', ')', "'"], '', $value['COLUMN_TYPE']));
+                $enum_values       = array_combine($cleanedColumnType, $cleanedColumnType);
+                if ($value['IS_NULLABLE'] == 'YES') {
+                    $enum_values['NULL'] = '';
                 }
-            }
-            $enum_values = array_combine($enum_values, $enum_values);
-        } else {
-            $query  = $this->storedQuery('c', [$dt[0] . '.' . $dt[1], $ref_col]);
-            $result = $this->db->query($query);
-            if (!$result) {
-                echo $this->setFeedback(0, 'error', $query . ' ' . $this->mySQLconnection->error);
-                $enum_values = null;
-            } else {
-                $row    = mysqli_fetch_row($result);
-                $row[1] = str_replace("'", '', $row[1]);
-                if (substr($row[1], 0, 4) == 'set(') {
-                    $enum_values = explode(',', substr($row[1], 4, strlen($row[1]) - 5));
-                } else {
-                    $enum_values = explode(',', substr($row[1], 5, strlen($row[1]) - 6));
-                }
-                $enum_values = array_combine($enum_values, $enum_values);
             }
         }
+        ksort($enum_values);
         return $enum_values;
     }
 
@@ -586,10 +560,10 @@ trait MySQLiAdvancedOutput
         echo $this->setStringIntoTag('', 'div', [
             'id' => 'loading'
         ]); // Ajax container
-        $this->setTableCache($ts); // will populate $this->advCache['tableStructureCache'][$dt[0]][$dt[1]]
         if (strpos($ts, '.') !== false) {
             $ts = explode('.', str_replace('`', '', $ts))[1];
         }
+        $this->setTableCache($ts); // will populate $this->advCache['tableStructureCache'][$dt[0]][$dt[1]]
         if (count($this->advCache['tableStructureCache'][$this->advCache['workingDatabase']][$ts]) != 0) {
             foreach ($this->advCache['tableStructureCache'][$this->advCache['workingDatabase']][$ts] as $value) {
                 $sReturn[] = $this->setNeededField($ts, $value, $feat);
