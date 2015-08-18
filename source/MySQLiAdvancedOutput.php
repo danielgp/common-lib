@@ -383,7 +383,11 @@ trait MySQLiAdvancedOutput
     {
         $sReturn = '';
         if (isset($_REQUEST[$details['COLUMN_NAME']])) {
-            $sReturn = $_REQUEST[$details['COLUMN_NAME']];
+            if (($details['IS_NULLABLE'] == 'YES') && ($_REQUEST[$details['COLUMN_NAME']] == '')) {
+                $sReturn = 'NULL';
+            } else {
+                $sReturn = $_REQUEST[$details['COLUMN_NAME']];
+            }
         } else {
             if (is_null($details['COLUMN_DEFAULT'])) {
                 if ($details['IS_NULLABLE'] == 'YES') {
