@@ -491,9 +491,16 @@ trait MySQLiAdvancedOutput
         if (!is_null($this->advCache['tableStructureCache'][$dt[0]][$dt[1]])) {
             foreach ($this->advCache['tableStructureCache'][$dt[0]][$dt[1]] as $value) {
                 if ($value['COLUMN_NAME'] == $ref_col) {
+                    // TODO: make sure NULL if present is transmited
+//                    echo '<div style="margin:50px">';
+//                    var_dump($this->advCache['tableStructureCache'][$dt[0]][$dt[1]]);
+//                    echo '</div>';
                     $shorterType       = substr($value['COLUMN_TYPE'], 0, strlen($value['COLUMN_TYPE']) - 1);
                     $cleanedColumnType = str_replace(['enum(', 'set(', "'"], '', $shorterType);
                     $enum_values       = explode(',', $cleanedColumnType);
+                    if ($value['IS_NULLABLE'] == 'YES') {
+                        $enum_values = array_merge('', $enum_values);
+                    }
                 }
             }
             $enum_values = array_combine($enum_values, $enum_values);

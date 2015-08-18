@@ -540,7 +540,7 @@ trait DomComponentsByDanielGP
         $string2return = '';
         if (is_array($features_array)) {
             if (in_array('include_null', $features_array)) {
-                $string2return .= '<option value="">&nbsp;</option>';
+                $string2return .= '<option value="NULL">&nbsp;</option>';
             }
             if (isset($features_array['defaultValue_isSubstring'])) {
                 $default_value_array = explode($features_array['defaultValue_isSubstring'], $sDefaultValue);
