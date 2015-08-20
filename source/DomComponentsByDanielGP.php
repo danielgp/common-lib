@@ -150,12 +150,12 @@ trait DomComponentsByDanielGP
                 if (is_array($aElements[$key])) {
                     $aCounter = count($aElements[$key]);
                     for ($counter2 = 0; $counter2 < $aCounter; $counter2++) {
-                        if ($value[$counter2] != '') {
+                        if ($value[$counter2] !== '') {
                             $sReturn[] = $key . '[]=' . $value[$counter2];
                         }
                     }
                 } else {
-                    if ($value != '') {
+                    if ($value !== '') {
                         $sReturn[] = $key . '=' . $value;
                     }
                 }
