@@ -473,7 +473,8 @@ trait MySQLiAdvancedOutput
         }
         foreach ($this->advCache['tableStructureCache'][$dt[0]][$dt[1]] as $value) {
             if ($value['COLUMN_NAME'] == $ref_col) {
-                $cleanedColumnType = explode(',', str_replace(['enum(', 'set(', ')', "'"], '', $value['COLUMN_TYPE']));
+                $shorterColType    = substr($value['COLUMN_TYPE'], 0, strlen($value['COLUMN_TYPE']) - 1);
+                $cleanedColumnType = explode(',', str_replace(['enum(', 'set(', "'"], '', $shorterColType));
                 $enum_values       = array_combine($cleanedColumnType, $cleanedColumnType);
                 if ($value['IS_NULLABLE'] == 'YES') {
                     $enum_values['NULL'] = '';
