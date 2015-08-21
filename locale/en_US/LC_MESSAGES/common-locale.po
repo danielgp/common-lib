@@ -19,8 +19,14 @@ msgstr ""
 msgid "i18n_Action_Confirmation"
 msgstr "Operation confirmation"
 
+msgid "i18n_Action_Failed"
+msgstr "The action has failed!"
+
 msgid "i18n_Action_Successful"
 msgstr "The action has completed successfully!"
+
+msgid "i18n_ActionAdd_Failed"
+msgstr "Insertion has failed!"
 
 msgid "i18n_ActionAdd_RestrictionDetails"
 msgstr "Only the authenticated users can add records!"
@@ -42,6 +48,9 @@ msgstr "Record deletion is not possible as no resident table was defined..."
 
 msgid "i18n_ActionDelete_Success"
 msgstr "Record deletion has been performed successfully!"
+
+msgid "i18n_ActionUpdate_Failed"
+msgstr "Update has failed!"
 
 msgid "i18n_ActionUpdate_Successful"
 msgstr "Update has been completed successfully!"

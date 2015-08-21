@@ -19,8 +19,14 @@ msgstr ""
 msgid "i18n_Action_Confirmation"
 msgstr "Confirmare operație"
 
+msgid "i18n_Action_Failed"
+msgstr "Acțiunea a eșuat!"
+
 msgid "i18n_Action_Successful"
 msgstr "Acțiunea s-a terminat cu succes!"
+
+msgid "i18n_ActionAdd_Failed"
+msgstr "Adăugarea a eșuat!"
 
 msgid "i18n_ActionAdd_RestrictionDetails"
 msgstr "Doar utilizatorii autentificați pot adăuga informații!"
@@ -42,6 +48,9 @@ msgstr "Ştergerea înregistrării nu este posibilă deoarece tabela asociată n
 
 msgid "i18n_ActionDelete_Success"
 msgstr "Ștergerea înregistrării s-a efectuat cu succes!"
+
+msgid "i18n_ActionUpdate_Failed"
+msgstr "Actualizarea a eșuat!"
 
 msgid "i18n_ActionUpdate_Successful"
 msgstr "Actualizarea s-a terminat cu succes!"

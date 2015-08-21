@@ -19,8 +19,14 @@ msgstr ""
 msgid "i18n_Action_Confirmation"
 msgstr "Conferma di operazione"
 
+msgid "i18n_Action_Failed"
+msgstr "L`azione e falita!"
+
 msgid "i18n_Action_Successful"
 msgstr "L`azione si e completata con successo!"
+
+msgid "i18n_ActionAdd_Failed"
+msgstr "L`inserimento e falito!"
 
 msgid "i18n_ActionAdd_RestrictionDetails"
 msgstr "Solo gli utenti logati posono aggiungere informazioni!"
@@ -42,6 +48,9 @@ msgstr "La cancellazione non è possible perche la tabela residente non estata d
 
 msgid "i18n_ActionDelete_Success"
 msgstr "La cancellazione estata eseguita con successo!"
+
+msgid "i18n_ActionUpdate_Failed"
+msgstr "L`aggiornamento e falito!"
 
 msgid "i18n_ActionUpdate_Successful"
 msgstr "L`aggiornamento estato completato con successo!"
