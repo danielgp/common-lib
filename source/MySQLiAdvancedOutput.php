@@ -36,7 +36,7 @@ namespace danielgp\common_lib;
 trait MySQLiAdvancedOutput
 {
 
-    private $advCache = null;
+    protected $advCache = null;
 
     private function getFieldCompletionType($details)
     {
@@ -186,65 +186,62 @@ trait MySQLiAdvancedOutput
     /**
      * Returns a Char field 2 use in a form
      *
-     * @param string $table_source
-     * @param string $field_type
+     * @param string $tbl
+     * @param string $fieldType
      * @param array $value
      * @param array $features
      * @param string $iar
      * @return string
      */
-    private function getFieldOutputText($table_source, $field_type, $value, $iar = null)
+    private function getFieldOutputText($tbl, $fieldType, $value, $iar = null)
     {
+        if (!in_array($fieldType, ['char', 'tinytext', 'varchar'])) {
+            return '';
+        }
         $input    = null;
         $database = $this->advCache['workingDatabase'];
-        if (strpos($table_source, '`.`')) {
-            $database = substr($table_source, 0, strpos($table_source, '`.`'));
+        if (strpos($tbl, '`.`')) {
+            $database = substr($tbl, 0, strpos($tbl, '`.`'));
         }
-        switch ($field_type) {
-            case 'char':
-            case 'tinytext':
-            case 'varchar':
-                if (($table_source != 'user_rights') && ($value['COLUMN_NAME'] != 'eid')) {
-                    $foreign_keys_array = $this->getForeignKeysToArray($database, $table_source, $value['COLUMN_NAME']);
-                    if (is_null($foreign_keys_array)) {
-                        unset($foreign_keys_array);
-                    }
-                }
-                if (isset($foreign_keys_array)) {
-                    $q  = $this->storedQuery('generic_select_key_value', [
-                        $foreign_keys_array[$value['COLUMN_NAME']][1],
-                        $foreign_keys_array[$value['COLUMN_NAME']][2],
-                        $foreign_keys_array[$value['COLUMN_NAME']][0]
-                    ]);
-                    $ia = ['size' => 1];
-                    if ($value['IS_NULLABLE'] == 'YES') {
-                        $ia = array_merge($ia, ['include_null']);
-                    }
-                    if (isset($iar)) {
-                        $ia = array_merge($ia, $iar);
-                    }
-                    $slct  = [
-                        'Options' => $this->setQuery2Server($q, 'array_key_value'),
-                        'Value'   => $this->getFieldValue($value),
-                    ];
-                    $input = $this->setArrayToSelect($slct['Options'], $slct['Value'], $value['COLUMN_NAME'], $ia);
-                    unset($foreign_keys_array);
-                } else {
-                    $fn = $this->setFieldNumbers($value);
-                    $ia = [
-                        'type'      => ($value['COLUMN_NAME'] == 'password' ? 'password' : 'text'),
-                        'name'      => $value['COLUMN_NAME'],
-                        'id'        => $value['COLUMN_NAME'],
-                        'size'      => min(30, $fn['l']),
-                        'maxlength' => min(255, $fn['l']),
-                        'value'     => $this->getFieldValue($value),
-                    ];
-                    if (isset($iar)) {
-                        $ia = array_merge($ia, $iar);
-                    }
-                    $input = $this->setStringIntoShortTag('input', $ia);
-                }
-                break;
+        if (($tbl != 'user_rights') && ($value['COLUMN_NAME'] != 'eid')) {
+            $foreignKeysArray = $this->getForeignKeysToArray($database, $tbl, $value['COLUMN_NAME']);
+            if (is_null($foreignKeysArray)) {
+                unset($foreignKeysArray);
+            }
+        }
+        if (isset($foreignKeysArray)) {
+            $q  = $this->storedQuery('generic_select_key_value', [
+                $foreignKeysArray[$value['COLUMN_NAME']][1],
+                $foreignKeysArray[$value['COLUMN_NAME']][2],
+                $foreignKeysArray[$value['COLUMN_NAME']][0]
+            ]);
+            $ia = ['size' => 1];
+            if ($value['IS_NULLABLE'] == 'YES') {
+                $ia = array_merge($ia, ['include_null']);
+            }
+            if (!is_null($iar)) {
+                $ia = array_merge($ia, $iar);
+            }
+            $slct  = [
+                'Options' => $this->setQuery2Server($q, 'array_key_value'),
+                'Value'   => $this->getFieldValue($value),
+            ];
+            $input = $this->setArrayToSelect($slct['Options'], $slct['Value'], $value['COLUMN_NAME'], $ia);
+            unset($foreignKeysArray);
+        } else {
+            $fn = $this->setFieldNumbers($value);
+            $ia = [
+                'type'      => ($value['COLUMN_NAME'] == 'password' ? 'password' : 'text'),
+                'name'      => $value['COLUMN_NAME'],
+                'id'        => $value['COLUMN_NAME'],
+                'size'      => min(30, $fn['l']),
+                'maxlength' => min(255, $fn['l']),
+                'value'     => $this->getFieldValue($value),
+            ];
+            if (!is_null($iar)) {
+                $ia = array_merge($ia, $iar);
+            }
+            $input = $this->setStringIntoShortTag('input', $ia);
         }
         return $input;
     }
@@ -253,32 +250,27 @@ trait MySQLiAdvancedOutput
      * Returns a Text field 2 use in a form
      *
      * @param string $table_source
-     * @param string $field_type
+     * @param string $fieldType
      * @param array $value
      * @param array $features
      * @param string $iar
      * @return string
      */
-    private function getFieldOutputTextLarge($field_type, $value, $iar = null)
+    private function getFieldOutputTextLarge($fieldType, $value, $iar = null)
     {
-        $input = null;
-        switch ($field_type) {
-            case 'text':
-            // intentioanlly left open
-            case 'blob':
-                $ia = [
-                    'name' => $value['COLUMN_NAME'],
-                    'id'   => $value['COLUMN_NAME'],
-                    'rows' => 4,
-                    'cols' => 55,
-                ];
-                if (isset($iar)) {
-                    $ia = array_merge($ia, $iar);
-                }
-                $input = $this->setStringIntoTag($this->getFieldValue($value), 'textarea', $ia);
-                break;
+        if (!in_array($fieldType, ['blob', 'text'])) {
+            return '';
         }
-        return $input;
+        $ia = [
+            'name' => $value['COLUMN_NAME'],
+            'id'   => $value['COLUMN_NAME'],
+            'rows' => 4,
+            'cols' => 55,
+        ];
+        if (isset($iar)) {
+            $ia = array_merge($ia, $iar);
+        }
+        return $this->setStringIntoTag($this->getFieldValue($value), 'textarea', $ia);
     }
 
     /**
@@ -449,7 +441,9 @@ trait MySQLiAdvancedOutput
 
     private function getLabel($details)
     {
-        return $this->setStringIntoTag($this->getFieldNameForDisplay($details), 'span', ['class' => 'fake_label']);
+        return $this->setStringIntoTag($this->getFieldNameForDisplay($details), 'span', [
+                    'class' => 'fake_label'
+        ]);
     }
 
     /**
@@ -591,6 +585,11 @@ trait MySQLiAdvancedOutput
         ]);
     }
 
+    protected function setTableLocaleFields($localizationStrings)
+    {
+        $this->advCache['tableStructureLocales'] = $localizationStrings;
+    }
+
     /**
      * Analyse the field and returns the proper line 2 use in forms
      *
@@ -606,7 +605,8 @@ trait MySQLiAdvancedOutput
                 return null;
             }
         }
-        if ($this->getFieldNameForDisplay($details) == 'hidden') {
+        $fieldLabel = $this->getFieldNameForDisplay($details);
+        if ($fieldLabel == 'hidden') {
             return null;
         }
         switch ($details['COLUMN_NAME']) {
@@ -636,7 +636,7 @@ trait MySQLiAdvancedOutput
                         $aLabel = array_merge($aLabel, ['style' => 'color: grey;']);
                     }
                 }
-                $sReturn['label'] = $this->setStringIntoTag($this->getFieldNameForDisplay($details), 'label', $aLabel);
+                $sReturn['label'] = $this->setStringIntoTag($fieldLabel, 'label', $aLabel);
                 if ($details['COLUMN_NAME'] == 'ChoiceId') {
                     $result = $this->setStringIntoShortTag('input', [
                         'type'  => 'text',
@@ -729,7 +729,7 @@ trait MySQLiAdvancedOutput
         } else {
             $dt = explode('.', str_replace('`', '', $ts));
         }
-        if (is_null($this->advCache['tableStructureCache'][$dt[0]][$dt[1]])) {
+        if (!isset($this->advCache['tableStructureCache'][$dt[0]][$dt[1]])) {
             switch ($dt[1]) {
                 case 'user_rights':
                     $this->advCache['workingDatabase'] = 'usefull_security';
