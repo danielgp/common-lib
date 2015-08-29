@@ -61,8 +61,11 @@ trait MySQLiAdvancedOutput
      */
     private function getFieldNameForDisplay($details)
     {
+        $tableUniqueId = $details['TABLE_SCHEMA'] . '.' . $details['TABLE_NAME'];
         if ($details['COLUMN_COMMENT'] != '') {
             $sReturn = $details['COLUMN_COMMENT'];
+        } elseif (isset($this->advCache['tableStructureLocales'][$tableUniqueId][$details['COLUMN_NAME']])) {
+            $sReturn = $this->advCache['tableStructureLocales'][$tableUniqueId][$details['COLUMN_NAME']];
         } else {
             $sReturn = $details['COLUMN_NAME'];
         }
