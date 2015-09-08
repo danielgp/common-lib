@@ -85,6 +85,12 @@ msgstr "Given URL is not valid!"
 msgid "i18n_Error_UnknownReturnType"
 msgstr "Unknown return type...(%s)"
 
+msgid "i18n_Form_ButtonSave"
+msgstr "Save"
+
+msgid "i18n_Form_ButtonSaving"
+msgstr "Saving..."
+
 msgid "i18n_Generic_Unknown"
 msgstr "unknown"
 

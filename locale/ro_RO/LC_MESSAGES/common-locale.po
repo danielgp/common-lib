@@ -85,6 +85,12 @@ msgstr "URL-ul dat nu e valid!"
 msgid "i18n_Error_UnknownReturnType"
 msgstr "Tipul de returnat dat nu e definit/standard...(%s)"
 
+msgid "i18n_Form_ButtonSave"
+msgstr "Salvează"
+
+msgid "i18n_Form_ButtonSaving"
+msgstr "Salvez..."
+
 msgid "i18n_Generic_Unknown"
 msgstr "necunoscut"
 

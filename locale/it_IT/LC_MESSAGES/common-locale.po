@@ -85,6 +85,12 @@ msgstr "Il URL specificato dat non è valido!"
 msgid "i18n_Error_UnknownReturnType"
 msgstr "Il tipo di ritorno specificato non e definito/standard...(%s)"
 
+msgid "i18n_Form_ButtonSave"
+msgstr "Salva"
+
+msgid "i18n_Form_ButtonSaving"
+msgstr "Salvando..."
+
 msgid "i18n_Generic_Unknown"
 msgstr "sconosciuto"
 

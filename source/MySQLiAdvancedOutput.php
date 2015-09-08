@@ -553,12 +553,21 @@ trait MySQLiAdvancedOutput
                 $sReturn[] = $this->setNeededField($ts, $value, $feat);
             }
         }
-        $btn[] = $this->setStringIntoShortTag('input', [
+        $btn[]                     = $this->setStringIntoShortTag('input', [
             'type'  => 'submit',
             'id'    => 'submit',
             'style' => 'margin-left:220px;',
-            'value' => 'Salveaza',
+            'value' => $this->lclMsgCmn('i18n_Form_ButtonSave'),
         ]);
+        $additionalSctiptAfterForm = $this->setJavascriptContent(implode('', [
+            '$(document).ready(function(){',
+            '$("form#' . $feat['id'] . '").submit(function(){',
+            '$("input").attr("readonly", true);',
+            '$("input[type=submit]").attr("disabled", "disabled");',
+            '$("input[type=submit]").attr("value", "' . $this->lclMsgCmn('i18n_Form_ButtonSaving') . '");',
+            '});',
+            '});',
+        ]));
         if (isset($feat['insertAndUpdate'])) {
             $btn[] = $this->setStringIntoShortTag('input', [
                 'type'  => 'hidden',
@@ -585,7 +594,8 @@ trait MySQLiAdvancedOutput
                     'id'     => $feat['id'],
                     'action' => $feat['action'],
                     'method' => $feat['method']
-        ]);
+                ])
+                . $additionalSctiptAfterForm;
     }
 
     protected function setTableLocaleFields($localizationStrings)

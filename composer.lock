@@ -8,16 +8,16 @@
     "packages": [
         {
             "name": "components/flag-icon-css",
-            "version": "0.7.1",
+            "version": "0.8.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/lipis/flag-icon-css.git",
-                "reference": "db9d702ac15e74a84d5d859c9f3b1ce4c1882304"
+                "reference": "63b89f891914b589d12c6e71989a0eb54d35a7a3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/lipis/flag-icon-css/zipball/db9d702ac15e74a84d5d859c9f3b1ce4c1882304",
-                "reference": "db9d702ac15e74a84d5d859c9f3b1ce4c1882304",
+                "url": "https://api.github.com/repos/lipis/flag-icon-css/zipball/63b89f891914b589d12c6e71989a0eb54d35a7a3",
+                "reference": "63b89f891914b589d12c6e71989a0eb54d35a7a3",
                 "shasum": ""
             },
             "type": "component",
@@ -42,7 +42,7 @@
                 }
             ],
             "description": "CSS for vector based country flags",
-            "time": "2015-03-26 16:41:06"
+            "time": "2015-09-05 08:34:56"
         },
         {
             "name": "danielgp/browser-agent-info",
@@ -133,16 +133,16 @@
         },
         {
             "name": "doctrine/cache",
-            "version": "v1.4.1",
+            "version": "v1.4.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/cache.git",
-                "reference": "c9eadeb743ac6199f7eec423cb9426bc518b7b03"
+                "reference": "8c434000f420ade76a07c64cbe08ca47e5c101ca"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/cache/zipball/c9eadeb743ac6199f7eec423cb9426bc518b7b03",
-                "reference": "c9eadeb743ac6199f7eec423cb9426bc518b7b03",
+                "url": "https://api.github.com/repos/doctrine/cache/zipball/8c434000f420ade76a07c64cbe08ca47e5c101ca",
+                "reference": "8c434000f420ade76a07c64cbe08ca47e5c101ca",
                 "shasum": ""
             },
             "require": {
@@ -199,7 +199,7 @@
                 "cache",
                 "caching"
             ],
-            "time": "2015-04-15 00:11:59"
+            "time": "2015-08-31 12:36:41"
         },
         {
             "name": "gettext/gettext",
@@ -363,16 +363,16 @@
         },
         {
             "name": "piwik/device-detector",
-            "version": "3.4.0",
+            "version": "3.4.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/piwik/device-detector.git",
-                "reference": "afa85c4a1ebada71cec1e5422b02408b9b9952be"
+                "reference": "a26c13ed437b86ccb3f2e722a92d1de449c0d8a3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/piwik/device-detector/zipball/afa85c4a1ebada71cec1e5422b02408b9b9952be",
-                "reference": "afa85c4a1ebada71cec1e5422b02408b9b9952be",
+                "url": "https://api.github.com/repos/piwik/device-detector/zipball/a26c13ed437b86ccb3f2e722a92d1de449c0d8a3",
+                "reference": "a26c13ed437b86ccb3f2e722a92d1de449c0d8a3",
                 "shasum": ""
             },
             "require": {
@@ -410,7 +410,7 @@
                 "parser",
                 "useragent"
             ],
-            "time": "2015-08-23 20:35:24"
+            "time": "2015-08-31 20:47:35"
         },
         {
             "name": "symfony/filesystem",
