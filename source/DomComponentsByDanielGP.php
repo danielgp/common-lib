@@ -165,6 +165,46 @@ trait DomComponentsByDanielGP
     }
 
     /**
+     * Set a control to a user-friendly calendar
+     *
+     * @param string $controlName
+     * @param string $additionalStyle
+     * @return string
+     */
+    public function setCalendarControl($controlName, $additionalStyle = '')
+    {
+        return $this->setStringIntoTag('&nbsp;', 'span', [
+                    'onclick' => implode('', [
+                        'javascript:NewCssCal(\'' . $controlName,
+                        '\',\'yyyyMMdd\',\'dropdown\',false,\'24\',false);',
+                    ]),
+                    'class'   => 'fa fa-calendar',
+                    'id'      => $controlName . '_picker',
+                    'style'   => 'cursor:pointer;' . $additionalStyle,
+        ]);
+    }
+
+    /**
+     * Set a control to a user-friendly calendar with time included
+     *
+     * @param string $controlName
+     * @param string $additionalStyle
+     * @return string
+     */
+    public function setCalendarControlWithTime($controlName, $additionalStyle = '')
+    {
+        return $this->setStringIntoTag('&nbsp;', 'span', [
+                    'onclick' => implode('', [
+                        'javascript:NewCssCal(\'' . $controlName,
+                        '\',\'yyyyMMdd\',\'dropdown\',true,\'24\',true);',
+                    ]),
+                    'class'   => 'fa fa-calendar',
+                    'id'      => $controlName . '_picker',
+                    'style'   => 'cursor:pointer;' . $additionalStyle,
+        ]);
+    }
+
+    /**
      * Cleans a string for certain internal rules
      *
      * @param type $urlString
