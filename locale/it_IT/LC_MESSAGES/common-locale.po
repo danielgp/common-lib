@@ -94,6 +94,12 @@ msgstr "Salvando..."
 msgid "i18n_Generic_Unknown"
 msgstr "sconosciuto"
 
+msgid "i18n_Generic_Limitation"
+msgstr "Limitazione"
+
+msgid "i18n_Generic_Limitation10Parameters"
+msgstr "Questa funzione (%s dal file %s) non può gestire più di 10 parametri (al meno per adesso)... Ci dispiace per qualsiasi inconvenienza que vi puo causare!"
+
 msgid "i18n_MySQL_ConnectionError"
 msgstr "Errore di connessione (no.: %d, mesaggio dal server: %s, host = %s, port: %s, nome utente: %s, database: %s)"
 

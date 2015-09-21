@@ -74,48 +74,54 @@ trait MySQLiByDanielGP
         $alocated = $stmt->prepare($qry);
         if ($alocated) {
             if ($stmt->param_count > 10) {
-                echo $this->setFeedbackModern('error', 'Limitation', 'This function (' . __FUNCTION__ . ' from file ' . __FILE__ . ') cannot handle more than 10 parameters (at least for the moment)... We`re sorry for any inconvenience this may cause to you!');
+                $msg = [
+                    $this->lclMsgCmn('i18n_Generic_Limitation'),
+                    sprintf($this->lclMsgCmn('i18n_Generic_Limitation10Parameters'), __FUNCTION__, __FILE__),
+                ];
+                echo $this->setFeedbackModern('error', $msg[0], $msg[1]);
                 return false;
             }
-            foreach ($prmtrs as $value) {
+            foreach ($prmtrs as $v) {
                 if ($stmt->param_count > 1) {
-                    foreach ($value as $value2) {
-                        $type[] = $this->setVariableTypeForMySqlStatements($value2);
+                    foreach ($v as $value2) {
+                        $t[] = $this->setVariableTypeForMySqlStatements($value2);
                     }
+                    $tA = implode('', $t);
                 }
                 switch ($stmt->param_count) {
                     case 1:
-                        $type = $this->setVariableTypeForMySqlStatements($value[0]);
-                        $stmt->bind_param($type, $value[0]);
+                        $t = $this->setVariableTypeForMySqlStatements($v[0]);
+                        $stmt->bind_param($t, $v[0]);
                         break;
                     case 2:
-                        $stmt->bind_param(implode('', $type), $value[0], $value[1]);
+                        $stmt->bind_param($tA, $v[0], $v[1]);
                         break;
                     case 3:
-                        $stmt->bind_param(implode('', $type), $value[0], $value[1], $value[2]);
+                        $stmt->bind_param($tA, $v[0], $v[1], $v[2]);
                         break;
                     case 4:
-                        $stmt->bind_param(implode('', $type), $value[0], $value[1], $value[2], $value[3]);
+                        $stmt->bind_param($tA, $v[0], $v[1], $v[2], $v[3]);
                         break;
                     case 5:
-                        $stmt->bind_param(implode('', $type), $value[0], $value[1], $value[2], $value[3], $value[4]);
+                        $stmt->bind_param($tA, $v[0], $v[1], $v[2], $v[3], $v[4]);
                         break;
                     case 6:
-                        $stmt->bind_param(implode('', $type), $value[0], $value[1], $value[2], $value[3], $value[4], $value[5]);
+                        $stmt->bind_param($tA, $v[0], $v[1], $v[2], $v[3], $v[4], $v[5]);
                         break;
                     case 7:
-                        $stmt->bind_param(implode('', $type), $value[0], $value[1], $value[2], $value[3], $value[4], $value[5], $value[6]);
+                        $stmt->bind_param($tA, $v[0], $v[1], $v[2], $v[3], $v[4], $v[5], $v[6]);
                         break;
                     case 8:
-                        $stmt->bind_param(implode('', $type), $value[0], $value[1], $value[2], $value[3], $value[4], $value[5], $value[6], $value[7]);
+                        $stmt->bind_param($tA, $v[0], $v[1], $v[2], $v[3], $v[4], $v[5], $v[6], $v[7]);
                         break;
                     case 9:
-                        $stmt->bind_param(implode('', $type), $value[0], $value[1], $value[2], $value[3], $value[4], $value[5], $value[6], $value[7], $value[8]);
+                        $stmt->bind_param($tA, $v[0], $v[1], $v[2], $v[3], $v[4], $v[5], $v[6], $v[7], $v[8]);
+                        break;
                     case 10:
-                        $stmt->bind_param(implode('', $type), $value[0], $value[1], $value[2], $value[3], $value[4], $value[5], $value[6], $value[7], $value[8], $value[9]);
+                        $stmt->bind_param($tA, $v[0], $v[1], $v[2], $v[3], $v[4], $v[5], $v[6], $v[7], $v[8], $v[9]);
                         break;
                 }
-                unset($type);
+                unset($t);
                 $stmt->execute();
                 if ($stmt->errno != 0) {
                     echo $this->setFeedbackModern('error', 'MySQL error', $stmt->error . ' (' . $qry . ')');

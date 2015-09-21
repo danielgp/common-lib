@@ -94,6 +94,12 @@ msgstr "Salvez..."
 msgid "i18n_Generic_Unknown"
 msgstr "necunoscut"
 
+msgid "i18n_Generic_Limitation"
+msgstr "Limitare"
+
+msgid "i18n_Generic_Limitation10Parameters"
+msgstr "Această funcție (%s din fișierul %s) nu este capabilă de a se descurca cu mai mult de 10 parametrii (cel puțin pentru moment)... Ne pare rău de orice potențială neplăcere cauzată!"
+
 msgid "i18n_MySQL_ConnectionError"
 msgstr "Eroare la conectare (nr.: %d, mesaj de la server: %s, nume server = %s, port: %s, nume utilizator: %s, baza de date: %s)"
 
