@@ -1,6 +1,6 @@
 
 Set WshShell   = WScript.CreateObject("WScript.Shell")
-CheckedPHPversions = Array("5.5", "5.6")
+CheckedPHPversions = Array("5.5", "5.6", "7.0")
 CheckStandards = Array("PSR1", "PSR2")
 
 MsgBox "I will assess the PHP projects for compatibility with predefined standards!"
