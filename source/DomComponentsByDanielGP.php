@@ -489,11 +489,11 @@ trait DomComponentsByDanielGP
      *
      * @return string
      */
-    protected function setJavascriptAddEditByAjax()
+    protected function setJavascriptAddEditByAjax($tabName = 'tabStandard')
     {
         return $this->setJavascriptContent(implode('', [
                     'function loadAE(action) {',
-                    'document.getElementById("tabStandard").tabber.tabShow(1);',
+                    'document.getElementById("' . $tabName . '").tabber.tabShow(1);',
                     '$("#DynamicAddEditSpacer").load(action',
                     '+"&specialHook[]=noHeader"',
                     '+"&specialHook[]=noMenu"',
