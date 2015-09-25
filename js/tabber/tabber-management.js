@@ -57,7 +57,9 @@ var tabberOptions = {
     var c = argsObj.tabber.cookie;
     var i = argsObj.index;
     /* alert('setCookie(' + c + ',' + i + ')'); */
-    setCookie(c, i);
+    var targetDate = new Date();
+    targetDate.setDate(targetDate.getDate() + 10);
+    setCookie(c, i, targetDate, '/smart/', window.location.hostname, true);
   }
 };
 
