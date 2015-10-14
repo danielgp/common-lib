@@ -63,6 +63,11 @@ trait CommonCode
         return $difference;
     }
 
+    private function cleanStringForId($givenString)
+    {
+        return str_replace([' ', '/', '(', ')', '-'], ['', '', '', '', ''], $givenString);
+    }
+
     /**
      * Returns an array with meaningfull content of permissions
      *
@@ -599,25 +604,27 @@ trait CommonCode
             $sReturn .= '<form id="' . $checkboxFormId . '" ' . 'name="' . $checkboxFormId
                     . '" method="post" ' . ' action="' . $_SERVER['PHP_SELF'] . '" >';
         }
-        if (!isset($ftrs['grouping_cell_type'])) {
-            $ftrs['grouping_cell_type'] = 'row';
-        }
         $tbl['Def'] = '<table'
                 . (isset($ftrs['table_style']) ? ' style="' . $ftrs['table_style'] . '"' : '')
                 . (isset($ftrs['table_class']) ? ' class="' . $ftrs['table_class'] . '"' : '')
                 . '>';
+        if (!isset($ftrs['grouping_cell_type'])) {
+            $ftrs['grouping_cell_type'] = 'row';
+        }
         switch ($ftrs['grouping_cell_type']) {
             case 'row':
                 $sReturn .= $tbl['Def'];
                 break;
             case 'tab':
-                $sReturn .= '<div class="tabber" id="tab">';
+                if (!isset($ftrs['noGlobalTab'])) {
+                    $sReturn .= '<div class="tabber" id="tab">';
+                }
                 break;
         }
-        $iTableColumns           = 0;
-        $remebered_value         = -1;
-        $remember_grouping_value = null;
-        $color_no                = null;
+        $iTableColumns         = 0;
+        $remebered_value       = -1;
+        $rememberGroupingValue = null;
+        $color_no              = null;
         if (!isset($ftrs['headers_breaked'])) {
             $ftrs['headers_breaked'] = true;
         }
@@ -645,25 +652,20 @@ trait CommonCode
                             ]), 'tr');
                 }
                 $tbl['Header'] = '<tr>';
-// Grouping columns
-                if (isset($ftrs['grouping_cell'])) {
+                if (isset($ftrs['grouping_cell'])) { // Grouping columns
                     $header = array_diff_key($header, [$ftrs['grouping_cell'] => '']);
                 }
-// Action column
-                if (isset($ftrs['actions'])) {
+                if (isset($ftrs['actions'])) { // Action column
                     $tbl['Header'] .= '<th>&nbsp;</th>';
                 }
-//Exclude style columns from displaying
-                if (isset($ftrs['RowStyle'])) {
+                if (isset($ftrs['RowStyle'])) { //Exclude style columns from displaying
                     $tmpClmns = $this->setArrayValuesAsKey([$ftrs['RowStyle']]);
                     $header   = array_diff_key($header, $tmpClmns);
                     $hdClmns  = array_merge($hdClmns, $tmpClmns);
                     unset($tmpClmns);
                 }
-// Regular columns
-                $tbl['Header'] .= $this->setTableHeader($header, $ftrs['headers_breaked']);
-// Computed columns
-                if (isset($ftrs['computed_columns'])) {
+                $tbl['Header'] .= $this->setTableHeader($header, $ftrs['headers_breaked']); // Regular columns
+                if (isset($ftrs['computed_columns'])) { // Computed columns
                     $tbl['Header'] .= $this->setTableHeader($ftrs['computed_columns'], $ftrs['headers_breaked']);
                 }
                 $tbl['Header'] .= '</tr></thead><tbody>';
@@ -698,7 +700,7 @@ trait CommonCode
 // Grouping column
             if (isset($ftrs['grouping_cell'])) {
                 foreach ($aElements[$rCntr] as $key => $value) {
-                    if (($ftrs['grouping_cell'] == $key) && ($remember_grouping_value != $value)) {
+                    if (($ftrs['grouping_cell'] == $key) && ($rememberGroupingValue != $value)) {
                         switch ($ftrs['grouping_cell_type']) {
                             case 'row':
                                 $sReturn .= $tbl['tr_Color'] . '<td ' . 'colspan="' . $iTableColumns . '">'
@@ -706,20 +708,31 @@ trait CommonCode
                                         . '</td></tr>';
                                 break;
                             case 'tab':
-                                if (!is_null($remember_grouping_value)) {
-                                    $sReturn .= '</tbody></table></div>';
+                                if (is_null($rememberGroupingValue)) {
+                                    $groupCounter = 0;
+                                } else {
+                                    $sReturn .= '</tbody></table>';
+                                    if (isset($ftrs['showGroupingCounter'])) {
+                                        $sReturn .= $this->updateDivTitleName($rememberGroupingValue, $groupCounter);
+                                        $groupCounter = 0;
+                                    }
+                                    $sReturn .= '</div>';
                                 }
                                 $sReturn .= '<div class="tabbertab';
                                 if (isset($ftrs['grouping_default_tab'])) {
                                     $sReturn .= ($ftrs['grouping_default_tab'] == $value ? ' tabbertabdefault' : '');
                                 }
-                                $sReturn .= '" title="' . $value . '">'
+                                $sReturn .= '" id="tab_' . $this->cleanStringForId(ucwords($value)) . '" '
+                                        . 'title="' . $value . '">'
                                         . $tbl['Def'] . $tbl['Head'] . $tbl['Header'];
                                 break;
                         }
-                        $remember_grouping_value = $value;
+                        $rememberGroupingValue = $value;
                     }
                 }
+            }
+            if (isset($ftrs['showGroupingCounter'])) {
+                $groupCounter++;
             }
             $sReturn .= $tbl['tr_Color'];
 // Action column
@@ -869,7 +882,13 @@ trait CommonCode
         }
         $sReturn .= '</tbody></table>';
         if ($ftrs['grouping_cell_type'] == 'tab') {
-            $sReturn .= '</div></div>';
+            $sReturn .= '</div>';
+            if (isset($ftrs['showGroupingCounter'])) {
+                $sReturn .= $this->updateDivTitleName($rememberGroupingValue, $groupCounter);
+            }
+            if (isset($ftrs['noGlobalTab'])) {
+                $sReturn .= '</div>';
+            }
         }
         if (isset($ftrs['actions']['checkbox'])) {
             if (strpos($_REQUEST['view'], 'multiEdit') === false) {
@@ -1090,5 +1109,13 @@ trait CommonCode
             $sReturn[] = $this->setStringIntoTag($value, 'th');
         }
         return implode('', $sReturn);
+    }
+
+    private function updateDivTitleName($rememberGroupingValue, $groupCounter)
+    {
+        $jsContent = '$(document).ready(function() { $("#tab_'
+                . $this->cleanStringForId(ucwords($rememberGroupingValue)) . '").attr("title", "'
+                . $rememberGroupingValue . ' (' . $groupCounter . ')"); });';
+        return $this->setJavascriptContent($jsContent);
     }
 }
