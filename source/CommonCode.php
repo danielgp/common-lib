@@ -882,13 +882,13 @@ trait CommonCode
         }
         $sReturn .= '</tbody></table>';
         if ($ftrs['grouping_cell_type'] == 'tab') {
-            $sReturn .= '</div>';
             if (isset($ftrs['showGroupingCounter'])) {
                 $sReturn .= $this->updateDivTitleName($rememberGroupingValue, $groupCounter);
             }
-            if (isset($ftrs['noGlobalTab'])) {
-                $sReturn .= '</div>';
-            }
+            $sReturn .= '</div><!-- from ' . $rememberGroupingValue . ' -->';
+        }
+        if (!isset($ftrs['noGlobalTab'])) {
+            $sReturn .= '</div><!-- from global tab -->';
         }
         if (isset($ftrs['actions']['checkbox'])) {
             if (strpos($_REQUEST['view'], 'multiEdit') === false) {
