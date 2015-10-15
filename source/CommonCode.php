@@ -77,7 +77,7 @@ trait CommonCode
         for ($counter = 0; $counter <= $cCharsToRemove; $counter++) {
             $emptyCharArray[$counter] = '';
         }
-        return str_replace($charsToRemove, $emptyCharArray, $givenString);
+        return str_replace($charsToRemove, $emptyCharArray, ucwords($givenString));
     }
 
     /**
@@ -734,7 +734,7 @@ trait CommonCode
                                 if (isset($ftrs['grouping_default_tab'])) {
                                     $sReturn .= ($ftrs['grouping_default_tab'] == $value ? ' tabbertabdefault' : '');
                                 }
-                                $sReturn .= '" id="tab_' . $this->cleanStringForId(ucwords($value)) . '" '
+                                $sReturn .= '" id="tab_' . $this->cleanStringForId($value) . '" '
                                         . 'title="' . $value . '">'
                                         . $tbl['Def'] . $tbl['Head'] . $tbl['Header'];
                                 break;
@@ -1126,7 +1126,7 @@ trait CommonCode
     protected function updateDivTitleName($rememberGroupingValue, $groupCounter)
     {
         $jsContent = '$(document).ready(function() { $("#tab_'
-                . $this->cleanStringForId(ucwords($rememberGroupingValue)) . '").attr("title", "'
+                . $this->cleanStringForId($rememberGroupingValue) . '").attr("title", "'
                 . $rememberGroupingValue . ' (' . $groupCounter . ')"); });';
         return $this->setJavascriptContent($jsContent);
     }
