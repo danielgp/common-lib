@@ -65,7 +65,19 @@ trait CommonCode
 
     private function cleanStringForId($givenString)
     {
-        return str_replace([' ', '/', '(', ')', '-'], ['', '', '', '', ''], $givenString);
+        $charsToRemove  = [
+            ' ',
+            '/',
+            '(',
+            ')',
+            '-',
+            '+',
+        ];
+        $cCharsToRemove = count($charsToRemove);
+        for ($counter = 0; $counter <= $cCharsToRemove; $counter++) {
+            $emptyCharArray[$counter] = '';
+        }
+        return str_replace($charsToRemove, $emptyCharArray, $givenString);
     }
 
     /**
