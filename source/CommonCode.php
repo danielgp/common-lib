@@ -63,7 +63,7 @@ trait CommonCode
         return $difference;
     }
 
-    private function cleanStringForId($givenString)
+    protected function cleanStringForId($givenString)
     {
         $charsToRemove  = [
             ' ',
@@ -1123,7 +1123,7 @@ trait CommonCode
         return implode('', $sReturn);
     }
 
-    private function updateDivTitleName($rememberGroupingValue, $groupCounter)
+    protected function updateDivTitleName($rememberGroupingValue, $groupCounter)
     {
         $jsContent = '$(document).ready(function() { $("#tab_'
                 . $this->cleanStringForId(ucwords($rememberGroupingValue)) . '").attr("title", "'
