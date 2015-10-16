@@ -898,9 +898,9 @@ trait CommonCode
                 $sReturn .= $this->updateDivTitleName($rememberGroupingValue, $groupCounter);
             }
             $sReturn .= '</div><!-- from ' . $rememberGroupingValue . ' -->';
-        }
-        if (!isset($ftrs['noGlobalTab'])) {
-            $sReturn .= '</div><!-- from global tab -->';
+            if (!isset($ftrs['noGlobalTab'])) {
+                $sReturn .= '</div><!-- from global tab -->';
+            }
         }
         if (isset($ftrs['actions']['checkbox'])) {
             if (strpos($_REQUEST['view'], 'multiEdit') === false) {
