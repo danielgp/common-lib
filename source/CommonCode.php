@@ -721,7 +721,9 @@ trait CommonCode
                                 break;
                             case 'tab':
                                 if (is_null($rememberGroupingValue)) {
-                                    $groupCounter = 0;
+                                    if (isset($ftrs['showGroupingCounter'])) {
+                                        $groupCounter = 0;
+                                    }
                                 } else {
                                     $sReturn .= '</tbody></table>';
                                     if (isset($ftrs['showGroupingCounter'])) {
@@ -743,8 +745,12 @@ trait CommonCode
                     }
                 }
             }
-            if (isset($ftrs['showGroupingCounter'])) {
-                $groupCounter++;
+            if (isset($ftrs['grouping_cell'])) {
+                if ($ftrs['grouping_cell_type'] == 'tab') {
+                    if (isset($ftrs['showGroupingCounter'])) {
+                        $groupCounter++;
+                    }
+                }
             }
             $sReturn .= $tbl['tr_Color'];
 // Action column
