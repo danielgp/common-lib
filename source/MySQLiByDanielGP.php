@@ -56,15 +56,16 @@ trait MySQLiByDanielGP
         if (is_null($this->mySQLconnection)) {
             extract($mySQLconfig);
             $this->mySQLconnection = new \mysqli($host, $username, $password, $database, $port);
-            if ($this->mySQLconnection->connect_error) {
+            if (is_null($this->mySQLconnection->connect_error)) {
+                $sReturn = '';
+            } else {
                 $erNo                  = $this->mySQLconnection->connect_errno;
                 $erMsg                 = $this->mySQLconnection->connect_error;
                 $this->mySQLconnection = null;
                 $msg                   = $this->lclMsgCmn('i18n_Feedback_ConnectionError');
-                return sprintf($msg, $erNo, $erMsg, $host, $port, $username, $database);
-            } else {
-                return '';
+                $sReturn = sprintf($msg, $erNo, $erMsg, $host, $port, $username, $database);
             }
+			return $sReturn;
         }
     }
 
