@@ -559,7 +559,7 @@ trait MySQLiAdvancedOutput
             'style' => 'margin-left:220px;',
             'value' => $this->lclMsgCmn('i18n_Form_ButtonSave'),
         ]);
-        $additionalSctiptAfterForm = $this->setJavascriptContent(implode('', [
+        $additionalScriptAfterForm = $this->setJavascriptContent(implode('', [
             '$(document).ready(function(){',
             '$("form#' . $feat['id'] . '").submit(function(){',
             '$("input").attr("readonly", true);',
@@ -595,7 +595,7 @@ trait MySQLiAdvancedOutput
                     'action' => $feat['action'],
                     'method' => $feat['method']
                 ])
-                . $additionalSctiptAfterForm;
+                . $additionalScriptAfterForm;
     }
 
     protected function setTableLocaleFields($localizationStrings)
