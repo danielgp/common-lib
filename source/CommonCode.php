@@ -592,9 +592,7 @@ trait CommonCode
                 }
             }
         } catch (\Exception $ex) {
-            echo '<pre style="color:#f00">';
-            print_r($ex->getTrace());
-            echo '</pre>';
+            echo '<pre style="color:#f00">' . $ex->getTraceAsString() . '</pre>';
         }
     }
 
