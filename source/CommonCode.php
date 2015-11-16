@@ -552,6 +552,53 @@ trait CommonCode
     }
 
     /**
+     * Send an array of parameters like a form through a POST action
+     *
+     * @param string $urlToSendTo
+     * @param array $params
+     * @throws \Exception
+     * @throws \UnexpectedValueException
+     */
+    protected function sendBackgroundEncodedFormElementsByPost($urlToSendTo, $params = [])
+    {
+        try {
+            $postingUrl = filter_var($urlToSendTo, FILTER_VALIDATE_URL);
+            if ($postingUrl === false) {
+                throw new \Exception($ex);
+            } else {
+                if (is_array($params)) {
+                    $postingString   = $this->setArrayToStringForUrl('&', $params);
+                    $postingUrlParts = parse_url($postingUrl);
+                    $postingPort     = (isset($postingUrlParts['port']) ? $postingUrlParts['port'] : 80);
+                    $fp              = fsockopen($postingUrlParts['host'], $postingPort, $errNo, $errorMessage, 30);
+                    if ($fp === false) {
+                        throw new \UnexpectedValueException($this->lclMsgCmn('i18n_Error_FailedToConnect') . ': '
+                        . $errNo . ' (' . $errorMessage . ')');
+                    } else {
+                        $out[] = 'POST ' . $postingUrlParts['path'] . ' ' . $_SERVER['SERVER_PROTOCOL'];
+                        $out[] = 'Host: ' . $postingUrlParts['host'];
+                        if (isset($_SERVER['HTTP_USER_AGENT'])) {
+                            $out[] = 'User-Agent: ' . filter_var($_SERVER['HTTP_USER_AGENT'], FILTER_SANITIZE_STRING);
+                        }
+                        $out[] = 'Content-Type: application/x-www-form-urlencoded';
+                        $out[] = 'Content-Length: ' . strlen($postingString);
+                        $out[] = 'Connection: Close' . "\r\n";
+                        $out[] = $postingString;
+                        fwrite($fp, implode("\r\n", $out));
+                        fclose($fp);
+                    }
+                } else {
+                    throw new \UnexpectedValueException($this->lclMsgCmn('i18n_Error_GivenParameterIsNotAnArray'));
+                }
+            }
+        } catch (\Exception $ex) {
+            echo '<pre style="color:#f00">';
+            print_r($ex->getTrace());
+            echo '</pre>';
+        }
+    }
+
+    /**
      * Converts an array into JSON string
      *
      * @param array $inArray
