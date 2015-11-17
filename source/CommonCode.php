@@ -849,7 +849,7 @@ trait CommonCode
                             break;
                         case 'edit':
                             $edt           = '';
-                            if (isset($_REQUEST['NoAjaxEditing'])) {
+                            if (isset($ftrs['NoAjaxEditing'])) {
                                 $edt .= $_SERVER['PHP_SELF'] . '?' . $actPrfx
                                         . $action_key . '=' . $value[0] . '&amp;';
                                 $iActArgs = count($value[1]);
