@@ -130,7 +130,6 @@ trait DomComponentsByDanielGP
     /**
      * Converts an array to string
      *
-     * @version 20141217
      * @param string $sSeparator
      * @param array $aElements
      * @return string
@@ -139,27 +138,28 @@ trait DomComponentsByDanielGP
     {
         if (is_array($aElements)) {
             if (count($aElements) == 0) {
-                return '';
-            }
-        } else {
-            return '';
-        }
-        $sReturn = [];
-        foreach ($aElements as $key => $value) {
-            if (!in_array($key, $aExceptedElements)) {
-                if (is_array($aElements[$key])) {
-                    $aCounter = count($aElements[$key]);
-                    for ($counter2 = 0; $counter2 < $aCounter; $counter2++) {
-                        if ($value[$counter2] !== '') {
-                            $sReturn[] = $key . '[]=' . $value[$counter2];
+                $sReturn = [''];
+            } else {
+                $sReturn = [];
+                foreach ($aElements as $key => $value) {
+                    if (!in_array($key, $aExceptedElements)) {
+                        if (is_array($aElements[$key])) {
+                            $aCounter = count($aElements[$key]);
+                            for ($counter2 = 0; $counter2 < $aCounter; $counter2++) {
+                                if ($value[$counter2] !== '') {
+                                    $sReturn[] = $key . '[]=' . $value[$counter2];
+                                }
+                            }
+                        } else {
+                            if ($value !== '') {
+                                $sReturn[] = $key . '=' . $value;
+                            }
                         }
-                    }
-                } else {
-                    if ($value !== '') {
-                        $sReturn[] = $key . '=' . $value;
                     }
                 }
             }
+        } else {
+            $sReturn = [''];
         }
         return implode($sSeparator, $sReturn);
     }

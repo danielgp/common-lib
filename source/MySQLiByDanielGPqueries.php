@@ -171,23 +171,23 @@ trait MySQLiByDanielGPqueries
 
     protected function sQueryMySqlColumns($filterArray = null)
     {
-        return 'SELECT `C`.`TABLE_SCHEMA`'
-                . ', `C`.`TABLE_NAME`'
-                . ', `C`.`COLUMN_NAME`'
-                . ', `C`.`ORDINAL_POSITION`'
-                . ', `C`.`COLUMN_DEFAULT`'
-                . ', `C`.`IS_NULLABLE`'
-                . ', `C`.`DATA_TYPE`'
-                . ', `C`.`CHARACTER_MAXIMUM_LENGTH`'
-                . ', `C`.`NUMERIC_PRECISION`'
-                . ', `C`.`NUMERIC_SCALE`'
-                . ', `C`.`DATETIME_PRECISION`'
-                . ', `C`.`CHARACTER_SET_NAME`'
-                . ', `C`.`COLLATION_NAME`'
-                . ', `C`.`COLUMN_TYPE`'
-                . ', `C`.`COLUMN_KEY`'
-                . ', `C`.`COLUMN_COMMENT`'
-                . ', `C`.`EXTRA`'
+        return 'SELECT `C`.`TABLE_SCHEMA` '
+                . ', `C`.`TABLE_NAME` '
+                . ', `C`.`COLUMN_NAME` '
+                . ', `C`.`ORDINAL_POSITION` '
+                . ', `C`.`COLUMN_DEFAULT` '
+                . ', `C`.`IS_NULLABLE` '
+                . ', `C`.`DATA_TYPE` '
+                . ', `C`.`CHARACTER_MAXIMUM_LENGTH` '
+                . ', `C`.`NUMERIC_PRECISION` '
+                . ', `C`.`NUMERIC_SCALE` '
+                . ', `C`.`DATETIME_PRECISION` '
+                . ', `C`.`CHARACTER_SET_NAME` '
+                . ', `C`.`COLLATION_NAME` '
+                . ', `C`.`COLUMN_TYPE` '
+                . ', `C`.`COLUMN_KEY` '
+                . ', `C`.`COLUMN_COMMENT` '
+                . ', `C`.`EXTRA` '
                 . 'FROM `information_schema`.`COLUMNS` `C` '
                 . 'LEFT JOIN `information_schema`.`KEY_COLUMN_USAGE` `KCU` ON ((' . implode(') AND (', [
                     '`C`.`TABLE_SCHEMA` = `KCU`.`TABLE_SCHEMA`',
@@ -234,10 +234,8 @@ trait MySQLiByDanielGPqueries
     protected function sQueryMySqlIndexes($filterArray = null)
     {
         $xtraSorting = ', `C`.`ORDINAL_POSITION`, `KCU`.`CONSTRAINT_NAME`';
-        if (!is_null($filterArray) && is_array($filterArray)) {
-            if (in_array('COLUMN_NAME', array_keys($filterArray))) {
-                $xtraSorting = '';
-            }
+        if (!is_null($filterArray) && is_array($filterArray) && in_array('COLUMN_NAME', array_keys($filterArray))) {
+            $xtraSorting = '';
         }
         return 'SELECT `KCU`.`CONSTRAINT_SCHEMA` '
                 . ', `KCU`.`CONSTRAINT_NAME` '
