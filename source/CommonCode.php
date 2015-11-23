@@ -876,7 +876,7 @@ trait CommonCode
                             for ($cntr2 = 0; $cntr2 < $iActArgs; $cntr2++) {
                                 $sReturn .= $value[1][$cntr2] . '=' . $aElements[$rCntr][$value[1][$cntr2]];
                             }
-                            $sReturn .= '"><i class="fa fa-pencil">&nbsp;</i></a>';
+                            $sReturn .= '"><i class="fa fa-list">&nbsp;</i></a>';
                             break;
                         case 'delete':
                             $sReturn .= '<a href="javascript:setQuest(\'' . $value[0] . '\',\'';
