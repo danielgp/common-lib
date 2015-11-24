@@ -66,19 +66,7 @@ trait CommonCode
 
     protected function cleanStringForId($givenString)
     {
-        $charsToRemove  = [
-            ' ',
-            '/',
-            '(',
-            ')',
-            '-',
-            '+',
-        ];
-        $cCharsToRemove = count($charsToRemove);
-        for ($counter = 0; $counter <= $cCharsToRemove; $counter++) {
-            $emptyCharArray[$counter] = '';
-        }
-        return str_replace($charsToRemove, $emptyCharArray, ucwords($givenString));
+        return preg_match("/^[a-zA-Z0-9]+$/", ucwords($givenString));
     }
 
     /**
