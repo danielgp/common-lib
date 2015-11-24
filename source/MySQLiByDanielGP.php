@@ -63,9 +63,9 @@ trait MySQLiByDanielGP
                 $erMsg                 = $this->mySQLconnection->connect_error;
                 $this->mySQLconnection = null;
                 $msg                   = $this->lclMsgCmn('i18n_Feedback_ConnectionError');
-                $sReturn = sprintf($msg, $erNo, $erMsg, $host, $port, $username, $database);
+                $sReturn               = sprintf($msg, $erNo, $erMsg, $host, $port, $username, $database);
             }
-			return $sReturn;
+            return $sReturn;
         }
     }
 
