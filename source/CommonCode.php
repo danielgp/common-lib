@@ -66,7 +66,7 @@ trait CommonCode
 
     protected function cleanStringForId($givenString)
     {
-        return preg_match("/^[a-zA-Z0-9]+$/", ucwords($givenString));
+        return preg_replace("/[^a-zA-Z0-9]/", ucwords($givenString));
     }
 
     /**
