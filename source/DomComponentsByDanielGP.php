@@ -174,15 +174,33 @@ trait DomComponentsByDanielGP
      */
     protected function setArrayToTable($aElements, $ftrs = null, $bKpFlPge = true)
     {
+        $rows = count($aElements);
+        if ($rows == 0) {
+            $divTab = [
+                'start' => '',
+                'end'   => '',
+            ];
+            if (isset($ftrs['showGroupingCounter']) && ($ftrs['grouping_cell_type'] == 'tab')) {
+                $divTab = [
+                    'start' => '<div class="tabbertab tabbertabdefault" id="tab_NoData" title="No data">',
+                    'end'   => '</div><!-- from tab_NoData -->',
+                ];
+                if (!isset($ftrs['noGlobalTab'])) {
+                    $divTab = [
+                        'start' => '<div class="tabber" id="tab">' . $divTab['start'],
+                        'end'   => $divTab['end'] . '</div><!-- from global Tab -->',
+                    ];
+                }
+            }
+            return $divTab['start']
+                    . $this->setFeedbackModern('error', 'Error', $this->lclMsgCmn('i18n_NoData'))
+                    . $divTab['end'];
+        }
         if (isset($ftrs['limits'])) {
             $ftrs['limits'][1] = min($ftrs['limits'][1], $ftrs['limits'][2]);
             if ($ftrs['limits'][2] > $ftrs['limits'][1]) {
                 $iStartingPageRecord = 1;
             }
-        }
-        $rows = count($aElements);
-        if ($rows == 0) {
-            return $this->setFeedbackModern('error', 'Error', $this->lclMsgCmn('i18n_NoData'));
         }
         $sReturn = '';
         if (isset($ftrs['hidden_columns'])) {
