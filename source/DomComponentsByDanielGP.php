@@ -67,6 +67,11 @@ trait DomComponentsByDanielGP
         }
     }
 
+    protected function cleanStringForId($givenString)
+    {
+        return preg_replace("/[^a-zA-Z0-9]/", '', ucwords($givenString));
+    }
+
     /**
      * Builds a <select> based on a given array
      *
@@ -181,8 +186,12 @@ trait DomComponentsByDanielGP
                 'end'   => '',
             ];
             if (isset($ftrs['showGroupingCounter']) && ($ftrs['grouping_cell_type'] == 'tab')) {
+                $ditTitle = 'No data found';
+                if (isset($ftrs['showGroupingCounter'])) {
+                    $ditTitle .= ' (0)';
+                }
                 $divTab = [
-                    'start' => '<div class="tabbertab tabbertabdefault" id="tab_NoData" title="No data">',
+                    'start' => '<div class="tabbertab tabbertabdefault" id="tab_NoData" title="' . $ditTitle . '">',
                     'end'   => '</div><!-- from tab_NoData -->',
                 ];
                 if (!isset($ftrs['noGlobalTab'])) {
@@ -1183,5 +1192,13 @@ trait DomComponentsByDanielGP
                         'display: inline-block'
                     ])
         ]);
+    }
+
+    protected function updateDivTitleName($rememberGroupingValue, $groupCounter)
+    {
+        $jsContent = '$(document).ready(function() { $("#tab_'
+                . $this->cleanStringForId($rememberGroupingValue) . '").attr("title", "'
+                . $rememberGroupingValue . ' (' . $groupCounter . ')"); });';
+        return $this->setJavascriptContent($jsContent);
     }
 }

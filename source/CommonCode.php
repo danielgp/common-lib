@@ -64,11 +64,6 @@ trait CommonCode
         return $difference;
     }
 
-    protected function cleanStringForId($givenString)
-    {
-        return preg_replace("/[^a-zA-Z0-9]/", ucwords($givenString));
-    }
-
     /**
      * Returns an array with meaningfull content of permissions
      *
@@ -703,13 +698,5 @@ trait CommonCode
                 'error' => $jsonError
             ];
         }
-    }
-
-    protected function updateDivTitleName($rememberGroupingValue, $groupCounter)
-    {
-        $jsContent = '$(document).ready(function() { $("#tab_'
-                . $this->cleanStringForId($rememberGroupingValue) . '").attr("title", "'
-                . $rememberGroupingValue . ' (' . $groupCounter . ')"); });';
-        return $this->setJavascriptContent($jsContent);
     }
 }
