@@ -1171,7 +1171,7 @@ trait DomComponentsByDanielGP
         return implode('', $sReturn);
     }
 
-    private function setViewModernLinkAdd($identifier, $ftrs = null)
+    protected function setViewModernLinkAdd($identifier, $ftrs = null)
     {
         $sArgmnts = '';
         if (isset($ftrs['injectAddArguments'])) {
