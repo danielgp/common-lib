@@ -185,20 +185,22 @@ trait DomComponentsByDanielGP
                 'start' => '',
                 'end'   => '',
             ];
-            if (isset($ftrs['showGroupingCounter']) && ($ftrs['grouping_cell_type'] == 'tab')) {
-                $ditTitle = 'No data found';
-                if (isset($ftrs['showGroupingCounter'])) {
-                    $ditTitle .= ' (0)';
-                }
-                $divTab = [
-                    'start' => '<div class="tabbertab tabbertabdefault" id="tab_NoData" title="' . $ditTitle . '">',
-                    'end'   => '</div><!-- from tab_NoData -->',
-                ];
-                if (!isset($ftrs['noGlobalTab'])) {
+            if (array_key_exists('showGroupingCounter', $ftrs)) {
+                if (array_key_exists('grouping_cell_type', $ftrs) && ($ftrs['grouping_cell_type'] == 'tab')) {
+                    $ditTitle = 'No data found';
+                    if (isset($ftrs['showGroupingCounter'])) {
+                        $ditTitle .= ' (0)';
+                    }
                     $divTab = [
-                        'start' => '<div class="tabber" id="tab">' . $divTab['start'],
-                        'end'   => $divTab['end'] . '</div><!-- from global Tab -->',
+                        'start' => '<div class="tabbertab tabbertabdefault" id="tab_NoData" title="' . $ditTitle . '">',
+                        'end'   => '</div><!-- from tab_NoData -->',
                     ];
+                    if (!isset($ftrs['noGlobalTab'])) {
+                        $divTab = [
+                            'start' => '<div class="tabber" id="tab">' . $divTab['start'],
+                            'end'   => $divTab['end'] . '</div><!-- from global Tab -->',
+                        ];
+                    }
                 }
             }
             return $divTab['start']
