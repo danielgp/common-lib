@@ -433,12 +433,25 @@ trait DomComponentsByDanielGP
                             }
                             break;
                         case 'list2':
-                            $sReturn .= '<a href="?' . $actPrfx . $action_key . '=' . $value[0] . '&amp;';
-                            $iActArgs = count($value[1]);
-                            for ($cntr2 = 0; $cntr2 < $iActArgs; $cntr2++) {
-                                $sReturn .= $value[1][$cntr2] . '=' . $aElements[$rCntr][$value[1][$cntr2]];
+                            $edt = '';
+                            if (isset($ftrs['NoAjaxEditing'])) {
+                                $sReturn .= '<a href="?' . $actPrfx . $action_key . '=' . $value[0] . '&amp;';
+                                $iActArgs = count($value[1]);
+                                for ($cntr2 = 0; $cntr2 < $iActArgs; $cntr2++) {
+                                    $sReturn .= $value[1][$cntr2] . '=' . $aElements[$rCntr][$value[1][$cntr2]];
+                                }
+                                $sReturn .= '"><i class="fa fa-list">&nbsp;</i></a>';
+                            } else {
+                                $edt .= 'javascript:loadAE(\'' . $_SERVER['PHP_SELF'] . '?'
+                                        . $actPrfx . $action_key . '=' . $value[0] . '&amp;';
+                                $iActArgs = count($value[1]);
+                                for ($cntr2 = 0; $cntr2 < $iActArgs; $cntr2++) {
+                                    $edt .= $value[1][$cntr2] . '=' . $aElements[$rCntr][$value[1][$cntr2]];
+                                }
+                                $edt .= '\');';
+                                $sReturn .= '<a href="#" onclick="' . $edt . '">'
+                                        . '<i class="fa fa-list">&nbsp;</i></a>';
                             }
-                            $sReturn .= '"><i class="fa fa-list">&nbsp;</i></a>';
                             break;
                         case 'delete':
                             $sReturn .= '<a href="javascript:setQuest(\'' . $value[0] . '\',\'';
