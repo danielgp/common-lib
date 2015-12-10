@@ -274,6 +274,32 @@ trait MySQLiByDanielGPqueries
         return 'SELECT NOW();';
     }
 
+    protected function sQueryMySqlStatistics($filterArray = null)
+    {
+        return 'SELECT '
+                . '`S`.`SCHEMA_NAME`, '
+                . '(SELECT COUNT(*) AS `No. of records` FROM `information_schema`.`TABLES` `T` '
+                . 'WHERE (`T`.`TABLE_SCHEMA` = `S`.`SCHEMA_NAME`) AND (`T`.`TABLE_TYPE` = "BASE TABLE")) AS `Tables`, '
+                . '(SELECT COUNT(*) AS `No. of records` FROM `information_schema`.`TABLES` `T` '
+                . 'WHERE (`T`.`TABLE_SCHEMA` = `S`.`SCHEMA_NAME`) AND (`T`.`TABLE_TYPE` = "VIEW")) AS `Views`, '
+                . '(SELECT COUNT(*) AS `No. of records` FROM `information_schema`.`COLUMNS` `C` '
+                . 'WHERE (`C`.`TABLE_SCHEMA` = `S`.`SCHEMA_NAME`)) AS `Columns`, '
+                . '(SELECT COUNT(*) AS `No. of records` FROM `information_schema`.`TRIGGERS` `T` '
+                . 'WHERE (`T`.`EVENT_OBJECT_SCHEMA` = `S`.`SCHEMA_NAME`)) AS `Triggers`, '
+                . '(SELECT COUNT(*) AS `No. of records` FROM `information_schema`.`ROUTINES` `R` '
+                . 'WHERE (`R`.`ROUTINE_SCHEMA` = `S`.`SCHEMA_NAME`) AND (`R`.`ROUTINE_TYPE` = "Function")) '
+                . 'AS `Stored Functions`, '
+                . '(SELECT COUNT(*) AS `No. of records` FROM `information_schema`.`ROUTINES` `R` '
+                . 'WHERE (`R`.`ROUTINE_SCHEMA` = `S`.`SCHEMA_NAME`) AND (`R`.`ROUTINE_TYPE` = "Procedure")) '
+                . 'AS `Stored Procedure`, '
+                . '(SELECT COUNT(*) AS `No. of records` FROM `information_schema`.`EVENTS` `E` '
+                . 'WHERE (`E`.`EVENT_SCHEMA` = `S`.`SCHEMA_NAME`)) AS `Events` '
+                . 'FROM `information_schema`.`SCHEMATA` `S` '
+                . 'WHERE (`S`.`SCHEMA_NAME` NOT IN ("information_schema", "mysql", "performance_schema", "sys")) '
+                . str_replace('WHERE', 'AND', $this->sManageDynamicFilters($filterArray, 'S'))
+                . 'ORDER BY `S`.`SCHEMA_NAME`;';
+    }
+
     /**
      * Query to get list of tables
      *

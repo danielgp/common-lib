@@ -257,6 +257,9 @@ trait MySQLiByDanielGP
                 case 'ServerTime':
                     $q = $this->sQueryMySqlServerTime();
                     break;
+                case 'Statistics':
+                    $q = $this->sQueryMySqlStatistics($additionalFeatures);
+                    break;
                 case 'Tables':
                     $q = $this->sQueryMySqlTables($additionalFeatures);
                     break;
@@ -269,6 +272,16 @@ trait MySQLiByDanielGP
             ];
         }
         return $line;
+    }
+
+    /**
+     * Return the list of Tables from the MySQL server
+     *
+     * @return string
+     */
+    protected function getMySQLStatistics($filterArray = null)
+    {
+        return $this->getMySQLlistMultiple('Statistics', 'full_array_key_numbered', $filterArray);
     }
 
     /**
