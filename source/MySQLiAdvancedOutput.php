@@ -82,23 +82,23 @@ trait MySQLiAdvancedOutput
      * @param string $iar
      * @return string
      */
-    private function getFieldOutputEnumSet($tbl_src, $fld_tp, $val, $iar = null)
+    private function getFieldOutputEnumSet($tblSrc, $fld_tp, $val, $iar = null)
     {
         $input = null;
         switch ($fld_tp) {
             case 'enum':
-                $ia           = ['size' => 1];
-                $value_suffix = '';
+                $inAdtnl   = ['size' => 1];
+                $valSuffix = '';
                 break;
             case 'set':
-                $ia           = ['size' => 5, 'multiselect'];
-                $value_suffix = '[]';
+                $inAdtnl   = ['size' => 5, 'multiselect'];
+                $valSuffix = '[]';
                 break;
         }
-        if (isset($ia)) {
+        if (isset($inAdtnl)) {
             if (isset($iar['readonly'])) {
                 $input = $this->setStringIntoShortTag('input', [
-                    'name'     => $val['COLUMN_NAME'] . $value_suffix,
+                    'name'     => $val['COLUMN_NAME'] . $valSuffix,
                     'id'       => $val['COLUMN_NAME'],
                     'readonly' => 'readonly',
                     'class'    => 'input_readonly',
@@ -106,12 +106,12 @@ trait MySQLiAdvancedOutput
                     'value'    => $_REQUEST[$val['COLUMN_NAME']]
                 ]);
             } else {
-                $vl = explode(',', $this->getFieldValue($val));
+                $val = explode(',', $this->getFieldValue($val));
                 if (!is_null($iar)) {
-                    $ia = array_merge($ia, $iar);
+                    $inAdtnl = array_merge($inAdtnl, $iar);
                 }
-                $selectOptions = $this->getSetOrEnum2Array($tbl_src, $val['COLUMN_NAME']);
-                $input         = $this->setArrayToSelect($selectOptions, $vl, $val['COLUMN_NAME'] . $value_suffix, $ia);
+                $slctOptns = $this->getSetOrEnum2Array($tblSrc, $val['COLUMN_NAME']);
+                $input     = $this->setArrayToSelect($slctOptns, $val, $val['COLUMN_NAME'] . $valSuffix, $inAdtnl);
             }
         }
         return $input;
@@ -120,13 +120,13 @@ trait MySQLiAdvancedOutput
     /**
      * Returns a Numeric field 2 use in a form
      *
-     * @param string $table_source
+     * @param string $tblSrc
      * @param array $value
      * @param array $features
      * @param string $iar
      * @return string
      */
-    private function getFieldOutputNumeric($table_source, $value, $iar = null)
+    private function getFieldOutputNumeric($tblSrc, $value, $iar = null)
     {
         $input = null;
         if ($value['EXTRA'] == 'auto_increment') {
@@ -136,51 +136,51 @@ trait MySQLiAdvancedOutput
                     'style' => 'font-style:italic;',
                 ]);
             } else {
-                $ia = [
+                $inAdtnl = [
                     'type'  => 'hidden',
                     'name'  => $value['COLUMN_NAME'],
                     'id'    => $value['COLUMN_NAME'],
                     'value' => $this->getFieldValue($value),
                 ];
                 if (!is_null($iar)) {
-                    $ia = array_merge($ia, $iar);
+                    $inAdtnl = array_merge($inAdtnl, $iar);
                 }
                 $input = $this->setStringIntoTag($this->getFieldValue($value), 'b')
-                        . $this->setStringIntoShortTag('input', $ia);
+                        . $this->setStringIntoShortTag('input', $inAdtnl);
             }
         } else {
             $database           = $this->advCache['workingDatabase'];
-            $foreign_keys_array = $this->getForeignKeysToArray($database, $table_source, $value['COLUMN_NAME']);
+            $foreign_keys_array = $this->getForeignKeysToArray($database, $tblSrc, $value['COLUMN_NAME']);
             if (is_null($foreign_keys_array)) {
-                $fn = $this->setFieldNumbers($value);
-                $ia = [
+                $fldNos  = $this->setFieldNumbers($value);
+                $inAdtnl = [
                     'type'      => 'text',
                     'name'      => $value['COLUMN_NAME'],
                     'id'        => $value['COLUMN_NAME'],
                     'value'     => $this->getFieldValue($value),
-                    'size'      => min(50, $fn['l']),
-                    'maxlength' => min(50, $fn['l'])
+                    'size'      => min(50, $fldNos['l']),
+                    'maxlength' => min(50, $fldNos['l'])
                 ];
                 if (isset($iar)) {
-                    $ia = array_merge($ia, $iar);
+                    $inAdtnl = array_merge($inAdtnl, $iar);
                 }
-                $input = $this->setStringIntoShortTag('input', $ia);
+                $input = $this->setStringIntoShortTag('input', $inAdtnl);
             } else {
-                $q             = $this->sQueryGenericSelectKeyValue([
+                $query         = $this->sQueryGenericSelectKeyValue([
                     $foreign_keys_array[$value['COLUMN_NAME']][1],
                     $foreign_keys_array[$value['COLUMN_NAME']][2],
                     $foreign_keys_array[$value['COLUMN_NAME']][0]
                 ]);
-                $selectOptions = $this->setMySQLquery2Server($q, 'array_key_value')['result'];
+                $selectOptions = $this->setMySQLquery2Server($query, 'array_key_value')['result'];
                 $selectValue   = $this->getFieldValue($value);
-                $ia            = ['size' => 1];
+                $inAdtnl       = ['size' => 1];
                 if ($value['IS_NULLABLE'] == 'YES') {
-                    $ia = array_merge($ia, ['include_null']);
+                    $inAdtnl = array_merge($inAdtnl, ['include_null']);
                 }
                 if (isset($iar)) {
-                    $ia = array_merge($ia, $iar);
+                    $inAdtnl = array_merge($inAdtnl, $iar);
                 }
-                $input = $this->setArrayToSelect($selectOptions, $selectValue, $value['COLUMN_NAME'], $ia);
+                $input = $this->setArrayToSelect($selectOptions, $selectValue, $value['COLUMN_NAME'], $inAdtnl);
             }
         }
         return $input;
@@ -213,27 +213,27 @@ trait MySQLiAdvancedOutput
             }
         }
         if (isset($foreignKeysArray)) {
-            $q  = $this->storedQuery('generic_select_key_value', [
+            $query   = $this->storedQuery('generic_select_key_value', [
                 $foreignKeysArray[$value['COLUMN_NAME']][1],
                 $foreignKeysArray[$value['COLUMN_NAME']][2],
                 $foreignKeysArray[$value['COLUMN_NAME']][0]
             ]);
-            $ia = ['size' => 1];
+            $inAdtnl = ['size' => 1];
             if ($value['IS_NULLABLE'] == 'YES') {
-                $ia = array_merge($ia, ['include_null']);
+                $inAdtnl = array_merge($inAdtnl, ['include_null']);
             }
             if (!is_null($iar)) {
-                $ia = array_merge($ia, $iar);
+                $inAdtnl = array_merge($inAdtnl, $iar);
             }
             $slct  = [
-                'Options' => $this->setQuery2Server($q, 'array_key_value'),
+                'Options' => $this->setQuery2Server($query, 'array_key_value'),
                 'Value'   => $this->getFieldValue($value),
             ];
-            $input = $this->setArrayToSelect($slct['Options'], $slct['Value'], $value['COLUMN_NAME'], $ia);
+            $input = $this->setArrayToSelect($slct['Options'], $slct['Value'], $value['COLUMN_NAME'], $inAdtnl);
             unset($foreignKeysArray);
         } else {
-            $fn = $this->setFieldNumbers($value);
-            $ia = [
+            $fn      = $this->setFieldNumbers($value);
+            $inAdtnl = [
                 'type'      => ($value['COLUMN_NAME'] == 'password' ? 'password' : 'text'),
                 'name'      => $value['COLUMN_NAME'],
                 'id'        => $value['COLUMN_NAME'],
@@ -242,9 +242,9 @@ trait MySQLiAdvancedOutput
                 'value'     => $this->getFieldValue($value),
             ];
             if (!is_null($iar)) {
-                $ia = array_merge($ia, $iar);
+                $inAdtnl = array_merge($inAdtnl, $iar);
             }
-            $input = $this->setStringIntoShortTag('input', $ia);
+            $input = $this->setStringIntoShortTag('input', $inAdtnl);
         }
         return $input;
     }
@@ -262,18 +262,20 @@ trait MySQLiAdvancedOutput
     private function getFieldOutputTextLarge($fieldType, $value, $iar = null)
     {
         if (!in_array($fieldType, ['blob', 'text'])) {
-            return '';
+            $sReturn = '';
+        } else {
+            $inAdtnl = [
+                'name' => $value['COLUMN_NAME'],
+                'id'   => $value['COLUMN_NAME'],
+                'rows' => 4,
+                'cols' => 55,
+            ];
+            if (isset($iar)) {
+                $inAdtnl = array_merge($inAdtnl, $iar);
+            }
+            $sReturn = $this->setStringIntoTag($this->getFieldValue($value), 'textarea', $inAdtnl);
         }
-        $ia = [
-            'name' => $value['COLUMN_NAME'],
-            'id'   => $value['COLUMN_NAME'],
-            'rows' => 4,
-            'cols' => 55,
-        ];
-        if (isset($iar)) {
-            $ia = array_merge($ia, $iar);
-        }
-        return $this->setStringIntoTag($this->getFieldValue($value), 'textarea', $ia);
+        return $sReturn;
     }
 
     /**
@@ -291,7 +293,7 @@ trait MySQLiAdvancedOutput
         $input = null;
         switch ($field_type) {
             case 'time':
-                $ia = [
+                $inAdtnl = [
                     'type'      => 'text',
                     'size'      => 9,
                     'maxlength' => 9,
@@ -300,9 +302,9 @@ trait MySQLiAdvancedOutput
                     'value'     => $this->getFieldValue($value),
                 ];
                 if (isset($iar)) {
-                    $ia = array_merge($ia, $iar);
+                    $inAdtnl = array_merge($inAdtnl, $iar);
                 }
-                $input = $this->setStringIntoShortTag('input', $ia);
+                $input = $this->setStringIntoShortTag('input', $inAdtnl);
                 break;
         }
         return $input;
@@ -325,7 +327,7 @@ trait MySQLiAdvancedOutput
             case 'timestamp':
             // intentioanlly left open
             case 'datetime':
-                $ia = [
+                $inAdtnl = [
                     'type'      => 'text',
                     'size'      => 19,
                     'maxlength' => 19,
@@ -334,9 +336,9 @@ trait MySQLiAdvancedOutput
                     'value'     => $this->getFieldValue($value),
                 ];
                 if (isset($iar)) {
-                    $ia = array_merge($ia, $iar);
+                    $inAdtnl = array_merge($inAdtnl, $iar);
                 }
-                $input = $this->setStringIntoShortTag('input', $ia);
+                $input = $this->setStringIntoShortTag('input', $inAdtnl);
                 if (!isset($iar['readonly'])) {
                     $input .= $this->setCalendarControlWithTime($value['COLUMN_NAME']);
                 }
@@ -425,9 +427,9 @@ trait MySQLiAdvancedOutput
                             'text',
                         ],
                     ]);
-                    $targetTableTextFields  = $this->setMySQLquery2Server($query, 'full_array_key_numbered')['result'];
-                    $significance           = $targetTableTextFields[0]['COLUMN_NAME'];
-                    unset($targetTableTextFields);
+                    $targetTblTxtFlds       = $this->setMySQLquery2Server($query, 'full_array_key_numbered')['result'];
+                    $significance           = $targetTblTxtFlds[0]['COLUMN_NAME'];
+                    unset($targetTblTxtFlds);
                     $array2return[$onlyCol] = [
                         '`' . implode('`.`', [
                             $value['REFERENCED_TABLE_SCHEMA'],
@@ -453,23 +455,23 @@ trait MySQLiAdvancedOutput
      * Returns an array with possible values of a SET or ENUM column
      *
      * @version 20080423
-     * @param string $reference_table
-     * @param string $reference_column
+     * @param string $refTbl
+     * @param string $refCol
      * @return array
      */
-    protected function getSetOrEnum2Array($ref_tbl, $ref_col)
+    protected function getSetOrEnum2Array($refTbl, $refCol)
     {
-        if ((strpos($ref_tbl, '`') !== false) && (substr($ref_tbl, 0, 1) != '`')) {
-            $ref_tbl = '`' . $ref_tbl . '`';
+        if ((strpos($refTbl, '`') !== false) && (substr($refTbl, 0, 1) != '`')) {
+            $refTbl = '`' . $refTbl . '`';
         }
-        if (strpos($ref_tbl, '.') === false) { // in case the DB is ommited get the default one
-            $dt[0] = $this->advCache['workingDatabase'];
-            $dt[1] = $ref_tbl;
+        if (strpos($refTbl, '.') === false) { // in case the DB is ommited get the default one
+            $dat[0] = $this->advCache['workingDatabase'];
+            $dat[1] = $refTbl;
         } else {
-            $dt = explode('.', str_replace('`', '', $ref_tbl));
+            $dat = explode('.', str_replace('`', '', $refTbl));
         }
-        foreach ($this->advCache['tableStructureCache'][$dt[0]][$dt[1]] as $value) {
-            if ($value['COLUMN_NAME'] == $ref_col) {
+        foreach ($this->advCache['tableStructureCache'][$dat[0]][$dat[1]] as $value) {
+            if ($value['COLUMN_NAME'] == $refCol) {
                 $shorterColType    = substr($value['COLUMN_TYPE'], 0, strlen($value['COLUMN_TYPE']) - 1);
                 $cleanedColumnType = explode(',', str_replace(['enum(', 'set(', "'"], '', $shorterColType));
                 $enum_values       = array_combine($cleanedColumnType, $cleanedColumnType);
@@ -536,30 +538,33 @@ trait MySQLiAdvancedOutput
     /**
      * Returns a generic form based on a given table
      *
-     * @param string $ts Table Source
+     * @param string $tblSrc Table Source
      * @param array $feat
+     * @param string/array $hiddenInfo List of hidden fields
+     *
+     * @return string Form to add/modify detail for a single row within a table
      */
-    protected function setFormGenericSingleRecord($ts, $feat, $hiddenInfo = '')
+    protected function setFormGenericSingleRecord($tblSrc, $feat, $hiddenInfo = '')
     {
         echo $this->setStringIntoTag('', 'div', [
             'id' => 'loading'
         ]); // Ajax container
-        if (strpos($ts, '.') !== false) {
-            $ts = explode('.', str_replace('`', '', $ts))[1];
+        if (strpos($tblSrc, '.') !== false) {
+            $tblSrc = explode('.', str_replace('`', '', $tblSrc))[1];
         }
-        $this->setTableCache($ts); // will populate $this->advCache['tableStructureCache'][$dt[0]][$dt[1]]
-        if (count($this->advCache['tableStructureCache'][$this->advCache['workingDatabase']][$ts]) != 0) {
-            foreach ($this->advCache['tableStructureCache'][$this->advCache['workingDatabase']][$ts] as $value) {
-                $sReturn[] = $this->setNeededField($ts, $value, $feat);
+        $this->setTableCache($tblSrc); // will populate $this->advCache['tableStructureCache'][$dt[0]][$dt[1]]
+        if (count($this->advCache['tableStructureCache'][$this->advCache['workingDatabase']][$tblSrc]) != 0) {
+            foreach ($this->advCache['tableStructureCache'][$this->advCache['workingDatabase']][$tblSrc] as $value) {
+                $sReturn[] = $this->setNeededField($tblSrc, $value, $feat);
             }
         }
-        $btn[]                     = $this->setStringIntoShortTag('input', [
+        $btn[]                = $this->setStringIntoShortTag('input', [
             'type'  => 'submit',
             'id'    => 'submit',
             'style' => 'margin-left:220px;',
             'value' => $this->lclMsgCmn('i18n_Form_ButtonSave'),
         ]);
-        $additionalScriptAfterForm = $this->setJavascriptContent(implode('', [
+        $adtnlScriptAfterForm = $this->setJavascriptContent(implode('', [
             '$(document).ready(function(){',
             '$("form#' . $feat['id'] . '").submit(function(){',
             '$("input").attr("readonly", true);',
@@ -595,7 +600,7 @@ trait MySQLiAdvancedOutput
                     'action' => $feat['action'],
                     'method' => $feat['method']
                 ])
-                . $additionalScriptAfterForm;
+                . $adtnlScriptAfterForm;
     }
 
     protected function setTableLocaleFields($localizationStrings)
@@ -734,28 +739,33 @@ trait MySQLiAdvancedOutput
         return $this->getFieldCompletionType($details) . $sReturn;
     }
 
-    private function setTableCache($ts)
+    /**
+     * create a Cache for given table to use it in many places
+     *
+     * @param type $tblSrc
+     */
+    private function setTableCache($tblSrc)
     {
-        if (strpos($ts, '.') === false) { // in case the DB is ommited get the default one
-            $dt[1] = $ts;
-            $dt[0] = MYSQL_DATABASE;
+        if (strpos($tblSrc, '.') === false) { // in case the DB is ommited get the default one
+            $dat[1] = $tblSrc;
+            $dat[0] = MYSQL_DATABASE;
         } else {
-            $dt = explode('.', str_replace('`', '', $ts));
+            $dat = explode('.', str_replace('`', '', $tblSrc));
         }
-        if (!isset($this->advCache['tableStructureCache'][$dt[0]][$dt[1]])) {
-            switch ($dt[1]) {
+        if (!isset($this->advCache['tableStructureCache'][$dat[0]][$dat[1]])) {
+            switch ($dat[1]) {
                 case 'user_rights':
                     $this->advCache['workingDatabase'] = 'usefull_security';
                     break;
                 default:
-                    $this->advCache['workingDatabase'] = $dt[0];
+                    $this->advCache['workingDatabase'] = $dat[0];
                     break;
             }
-            $this->advCache['tableStructureCache'][$dt[0]][$dt[1]] = $this->getMySQLlistColumns([
-                'TABLE_SCHEMA' => $dt[0],
-                'TABLE_NAME'   => $dt[1],
+            $this->advCache['tableStructureCache'][$dat[0]][$dat[1]] = $this->getMySQLlistColumns([
+                'TABLE_SCHEMA' => $dat[0],
+                'TABLE_NAME'   => $dat[1],
             ]);
-            $this->setTableForeginKeyCache($dt[0], $dt[1]);
+            $this->setTableForeginKeyCache($dat[0], $dat[1]);
         }
     }
 
@@ -792,12 +802,12 @@ trait MySQLiAdvancedOutput
         if ($tbl == '') {
             $sReturn[] = $this->setFeedbackModern('error', $tMsg['Confirmation'], $tMsg['Impossible']);
         } else {
-            $q = $this->sQueryToDeleteSingleIdentifier([
+            $query = $this->sQueryToDeleteSingleIdentifier([
                 $tbl,
                 $identifier,
                 $_REQUEST[$identifier]
             ]);
-            $this->setMySQLquery2Server($q);
+            $this->setMySQLquery2Server($query);
             if ($this->mySQLconnection->affected_rows != 0) {
                 $sReturn[] = $this->setFeedbackModern('check', $tMsg['Confirmation'], $tMsg['Success']);
             } else {

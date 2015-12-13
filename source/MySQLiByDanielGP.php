@@ -199,9 +199,9 @@ trait MySQLiByDanielGP
      *
      * @return array
      */
-    protected function getMySQLlistDatabases($excludeSystemDatabases = true)
+    protected function getMySQLlistDatabases($excludeSystemDbs = true)
     {
-        return $this->getMySQLlistMultiple('Databases', 'array_first_key_rest_values', $excludeSystemDatabases);
+        return $this->getMySQLlistMultiple('Databases', 'array_first_key_rest_values', $excludeSystemDbs);
     }
 
     /**
@@ -243,31 +243,31 @@ trait MySQLiByDanielGP
         } else {
             switch ($returnChoice) {
                 case 'Columns':
-                    $q = $this->sQueryMySqlColumns($additionalFeatures);
+                    $query = $this->sQueryMySqlColumns($additionalFeatures);
                     break;
                 case 'Databases':
-                    $q = $this->sQueryMySqlActiveDatabases($additionalFeatures);
+                    $query = $this->sQueryMySqlActiveDatabases($additionalFeatures);
                     break;
                 case 'Engines':
-                    $q = $this->sQueryMySqlActiveEngines($additionalFeatures);
+                    $query = $this->sQueryMySqlActiveEngines($additionalFeatures);
                     break;
                 case 'Indexes':
-                    $q = $this->sQueryMySqlIndexes($additionalFeatures);
+                    $query = $this->sQueryMySqlIndexes($additionalFeatures);
                     break;
                 case 'ServerTime':
-                    $q = $this->sQueryMySqlServerTime();
+                    $query = $this->sQueryMySqlServerTime();
                     break;
                 case 'Statistics':
-                    $q = $this->sQueryMySqlStatistics($additionalFeatures);
+                    $query = $this->sQueryMySqlStatistics($additionalFeatures);
                     break;
                 case 'Tables':
-                    $q = $this->sQueryMySqlTables($additionalFeatures);
+                    $query = $this->sQueryMySqlTables($additionalFeatures);
                     break;
                 case 'VariablesGlobal':
-                    $q = $this->sQueryMySqlGlobalVariables();
+                    $query = $this->sQueryMySqlGlobalVariables();
                     break;
             }
-            $line = $this->setMySQLquery2Server($q, $returnType)[
+            $line = $this->setMySQLquery2Server($query, $returnType)[
                     'result'
             ];
         }
@@ -333,11 +333,11 @@ trait MySQLiByDanielGP
      */
     protected function getMySQLqueryWithParameterIdentifier($sQuery, $paramIdentifier)
     {
+        $sReturn = true;
         if (strpos($sQuery, $paramIdentifier) === false) {
-            return false;
-        } else {
-            return true;
+            $sReturn = false;
         }
+        return $sReturn;
     }
 
     /**

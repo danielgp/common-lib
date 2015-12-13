@@ -241,10 +241,10 @@ trait DomComponentsByDanielGP
                 }
                 break;
         }
-        $iTableColumns         = 0;
-        $remebered_value       = -1;
-        $rememberGroupingValue = null;
-        $color_no              = null;
+        $iTableColumns    = 0;
+        $remebered_value  = -1;
+        $remindGroupValue = null;
+        $color_no         = null;
         if (!isset($ftrs['headers_breaked'])) {
             $ftrs['headers_breaked'] = true;
         }
@@ -266,8 +266,8 @@ trait DomComponentsByDanielGP
                     $sReturn .= $tbl['Head'];
                 }
                 if (isset($iStartingPageRecord)) {
-                    $pg = $this->setPagination($ftrs['limits'][0], $ftrs['limits'][1], $ftrs['limits'][2], $bKpFlPge);
-                    $sReturn .= $this->setStringIntoTag($this->setStringIntoTag($pg, 'th', [
+                    $pgn = $this->setPagination($ftrs['limits'][0], $ftrs['limits'][1], $ftrs['limits'][2], $bKpFlPge);
+                    $sReturn .= $this->setStringIntoTag($this->setStringIntoTag($pgn, 'th', [
                                 'colspan' => $iTableColumns
                             ]), 'tr');
                 }
@@ -320,7 +320,7 @@ trait DomComponentsByDanielGP
 // Grouping column
             if (isset($ftrs['grouping_cell'])) {
                 foreach ($aElements[$rCntr] as $key => $value) {
-                    if (($ftrs['grouping_cell'] == $key) && ($rememberGroupingValue != $value)) {
+                    if (($ftrs['grouping_cell'] == $key) && ($remindGroupValue != $value)) {
                         switch ($ftrs['grouping_cell_type']) {
                             case 'row':
                                 $sReturn .= $tbl['tr_Color'] . '<td ' . 'colspan="' . $iTableColumns . '">'
@@ -328,14 +328,14 @@ trait DomComponentsByDanielGP
                                         . '</td></tr>';
                                 break;
                             case 'tab':
-                                if (is_null($rememberGroupingValue)) {
+                                if (is_null($remindGroupValue)) {
                                     if (isset($ftrs['showGroupingCounter'])) {
                                         $groupCounter = 0;
                                     }
                                 } else {
                                     $sReturn .= '</tbody></table>';
                                     if (isset($ftrs['showGroupingCounter'])) {
-                                        $sReturn .= $this->updateDivTitleName($rememberGroupingValue, $groupCounter);
+                                        $sReturn .= $this->updateDivTitleName($remindGroupValue, $groupCounter);
                                         $groupCounter = 0;
                                     }
                                     $sReturn .= '</div>';
@@ -349,7 +349,7 @@ trait DomComponentsByDanielGP
                                         . $tbl['Def'] . $tbl['Head'] . $tbl['Header'];
                                 break;
                         }
-                        $rememberGroupingValue = $value;
+                        $remindGroupValue = $value;
                     }
                 }
             }
@@ -516,15 +516,15 @@ trait DomComponentsByDanielGP
             $sReturn .= '</tr>';
         }
         if (isset($iStartingPageRecord)) {
-            $pg = $this->setPagination($ftrs['limits'][0], $ftrs['limits'][1], $ftrs['limits'][2]);
-            $sReturn .= '<tr>' . $this->setStringIntoTag($pg, 'th', ['colspan' => $iTableColumns]) . '</tr>';
+            $pgn = $this->setPagination($ftrs['limits'][0], $ftrs['limits'][1], $ftrs['limits'][2]);
+            $sReturn .= '<tr>' . $this->setStringIntoTag($pgn, 'th', ['colspan' => $iTableColumns]) . '</tr>';
         }
         $sReturn .= '</tbody></table>';
         if ($ftrs['grouping_cell_type'] == 'tab') {
             if (isset($ftrs['showGroupingCounter'])) {
-                $sReturn .= $this->updateDivTitleName($rememberGroupingValue, $groupCounter);
+                $sReturn .= $this->updateDivTitleName($remindGroupValue, $groupCounter);
             }
-            $sReturn .= '</div><!-- from ' . $rememberGroupingValue . ' -->';
+            $sReturn .= '</div><!-- from ' . $remindGroupValue . ' -->';
             if (!isset($ftrs['noGlobalTab'])) {
                 $sReturn .= '</div><!-- from global tab -->';
             }
@@ -631,9 +631,9 @@ trait DomComponentsByDanielGP
             '&amp;amp;' => '&amp;',
             ' '         => '%20',
         ];
-        $k              = array_keys($arrayToReplace);
-        $v              = array_values($arrayToReplace);
-        return str_replace($k, $v, filter_var($urlString, FILTER_SANITIZE_URL));
+        $kys              = array_keys($arrayToReplace);
+        $vls              = array_values($arrayToReplace);
+        return str_replace($kys, $vls, filter_var($urlString, FILTER_SANITIZE_URL));
     }
 
     /**
@@ -684,13 +684,13 @@ trait DomComponentsByDanielGP
      * @param string $cssFile
      * @return string
      */
-    protected function setCssFile($cssFileName, $hostsWithoutCDNrequired = null)
+    protected function setCssFile($cssFileName, $hostsWithoutCDNrq = null)
     {
         $sReturn = null;
-        if (is_null($hostsWithoutCDNrequired)) {
-            $hostsWithoutCDNrequired = [];
+        if (is_null($hostsWithoutCDNrq)) {
+            $hostsWithoutCDNrq = [];
         }
-        if (in_array($this->getClientRealIpAddress(), $hostsWithoutCDNrequired)) {
+        if (in_array($this->getClientRealIpAddress(), $hostsWithoutCDNrq)) {
             $sReturn = '<link rel="stylesheet" type="text/css" href="'
                     . filter_var($cssFileName, FILTER_SANITIZE_STRING)
                     . '" />';
@@ -950,13 +950,13 @@ trait DomComponentsByDanielGP
      * @param string $jsFileName
      * @return string
      */
-    protected function setJavascriptFile($jsFileName, $hostsWithoutCDNrequired = null)
+    protected function setJavascriptFile($jsFileName, $hostsWithoutCDNrq = null)
     {
         $sReturn = null;
-        if (is_null($hostsWithoutCDNrequired)) {
-            $hostsWithoutCDNrequired = [];
+        if (is_null($hostsWithoutCDNrq)) {
+            $hostsWithoutCDNrq = [];
         }
-        if (in_array($this->getClientRealIpAddress(), $hostsWithoutCDNrequired)) {
+        if (in_array($this->getClientRealIpAddress(), $hostsWithoutCDNrq)) {
             $sReturn = '<script type="text/javascript" src="' . $jsFileName . '"></script>';
         } else {
             $patternFound = $this->setJavascriptFileCDN($jsFileName);
@@ -1209,11 +1209,11 @@ trait DomComponentsByDanielGP
         ]);
     }
 
-    protected function updateDivTitleName($rememberGroupingValue, $groupCounter)
+    protected function updateDivTitleName($rememberGroupVal, $groupCounter)
     {
         $jsContent = '$(document).ready(function() { $("#tab_'
-                . $this->cleanStringForId($rememberGroupingValue) . '").attr("title", "'
-                . $rememberGroupingValue . ' (' . $groupCounter . ')"); });';
+                . $this->cleanStringForId($rememberGroupVal) . '").attr("title", "'
+                . $rememberGroupVal . ' (' . $groupCounter . ')"); });';
         return $this->setJavascriptContent($jsContent);
     }
 }

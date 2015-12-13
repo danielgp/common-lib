@@ -181,29 +181,29 @@ trait CommonCode
             $aReturn['response'] = '';
         }
         $aReturn = [];
-        $ch      = curl_init();
-        curl_setopt($ch, CURLOPT_USERAGENT, $this->getUserAgentByCommonLib());
+        $chanel  = curl_init();
+        curl_setopt($chanel, CURLOPT_USERAGENT, $this->getUserAgentByCommonLib());
         if ((strpos($fullURL, 'https') !== false) || (isset($features['forceSSLverification']))) {
-            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($chanel, CURLOPT_SSL_VERIFYHOST, false);
+            curl_setopt($chanel, CURLOPT_SSL_VERIFYPEER, false);
         }
-        curl_setopt($ch, CURLOPT_URL, $fullURL);
-        curl_setopt($ch, CURLOPT_HEADER, false);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_FRESH_CONNECT, true); //avoid a cached response
-        curl_setopt($ch, CURLOPT_FAILONERROR, true);
-        $responseJsonFromClientOriginal = curl_exec($ch);
-        if (curl_errno($ch)) {
+        curl_setopt($chanel, CURLOPT_URL, $fullURL);
+        curl_setopt($chanel, CURLOPT_HEADER, false);
+        curl_setopt($chanel, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($chanel, CURLOPT_FRESH_CONNECT, true); //avoid a cached response
+        curl_setopt($chanel, CURLOPT_FAILONERROR, true);
+        $rspJsonFromClient = curl_exec($chanel);
+        if (curl_errno($chanel)) {
             $aReturn['info']     = $this->setArrayToJson([
-                '#'           => curl_errno($ch),
-                'description' => curl_error($ch)
+                '#'           => curl_errno($chanel),
+                'description' => curl_error($chanel)
             ]);
             $aReturn['response'] = '';
         } else {
-            $aReturn['info']     = $this->setArrayToJson(curl_getinfo($ch));
-            $aReturn['response'] = $responseJsonFromClientOriginal;
+            $aReturn['info']     = $this->setArrayToJson(curl_getinfo($chanel));
+            $aReturn['response'] = $rspJsonFromClient;
         }
-        curl_close($ch);
+        curl_close($chanel);
         $sReturn = '';
         if ($this->isJsonByDanielGP($aReturn['info'])) {
             $sReturn = '"info": ' . $aReturn['info'];
@@ -247,8 +247,8 @@ trait CommonCode
         if (is_null($this->mySQLconnection)) {
             $message = 'No MySQL';
         } else {
-            $ar      = $this->mySQLconnection->affected_rows;
-            $message = sprintf($this->lclMsgCmnNumber('i18n_Record', 'i18n_Records', $ar), $ar);
+            $afRows  = $this->mySQLconnection->affected_rows;
+            $message = sprintf($this->lclMsgCmnNumber('i18n_Record', 'i18n_Records', $afRows), $afRows);
         }
         return '<div>'
                 . $message
@@ -412,27 +412,27 @@ trait CommonCode
      */
     protected function getTimestamp($returnType = 'string')
     {
-        $dt = gettimeofday();
+        $crtTime = gettimeofday();
         switch ($returnType) {
             case 'array':
                 $sReturn = [
-                    'float'  => ($dt['sec'] + $dt['usec'] / pow(10, 6)),
+                    'float'  => ($crtTime['sec'] + $crtTime['usec'] / pow(10, 6)),
                     'string' => implode('', [
                         '<span style="color:black!important;font-weight:bold;">[',
-                        date('Y-m-d H:i:s.', $dt['sec']),
-                        substr(round($dt['usec'], -3), 0, 3),
+                        date('Y-m-d H:i:s.', $crtTime['sec']),
+                        substr(round($crtTime['usec'], -3), 0, 3),
                         ']</span> '
                     ]),
                 ];
                 break;
             case 'float':
-                $sReturn = ($dt['sec'] + $dt['usec'] / pow(10, 6));
+                $sReturn = ($crtTime['sec'] + $crtTime['usec'] / pow(10, 6));
                 break;
             case 'string':
                 $sReturn = implode('', [
                     '<span style="color:black!important;font-weight:bold;">[',
-                    date('Y-m-d H:i:s.', $dt['sec']),
-                    substr(round($dt['usec'], -3), 0, 3),
+                    date('Y-m-d H:i:s.', $crtTime['sec']),
+                    substr(round($crtTime['usec'], -3), 0, 3),
                     ']</span> '
                 ]);
                 break;
@@ -548,14 +548,14 @@ trait CommonCode
         try {
             $postingUrl = filter_var($urlToSendTo, FILTER_VALIDATE_URL);
             if ($postingUrl === false) {
-                throw new \Exception($ex);
+                throw new \Exception($exc);
             } else {
                 if (is_array($params)) {
                     $postingString   = $this->setArrayToStringForUrl('&', $params);
                     $postingUrlParts = parse_url($postingUrl);
                     $postingPort     = (isset($postingUrlParts['port']) ? $postingUrlParts['port'] : 80);
-                    $fp              = fsockopen($postingUrlParts['host'], $postingPort, $errNo, $errorMessage, 30);
-                    if ($fp === false) {
+                    $flPointer       = fsockopen($postingUrlParts['host'], $postingPort, $errNo, $errorMessage, 30);
+                    if ($flPointer === false) {
                         throw new \UnexpectedValueException($this->lclMsgCmn('i18n_Error_FailedToConnect') . ': '
                         . $errNo . ' (' . $errorMessage . ')');
                     } else {
@@ -568,15 +568,15 @@ trait CommonCode
                         $out[] = 'Content-Length: ' . strlen($postingString);
                         $out[] = 'Connection: Close' . "\r\n";
                         $out[] = $postingString;
-                        fwrite($fp, implode("\r\n", $out));
-                        fclose($fp);
+                        fwrite($flPointer, implode("\r\n", $out));
+                        fclose($flPointer);
                     }
                 } else {
                     throw new \UnexpectedValueException($this->lclMsgCmn('i18n_Error_GivenParameterIsNotAnArray'));
                 }
             }
-        } catch (\Exception $ex) {
-            echo '<pre style="color:#f00">' . $ex->getTraceAsString() . '</pre>';
+        } catch (\Exception $exc) {
+            echo '<pre style="color:#f00">' . $exc->getTraceAsString() . '</pre>';
         }
     }
 

@@ -7,3 +7,4 @@ common-lib = Common functions to be used where needed
 [![Total Downloads](https://poser.pugx.org/danielgp/common-lib/downloads)](https://packagist.org/packages/danielgp/common-lib)
 [![Monthly Downloads](https://poser.pugx.org/danielgp/common-lib/d/monthly)](https://packagist.org/packages/danielgp/common-lib)
 [![Daily Downloads](https://poser.pugx.org/danielgp/common-lib/d/daily)](https://packagist.org/packages/danielgp/common-lib)
+[![Codacy Badge](https://api.codacy.com/project/badge/grade/88ae7663bb5941bdaf565f92cd52b30d)](https://www.codacy.com/app/danielpopiniuc/common-lib)

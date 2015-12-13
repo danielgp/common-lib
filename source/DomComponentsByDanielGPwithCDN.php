@@ -219,13 +219,13 @@ trait DomComponentsByDanielGPwithCDN
         $justFile     = pathinfo($jsFileName)['basename'];
         switch ($justFile) {
             case 'jquery.placeholder.min.js':
-                $version                   = 'jquery-placeholder/2.0.8/';
-                $functionExistanceToVerify = 'jQuery.placeholder';
+                $version             = 'jquery-placeholder/2.0.8/';
+                $fnExistanceToVerify = 'jQuery.placeholder';
                 break;
             case 'jquery.easing.1.3.min.js':
-                $version                   = 'jquery-easing/1.3/';
-                $functionExistanceToVerify = 'jQuery.easing["jswing"]';
-                $justFile                  = str_replace('.1.3', '', $justFile);
+                $version             = 'jquery-easing/1.3/';
+                $fnExistanceToVerify = 'jQuery.easing["jswing"]';
+                $justFile            = str_replace('.1.3', '', $justFile);
                 break;
         }
         if (!is_null($version)) {
@@ -237,7 +237,7 @@ trait DomComponentsByDanielGPwithCDN
                     $justFile,
                 ]),
                 implode('', [
-                    '<script>' . $functionExistanceToVerify . ' || document.write(\'<script src="',
+                    '<script>' . $fnExistanceToVerify . ' || document.write(\'<script src="',
                     filter_var($jsFileName, FILTER_SANITIZE_STRING),
                     '">\x3C/script>\')</script>'
                 ])

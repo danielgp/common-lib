@@ -128,12 +128,12 @@ trait MySQLiByDanielGPqueries
     /**
      * Query to list Databases
      *
-     * @param type $excludeSystemDatabases
+     * @param type $excludeSystemDbs
      * @return type
      */
-    protected function sQueryMySqlActiveDatabases($excludeSystemDatabases = true)
+    protected function sQueryMySqlActiveDatabases($excludeSystemDbs = true)
     {
-        if ($excludeSystemDatabases) {
+        if ($excludeSystemDbs) {
             $filterChoice = 'WHERE `SCHEMA_NAME` NOT IN ("information_schema", "mysql", "performance_schema", "sys") ';
         } else {
             $filterChoice = '';
