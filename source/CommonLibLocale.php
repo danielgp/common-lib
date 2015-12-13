@@ -84,7 +84,8 @@ trait CommonLibLocale
                 . $_SESSION['lang'] . '/LC_MESSAGES/'
                 . $this->commonLibFlags['localization_domain']
                 . '.mo';
-        $translations     = \Gettext\Extractors\Mo::fromFile($localizationFile);
+        $extrClass        = new \Gettext\Extractors\Mo();
+        $translations     = $extrClass->fromFile($localizationFile);
         $this->tCmnLb     = new \Gettext\Translator();
         $this->tCmnLb->loadTranslations($translations);
     }

@@ -232,13 +232,13 @@ trait MySQLiAdvancedOutput
             $input = $this->setArrayToSelect($slct['Options'], $slct['Value'], $value['COLUMN_NAME'], $inAdtnl);
             unset($foreignKeysArray);
         } else {
-            $fn      = $this->setFieldNumbers($value);
+            $fldNos      = $this->setFieldNumbers($value);
             $inAdtnl = [
                 'type'      => ($value['COLUMN_NAME'] == 'password' ? 'password' : 'text'),
                 'name'      => $value['COLUMN_NAME'],
                 'id'        => $value['COLUMN_NAME'],
-                'size'      => min(30, $fn['l']),
-                'maxlength' => min(255, $fn['l']),
+                'size'      => min(30, $fldNos['l']),
+                'maxlength' => min(255, $fldNos['l']),
                 'value'     => $this->getFieldValue($value),
             ];
             if (!is_null($iar)) {
