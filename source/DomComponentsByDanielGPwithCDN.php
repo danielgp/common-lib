@@ -184,9 +184,10 @@ trait DomComponentsByDanielGPwithCDN
      */
     private function setJavascriptFileCDNjQuery($jsFileName)
     {
-        $patternFound   = null;
-        $jQueryPosition = strpos($jsFileName, 'jquery-');
-        if (($jQueryPosition !== false) && (substr($jsFileName, -7) == '.min.js')) {
+        $patternFound       = null;
+        $jQueryPosition     = strpos($jsFileName, 'jquery-');
+        $jQueryMajorVersion = substr($jsFileName, 7, 1);
+        if (($jQueryPosition !== false) && is_numeric($jQueryMajorVersion) && (substr($jsFileName, -7) == '.min.js')) {
             $patternFound = [
                 true,
                 implode('', [
