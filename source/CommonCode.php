@@ -586,7 +586,7 @@ trait CommonCode
      * @param array $inArray
      * @return string
      */
-    protected function setArrayToJson($inArray)
+    protected function setArrayToJson(array $inArray)
     {
         if (!is_array($inArray)) {
             return $this->lclMsgCmn('i18n_Error_GivenInputIsNotArray');
@@ -606,7 +606,7 @@ trait CommonCode
      * @param array $aElements
      * @return array
      */
-    protected function setArrayToArrayKbr($aElements)
+    protected function setArrayToArrayKbr(array $aElements)
     {
         foreach ($aElements as $key => $value) {
             $aReturn[str_replace(' ', '<br/>', $key)] = $value;
@@ -620,7 +620,7 @@ trait CommonCode
      * @param type $inArray
      * @return type
      */
-    protected function setArrayValuesAsKey($inArray)
+    protected function setArrayValuesAsKey(array $inArray)
     {
         $outArray = array_combine($inArray, $inArray);
         ksort($outArray);
