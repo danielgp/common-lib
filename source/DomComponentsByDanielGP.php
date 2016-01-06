@@ -125,7 +125,7 @@ trait DomComponentsByDanielGP
             if (in_array('multiselect', $features_array)) {
                 $string2return .= ' multiple="multiple"';
             }
-            if (in_array('style', $features_array)) {
+            if (array_key_exists('style', $features_array)) {
                 $string2return .= ' style="' . $features_array['style'] . '"';
             }
         }
@@ -1031,6 +1031,9 @@ trait DomComponentsByDanielGP
                         $string2return .= ' selected="selected"';
                     }
                 }
+            }
+            if (array_key_exists('styleForOption', $features_array)) {
+                $string2return .= ' style="' . $features_array['style'] . '"';
             }
             $string2return .= '>' . str_replace(['&', $current_group], ['&amp;', ''], $value) . '</option>';
         }
