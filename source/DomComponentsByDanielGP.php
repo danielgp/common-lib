@@ -125,6 +125,9 @@ trait DomComponentsByDanielGP
             if (in_array('multiselect', $features_array)) {
                 $string2return .= ' multiple="multiple"';
             }
+            if (in_array('style', $features_array)) {
+                $string2return .= ' style="' . $features_array['style'] . '"';
+            }
         }
         $string2return .= '>'
                 . $this->setOptionsForSelect($aElements, $sDefaultValue, $features_array)
@@ -631,8 +634,8 @@ trait DomComponentsByDanielGP
             '&amp;amp;' => '&amp;',
             ' '         => '%20',
         ];
-        $kys              = array_keys($arrayToReplace);
-        $vls              = array_values($arrayToReplace);
+        $kys            = array_keys($arrayToReplace);
+        $vls            = array_values($arrayToReplace);
         return str_replace($kys, $vls, filter_var($urlString, FILTER_SANITIZE_URL));
     }
 
