@@ -38,7 +38,6 @@ trait CommonCode
 
     use CommonLibLocale,
         \danielgp\browser_agent_info\BrowserAgentInfosByDanielGP,
-        \danielgp\network_components\NetworkComponentsByDanielGP,
         DomComponentsByDanielGP,
         DomComponentsByDanielGPwithCDN,
         MySQLiByDanielGPqueries,
