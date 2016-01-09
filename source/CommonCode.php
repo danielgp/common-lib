@@ -37,7 +37,6 @@ trait CommonCode
 {
 
     use CommonLibLocale,
-        \danielgp\browser_agent_info\BrowserAgentInfosByDanielGP,
         DomComponentsByDanielGP,
         DomComponentsByDanielGPwithCDN,
         MySQLiByDanielGPqueries,
@@ -345,62 +344,85 @@ trait CommonCode
     protected function getPackageDetailsFromGivenComposerLockFile($fileToRead)
     {
         if (!file_exists($fileToRead)) {
-            return [
-                'error' => $fileToRead . ' was not found'
-            ];
+            return ['error' => $fileToRead . ' was not found'];
         }
-        $dateTimeToday    = new \DateTime(date('Y-m-d', strtotime('today')));
-        $defaultNA        = '---';
-        $finalInformation = [];
-        $handle           = fopen($fileToRead, 'r');
-        $fileContents     = fread($handle, filesize($fileToRead));
-        fclose($handle);
-        $packages         = $this->setJsonToArray($fileContents);
+        $dNA      = '---';
+        $alnfo    = [];
+        $packages = $this->getPkgFileInListOfPackageArrayOut($fileToRead);
         foreach ($packages['packages'] as $value) {
-            if (isset($value['time'])) {
-                $dateTime = new \DateTime(date('Y-m-d', strtotime($value['time'])));
-                $interval = $dateTimeToday->diff($dateTime);
-            }
-            if (isset($value['version'])) {
-                if (substr($value['version'], 0, 1) == 'v') {
-                    $v = substr($value['version'], 1, strlen($value['version']) - 1);
-                } else {
-                    $v = $value['version'];
-                }
-                if (strpos($v, '-') !== false) {
-                    $v = substr($v, 0, strpos($v, '-'));
-                }
-            }
-            if (isset($value['license'])) {
-                if (is_array($value['license'])) {
-                    $l = implode(', ', $value['license']);
-                } else {
-                    $l = $value['license'];
-                }
-            } else {
-                $l = $defaultNA;
-            }
-            $finalInformation[$value['name']] = [
-                'Aging'            => (isset($value['time']) ? $interval->format('%a days ago') : $defaultNA),
-                'Description'      => (isset($value['description']) ? $value['description'] : $defaultNA),
-                'Homepage'         => (isset($value['homepage']) ? $value['homepage'] : $defaultNA),
-                'License'          => $l,
-                'Notification URL' => (isset($value['version']) ? $value['notification-url'] : $defaultNA),
-                'Package Name'     => $value['name'],
-                'PHP required'     => (isset($value['require']['php']) ? $value['require']['php'] : $defaultNA),
-                'Product'          => explode('/', $value['name'])[1],
-                'Type'             => (isset($value['type']) ? $value['type'] : $defaultNA),
-                'Time'             => (isset($value['time']) ? date('l, d F Y H:i:s', strtotime($value['time'])) : ''),
-                'Time as PHP no.'  => (isset($value['time']) ? strtotime($value['time']) : ''),
-                'URL'              => (isset($value['url']) ? $value['url'] : $defaultNA),
-                'Vendor'           => explode('/', $value['name'])[0],
-                'Version'          => (isset($value['version']) ? $value['version'] : $defaultNA),
-                'Version no.'      => (isset($value['version']) ? $v : $defaultNA),
-            ];
+            $basic                 = $this->getPkgBasicInfo($value, $dNA);
+            $atr                   = $this->getPkgOptAtributeAll($value, $dNA);
+            $alnfo[$value['name']] = array_merge($basic, $atr);
+            ksort($alnfo);
         }
-        asort($finalInformation);
-        ksort($finalInformation);
-        return $finalInformation;
+        ksort($alnfo);
+        return $alnfo;
+    }
+
+    private function getPkgAging($timePkg)
+    {
+        $dateTimeToday = new \DateTime(date('Y-m-d', strtotime('today')));
+        $dateTime      = new \DateTime(date('Y-m-d', strtotime($timePkg)));
+        $interval      = $dateTimeToday->diff($dateTime);
+        return $interval->format('%a days ago');
+    }
+
+    private function getPkgBasicInfo($value, $defaultNA)
+    {
+        return [
+            'Aging'            => (isset($value['time']) ? $this->getPkgAging($value['time']) : $defaultNA),
+            'License'          => (isset($value['license']) ? $this->getPkgLcns($value['license']) : $defaultNA),
+            'Notification URL' => (isset($value['version']) ? $value['notification-url'] : $defaultNA),
+            'Package Name'     => $value['name'],
+            'PHP required'     => (isset($value['require']['php']) ? $value['require']['php'] : $defaultNA),
+            'Product'          => explode('/', $value['name'])[1],
+            'Time'             => (isset($value['time']) ? date('l, d F Y H:i:s', strtotime($value['time'])) : ''),
+            'Time as PHP no.'  => (isset($value['time']) ? strtotime($value['time']) : ''),
+            'Vendor'           => explode('/', $value['name'])[0],
+            'Version no.'      => (isset($value['version']) ? $this->getPkgVerNo($value['version']) : $defaultNA),
+        ];
+    }
+
+    private function getPkgFileInListOfPackageArrayOut($fileToRead)
+    {
+        $handle       = fopen($fileToRead, 'r');
+        $fileContents = fread($handle, filesize($fileToRead));
+        fclose($handle);
+        return $this->setJsonToArray($fileContents);
+    }
+
+    private function getPkgLcns($license)
+    {
+        $lcns = $license;
+        if (is_array($license)) {
+            $lcns = implode(', ', $license);
+        }
+        return $lcns;
+    }
+
+    private function getPkgOptAtributeAll($value, $defaultNA)
+    {
+        $attr    = ['description', 'homepage', 'type', 'url', 'version'];
+        $aReturn = [];
+        foreach ($attr as $valueA) {
+            $aReturn[ucwords($valueA)] = $defaultNA;
+            if (in_array($valueA, $value)) {
+                $aReturn[ucwords($valueA)] = $valueA;
+            }
+        }
+        return $aReturn;
+    }
+
+    private function getPkgVerNo($version)
+    {
+        $vrs = $version;
+        if (substr($version, 0, 1) == 'v') {
+            $vrs = substr($version, 1, strlen($version) - 1);
+        }
+        if (strpos($vrs, '-') !== false) {
+            $vrs = substr($v, 0, strpos($vrs, '-'));
+        }
+        return $vrs;
     }
 
     /**
