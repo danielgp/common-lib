@@ -36,6 +36,8 @@ namespace danielgp\common_lib;
 trait DomComponentsByDanielGP
 {
 
+    use \danielgp\browser_agent_info\BrowserAgentInfosByDanielGP;
+
     /**
      * Calculate the optimal for all options within a select tag
      *
