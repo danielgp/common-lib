@@ -420,7 +420,7 @@ trait CommonCode
             $vrs = substr($version, 1, strlen($version) - 1);
         }
         if (strpos($vrs, '-') !== false) {
-            $vrs = substr($v, 0, strpos($vrs, '-'));
+            $vrs = substr($vrs, 0, strpos($vrs, '-'));
         }
         return $vrs;
     }
