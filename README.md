@@ -3,9 +3,8 @@ common-lib = Common functions to be used where needed
 
 Packagist statistics by poser.pugx.org
 [![Latest Stable Version](https://poser.pugx.org/danielgp/common-lib/v/stable)](https://packagist.org/packages/danielgp/common-lib)
-#dev-master)
-[![License](https://poser.pugx.org/danielgp/common-lib/license)](https://packagist.org/packages/danielgp/common-lib)
 [![Total Downloads](https://poser.pugx.org/danielgp/common-lib/downloads)](https://packagist.org/packages/danielgp/common-lib)
+[![License](https://poser.pugx.org/danielgp/common-lib/license)](https://packagist.org/packages/danielgp/common-lib)
 [![Monthly Downloads](https://poser.pugx.org/danielgp/common-lib/d/monthly)](https://packagist.org/packages/danielgp/common-lib)
 [![Daily Downloads](https://poser.pugx.org/danielgp/common-lib/d/daily)](https://packagist.org/packages/danielgp/common-lib)
 
