@@ -353,7 +353,7 @@ trait CommonCode
             $basic                 = $this->getPkgBasicInfo($value, $dNA);
             $atr                   = $this->getPkgOptAtributeAll($value, $dNA);
             $alnfo[$value['name']] = array_merge($basic, $atr);
-            ksort($alnfo);
+            ksort($alnfo[$value['name']]);
         }
         ksort($alnfo);
         return $alnfo;
@@ -406,8 +406,8 @@ trait CommonCode
         $aReturn = [];
         foreach ($attr as $valueA) {
             $aReturn[ucwords($valueA)] = $defaultNA;
-            if (in_array($valueA, $value)) {
-                $aReturn[ucwords($valueA)] = $valueA;
+            if (array_key_exists($valueA, $value)) {
+                $aReturn[ucwords($valueA)] = $value[$valueA];
             }
         }
         return $aReturn;
