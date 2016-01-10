@@ -37,6 +37,7 @@ trait CommonCode
 {
 
     use CommonLibLocale,
+        CommonPermissions,
         DomComponentsByDanielGP,
         DomComponentsByDanielGPwithCDN,
         MySQLiByDanielGPqueries,
@@ -60,105 +61,6 @@ trait CommonCode
             }
         }
         return $difference;
-    }
-
-    /**
-     * Returns an array with meaningfull content of permissions
-     *
-     * @param int $permissionNumber
-     * @return array
-     */
-    protected function explainPermissions($permissionNumber)
-    {
-        if (($permissionNumber & 0xC000) == 0xC000) {
-            $firstFlag = [
-                'code' => 's',
-                'name' => 'Socket',
-            ];
-        } elseif (($permissionNumber & 0xA000) == 0xA000) {
-            $firstFlag = [
-                'code' => 'l',
-                'name' => 'Symbolic Link',
-            ];
-        } elseif (($permissionNumber & 0x8000) == 0x8000) {
-            $firstFlag = [
-                'code' => '-',
-                'name' => 'Regular',
-            ];
-        } elseif (($permissionNumber & 0x6000) == 0x6000) {
-            $firstFlag = [
-                'code' => 'b',
-                'name' => 'Block special',
-            ];
-        } elseif (($permissionNumber & 0x4000) == 0x4000) {
-            $firstFlag = [
-                'code' => 'd',
-                'name' => 'Directory',
-            ];
-        } elseif (($permissionNumber & 0x2000) == 0x2000) {
-            $firstFlag = [
-                'code' => 'c',
-                'name' => 'Character special',
-            ];
-        } elseif (($permissionNumber & 0x1000) == 0x1000) {
-            $firstFlag = [
-                'code' => 'p',
-                'name' => 'FIFO pipe',
-            ];
-        } else {
-            $firstFlag = [
-                'code' => 'u',
-                'name' => 'FIFO pipe',
-            ];
-        }
-        $permissionsString    = substr(sprintf('%o', $permissionNumber), -4);
-        $numericalPermissions = [
-            0 => [
-                'code' => '---',
-                'name' => 'none',
-            ],
-            1 => [
-                'code' => '--x',
-                'name' => 'execute only',
-            ],
-            2 => [
-                'code' => '-w-',
-                'name' => 'write only',
-            ],
-            3 => [
-                'code' => '-wx',
-                'name' => 'write and execute',
-            ],
-            4 => [
-                'code' => 'r--',
-                'name' => 'read only',
-            ],
-            5 => [
-                'code' => 'r-x',
-                'name' => 'read and execute',
-            ],
-            6 => [
-                'code' => 'rw-',
-                'name' => 'read and write',
-            ],
-            7 => [
-                'code' => 'rwx',
-                'name' => 'read, write and execute',
-            ],
-        ];
-        return [
-            'Code'        => $permissionsString,
-            'Overall'     => implode('', [
-                $firstFlag['code'],
-                $numericalPermissions[substr($permissionsString, 1, 1)]['code'],
-                $numericalPermissions[substr($permissionsString, 2, 1)]['code'],
-                $numericalPermissions[substr($permissionsString, 3, 1)]['code'],
-            ]),
-            'First'       => $firstFlag,
-            'Owner'       => $numericalPermissions[substr($permissionsString, 1, 1)],
-            'Group'       => $numericalPermissions[substr($permissionsString, 2, 1)],
-            'World/Other' => $numericalPermissions[substr($permissionsString, 3, 1)],
-        ];
     }
 
     /**
@@ -262,9 +164,7 @@ trait CommonCode
     protected function getFileDetails($fileGiven)
     {
         if (!file_exists($fileGiven)) {
-            return [
-                'error' => sprintf($this->lclMsgCmn('i18n_Error_GivenFileDoesNotExist'), $fileGiven)
-            ];
+            return ['error' => sprintf($this->lclMsgCmn('i18n_Error_GivenFileDoesNotExist'), $fileGiven)];
         }
         $info    = new \SplFileInfo($fileGiven);
         $sReturn = [
@@ -282,9 +182,7 @@ trait CommonCode
             'File Name w. Extension' => $info->getFilename(),
             'File Owner'             => $info->getOwner(),
             'File Path'              => $info->getPath(),
-            'File Permissions'       => array_merge([
-                'Permissions' => $info->getPerms(),
-                    ], $this->explainPermissions($info->getPerms())),
+            'File Permissions'       => $this->explainPerms($info->getPerms()),
             'Name'                   => $info->getRealPath(),
             'Size'                   => $info->getSize(),
             'Sha1'                   => sha1_file($fileGiven),

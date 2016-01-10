@@ -28,6 +28,7 @@
         "classmap": [
             "source/CommonLibLocale.php",
             "source/CommonCode.php",
+            "source/CommonPermissions.php",
             "source/DomComponentsByDanielGP.php",
             "source/DomComponentsByDanielGPwithCDN.php",
             "source/MySQLiAdvancedOutput.php",

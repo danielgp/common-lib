@@ -32,7 +32,7 @@ class CommonCodeTest extends PHPUnit_Framework_TestCase
 
     public function testExplainPermissions()
     {
-        $actual = $this->explainPermissions('0666');
+        $actual = $this->explainPerms('0666');
         $this->assertArrayHasKey('Code', $actual);
         $this->assertArrayHasKey('Overall', $actual);
         $this->assertArrayHasKey('First', $actual);
