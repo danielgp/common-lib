@@ -770,7 +770,6 @@ trait MySQLiByDanielGP
                 break;
         }
         if ($buildArray) {
-            $counter2 = 0;
             for ($counter = 0; $counter < $parameters['NoOfRows']; $counter++) {
                 $line = $parameters['QueryResult']->fetch_row();
                 switch ($parameters['returnType']) {
@@ -807,6 +806,7 @@ trait MySQLiByDanielGP
                     case 'full_array_key_numbered':
                         $finfo         = $parameters['QueryResult']->fetch_fields();
                         $columnCounter = 0;
+                        $counter2      = 0;
                         foreach ($finfo as $value) {
                             $aReturn['result'][$counter2][$value->name] = $line[$columnCounter];
                             $columnCounter++;
@@ -819,6 +819,7 @@ trait MySQLiByDanielGP
                     case 'full_array_key_numbered_with_prefix':
                         $finfo                = $parameters['QueryResult']->fetch_fields();
                         $columnCounter        = 0;
+                        $counter2             = 0;
                         foreach ($finfo as $value) {
                             $aReturn['result'][$parameters['prefix']][$counter2][$value->name] = $line[$columnCounter];
                             $columnCounter++;
