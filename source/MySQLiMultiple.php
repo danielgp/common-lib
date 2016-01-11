@@ -36,6 +36,8 @@ namespace danielgp\common_lib;
 trait MySQLiMultiple
 {
 
+    protected $mySQLconnection = null;
+
     protected function executeMultipleRepetitiveValues($qry, $prmtrs)
     {
         $stmt     = $this->mySQLconnection->stmt_init();

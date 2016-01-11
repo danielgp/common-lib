@@ -38,8 +38,6 @@ trait MySQLiByDanielGP
 
     use MySQLiMultiple;
 
-    protected $mySQLconnection = null;
-
     /**
      * Intiates connection to MySQL
      *
@@ -59,15 +57,13 @@ trait MySQLiByDanielGP
             extract($mySQLconfig);
             $this->mySQLconnection = new \mysqli($host, $username, $password, $database, $port);
             if (is_null($this->mySQLconnection->connect_error)) {
-                $sReturn = '';
-            } else {
-                $erNo                  = $this->mySQLconnection->connect_errno;
-                $erMsg                 = $this->mySQLconnection->connect_error;
-                $this->mySQLconnection = null;
-                $msg                   = $this->lclMsgCmn('i18n_Feedback_ConnectionError');
-                $sReturn               = sprintf($msg, $erNo, $erMsg, $host, $port, $username, $database);
+                return '';
             }
-            return $sReturn;
+            $erNo                  = $this->mySQLconnection->connect_errno;
+            $erMsg                 = $this->mySQLconnection->connect_error;
+            $this->mySQLconnection = null;
+            $msg                   = $this->lclMsgCmn('i18n_Feedback_ConnectionError');
+            return sprintf($msg, $erNo, $erMsg, $host, $port, $username, $database);
         }
     }
 
