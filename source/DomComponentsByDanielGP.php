@@ -38,6 +38,23 @@ trait DomComponentsByDanielGP
 
     use \danielgp\browser_agent_info\BrowserAgentInfosByDanielGP;
 
+    private function buildAttributesForTag($features)
+    {
+        $attributes = '';
+        foreach ($features as $key => $value) {
+            $val = $value;
+            if (is_array($value)) {
+                $valA = [];
+                foreach ($value as $key2 => $value2) {
+                    $valA[] = $key2 . ':' . $value2 . ';';
+                }
+                $val = implode(';', $valA);
+            }
+            $attributes .= ' ' . $key . '="' . $val . '"';
+        }
+        return $attributes;
+    }
+
     /**
      * Calculate the optimal for all options within a select tag
      *
@@ -762,6 +779,11 @@ trait DomComponentsByDanielGP
         if (isset($_REQUEST['specialHook']) && (in_array('noFooter', $_REQUEST['specialHook']))) {
             return '';
         }
+        return $this->setFooterCommonInjected($footerInjected) . '</body></html>';
+    }
+
+    protected function setFooterCommonInjected($footerInjected = null)
+    {
         $sReturn = '';
         if (!is_null($footerInjected)) {
             $sReturn = $footerInjected;
@@ -769,7 +791,7 @@ trait DomComponentsByDanielGP
                 $sReturn = implode('', $footerInjected);
             }
         }
-        return $sReturn . '</body></html>';
+        return $sReturn;
     }
 
     /**
@@ -1052,28 +1074,9 @@ trait DomComponentsByDanielGP
      */
     protected function setStringIntoShortTag($sTag, $features = null)
     {
-        $attributes = '';
-        if (!is_null($features)) {
-            foreach ($features as $key => $value) {
-                if ($key != 'dont_close') {
-                    $attributes .= ' ' . $key . '="';
-                    if (is_array($value)) {
-                        foreach ($value as $key2 => $value2) {
-                            $attributes .= $key2 . ':' . $value2 . ';';
-                        }
-                    } else {
-                        $attributes .= str_replace('"', '\'', $value);
-                    }
-                    $attributes .= '"';
-                }
-            }
-        }
-        if (isset($features['dont_close'])) {
-            $sReturn = '<' . $sTag . $attributes . '>';
-        } else {
-            $sReturn = '<' . $sTag . $attributes . ' />';
-        }
-        return $sReturn;
+        $attributes = $this->buildAttributesForTag($features);
+        return '<' . $sTag . $this->buildAttributesForTag($features)
+                . (isset($features['dont_close']) ? '' : '/') . '>';
     }
 
     /**
@@ -1086,21 +1089,7 @@ trait DomComponentsByDanielGP
      */
     protected function setStringIntoTag($sString, $sTag, $features = null)
     {
-        $attributes = '';
-        if (!is_null($features)) {
-            foreach ($features as $key => $value) {
-                $attributes .= ' ' . $key . '="';
-                if (is_array($value)) {
-                    foreach ($value as $key2 => $value2) {
-                        $attributes .= $key2 . ':' . $value2 . ';';
-                    }
-                } else {
-                    $attributes .= $value;
-                }
-                $attributes .= '"';
-            }
-        }
-        return '<' . $sTag . $attributes . '>' . $sString . '</' . $sTag . '>';
+        return '<' . $sTag . $this->buildAttributesForTag($features) . '>' . $sString . '</' . $sTag . '>';
     }
 
     /**
