@@ -40,6 +40,9 @@ trait DomComponentsByDanielGP
 
     private function buildAttributesForTag($features)
     {
+        if (!is_array($features)) {
+            return '';
+        }
         $attributes = '';
         foreach ($features as $key => $value) {
             $val = $value;
