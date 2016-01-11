@@ -759,21 +759,17 @@ trait DomComponentsByDanielGP
      */
     protected function setFooterCommon($footerInjected = null)
     {
-        $sReturn = [];
         if (isset($_REQUEST['specialHook']) && (in_array('noFooter', $_REQUEST['specialHook']))) {
-            $sReturn[] = ''; // no Footer
-        } else {
-            if (!is_null($footerInjected)) {
-                if (is_array($footerInjected)) {
-                    $sReturn[] = implode('', $footerInjected);
-                } else {
-                    $sReturn[] = $footerInjected;
-                }
-            }
-            $sReturn[] = '</body>';
-            $sReturn[] = '</html>';
+            return '';
         }
-        return implode('', $sReturn);
+        $sReturn = '';
+        if (!is_null($footerInjected)) {
+            $sReturn = $footerInjected;
+            if (is_array($footerInjected)) {
+                $sReturn = implode('', $footerInjected);
+            }
+        }
+        return $sReturn . '</body></html>';
     }
 
     /**
@@ -1196,25 +1192,33 @@ trait DomComponentsByDanielGP
 
     protected function setViewModernLinkAdd($identifier, $ftrs = null)
     {
+        $btnText = '<i class="fa fa-plus-square">&nbsp;</i>' . '&nbsp;' . $this->lclMsgCmn('i18n_AddNewRecord');
+        return $this->setStringIntoTag($btnText, 'a', [
+                    'href'  => $this->setViewModernLinkAddUrl($identifier, $ftrs),
+                    'style' => 'margin: 5px 0px 10px 0px; display: inline-block;',
+        ]);
+    }
+
+    protected function setViewModernLinkAddInjectedArguments($identifier, $ftrs = null)
+    {
         $sArgmnts = '';
         if (isset($ftrs['injectAddArguments'])) {
             foreach ($ftrs['injectAddArguments'] as $key => $value) {
                 $sArgmnts .= '&amp;' . $key . '=' . $value;
             }
         }
-        $addingUrl = $_SERVER['PHP_SELF'] . '?view=add_' . $identifier . $sArgmnts;
+        return $sArgmnts;
+    }
+
+    protected function setViewModernLinkAddUrl($identifier, $ftrs = null)
+    {
+        $sArgmnts  = $this->setViewModernLinkAddInjectedArguments($identifier);
+        $rqst      = new \Symfony\Component\HttpFoundation\Request;
+        $addingUrl = $rqst->server->get('PHP_SELF') . '?view=add_' . $identifier . $sArgmnts;
         if (!isset($ftrs['NoAjax'])) {
             $addingUrl = 'javascript:loadAE(\'' . $addingUrl . '\');';
         }
-        $btnText = '<i class="fa fa-plus-square">&nbsp;</i>' . '&nbsp;'
-                . $this->lclMsgCmn('i18n_AddNewRecord');
-        return $this->setStringIntoTag($btnText, 'a', [
-                    'href'  => $addingUrl,
-                    'style' => implode(';', [
-                        'margin: 5px 0px 10px 0px',
-                        'display: inline-block'
-                    ])
-        ]);
+        return $addingUrl;
     }
 
     protected function updateDivTitleName($rememberGroupVal, $groupCounter)
