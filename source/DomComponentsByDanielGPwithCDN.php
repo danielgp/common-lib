@@ -41,16 +41,20 @@ trait DomComponentsByDanielGPwithCDN
         $justFile = pathinfo($jsFileName)['basename'];
         switch ($justFile) {
             case 'jquery.placeholder.min.js':
-                $version             = 'jquery-placeholder/2.0.8/';
-                $fnExistanceToVerify = 'jQuery.placeholder';
-                break;
+                return [
+                    'justFile' => $justFile,
+                    'version'  => 'jquery-placeholder/2.0.8/',
+                    'eVerify'  => 'jQuery.placeholder',
+                ];
+            // intentionally left blank
             case 'jquery.easing.1.3.min.js':
-                $version             = 'jquery-easing/1.3/';
-                $fnExistanceToVerify = 'jQuery.easing["jswing"]';
-                $justFile            = str_replace('.1.3', '', $justFile);
-                break;
+                return [
+                    'justFile' => str_replace('.1.3', '', $justFile),
+                    'version'  => 'jquery-easing/1.3/',
+                    'eVerify'  => 'jQuery.easing["jswing"]',
+                ];
+            // intentionally left blank
         }
-        return ['justFile' => $justFile, 'version' => $version, 'ExistanceToVerify' => $fnExistanceToVerify];
     }
 
     /**
@@ -243,7 +247,7 @@ trait DomComponentsByDanielGPwithCDN
                     $eArray['justFile'],
                 ]),
                 implode('', [
-                    '<script>' . $eArray['ExistanceToVerify'] . ' || document.write(\'<script src="',
+                    '<script>' . $eArray['eVerify'] . ' || document.write(\'<script src="',
                     filter_var($jsFileName, FILTER_SANITIZE_STRING),
                     '">\x3C/script>\')</script>'
                 ])
