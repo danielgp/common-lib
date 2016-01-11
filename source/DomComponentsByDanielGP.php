@@ -1199,7 +1199,7 @@ trait DomComponentsByDanielGP
         ]);
     }
 
-    protected function setViewModernLinkAddInjectedArguments($identifier, $ftrs = null)
+    protected function setViewModernLinkAddInjectedArguments($ftrs = null)
     {
         $sArgmnts = '';
         if (isset($ftrs['injectAddArguments'])) {
@@ -1212,7 +1212,7 @@ trait DomComponentsByDanielGP
 
     protected function setViewModernLinkAddUrl($identifier, $ftrs = null)
     {
-        $sArgmnts  = $this->setViewModernLinkAddInjectedArguments($identifier);
+        $sArgmnts  = $this->setViewModernLinkAddInjectedArguments($ftrs);
         $rqst      = new \Symfony\Component\HttpFoundation\Request;
         $addingUrl = $rqst->server->get('PHP_SELF') . '?view=add_' . $identifier . $sArgmnts;
         if (!isset($ftrs['NoAjax'])) {
