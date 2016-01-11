@@ -14,12 +14,13 @@
         "php": ">=5.5",
         "ext-curl": "*",
         "ext-mysqli": "*",
-        "components/flag-icon-css": "*",
-        "danielgp/browser-agent-info": ">=1.0",
-        "danielgp/network-components": ">=1.0",
+        "components/flag-icon-css": ">=1.0",
+        "danielgp/browser-agent-info": ">=1.2",
+        "danielgp/network-components": ">=1.2",
         "gettext/gettext": ">=3.4",
-        "symfony/finder": ">=2.7",
-        "symfony/filesystem": ">2.7"
+        "symfony/finder": ">=3.0",
+        "symfony/filesystem": ">3.0",
+        "symfony/http-foundation": ">3.0"
     },
     "require-dev": {
         "phpunit/phpunit": "*"
