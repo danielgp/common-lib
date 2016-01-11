@@ -40,12 +40,8 @@ trait MySQLiMultiple
 
     protected function executeMultipleRepetitiveValues($qry, $prmtrs)
     {
-        $stmt     = $this->mySQLconnection->stmt_init();
-        $alocated = $stmt->prepare($qry);
-        if ($stmt->errno != 0) {
-            throw new \Exception('MySQL error, when preparing statement ' . $stmt->error . ' (' . $qry . ')');
-        }
-        if ($alocated) {
+        $stmt = $this->mySQLconnection->stmt_init();
+        if ($stmt->prepare($qry)) {
             foreach ($prmtrs as $vParams) {
                 $param_type = $this->setVariableTypeForMySqlStatementsMany($vParams);
                 $aParams    = [];
@@ -61,7 +57,9 @@ trait MySQLiMultiple
                 }
             }
             $stmt->close();
+            return '';
         }
+        throw new \Exception('MySQL error, when preparing statement ' . $qry . ' (error ' . $stmt->error . ')');
     }
 
     /**
