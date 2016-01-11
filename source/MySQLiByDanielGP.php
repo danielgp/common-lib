@@ -36,6 +36,8 @@ namespace danielgp\common_lib;
 trait MySQLiByDanielGP
 {
 
+    use MySQLiMultiple;
+
     protected $mySQLconnection = null;
 
     /**
@@ -66,73 +68,6 @@ trait MySQLiByDanielGP
                 $sReturn               = sprintf($msg, $erNo, $erMsg, $host, $port, $username, $database);
             }
             return $sReturn;
-        }
-    }
-
-    protected function executeMultipleRepetitiveValues($qry, $prmtrs)
-    {
-        $stmt     = $this->mySQLconnection->stmt_init();
-        $alocated = $stmt->prepare($qry);
-        if ($alocated) {
-            if ($stmt->param_count > 10) {
-                $msg = [
-                    $this->lclMsgCmn('i18n_Generic_Limitation'),
-                    sprintf($this->lclMsgCmn('i18n_Generic_Limitation10Parameters'), __FUNCTION__, __FILE__),
-                ];
-                echo $this->setFeedbackModern('error', $msg[0], $msg[1]);
-                return false;
-            }
-            foreach ($prmtrs as $v) {
-                if ($stmt->param_count > 1) {
-                    foreach ($v as $value2) {
-                        $t[] = $this->setVariableTypeForMySqlStatements($value2);
-                    }
-                    $tA = implode('', $t);
-                }
-                switch ($stmt->param_count) {
-                    case 1:
-                        $t = $this->setVariableTypeForMySqlStatements($v[0]);
-                        $stmt->bind_param($t, $v[0]);
-                        break;
-                    case 2:
-                        $stmt->bind_param($tA, $v[0], $v[1]);
-                        break;
-                    case 3:
-                        $stmt->bind_param($tA, $v[0], $v[1], $v[2]);
-                        break;
-                    case 4:
-                        $stmt->bind_param($tA, $v[0], $v[1], $v[2], $v[3]);
-                        break;
-                    case 5:
-                        $stmt->bind_param($tA, $v[0], $v[1], $v[2], $v[3], $v[4]);
-                        break;
-                    case 6:
-                        $stmt->bind_param($tA, $v[0], $v[1], $v[2], $v[3], $v[4], $v[5]);
-                        break;
-                    case 7:
-                        $stmt->bind_param($tA, $v[0], $v[1], $v[2], $v[3], $v[4], $v[5], $v[6]);
-                        break;
-                    case 8:
-                        $stmt->bind_param($tA, $v[0], $v[1], $v[2], $v[3], $v[4], $v[5], $v[6], $v[7]);
-                        break;
-                    case 9:
-                        $stmt->bind_param($tA, $v[0], $v[1], $v[2], $v[3], $v[4], $v[5], $v[6], $v[7], $v[8]);
-                        break;
-                    case 10:
-                        $stmt->bind_param($tA, $v[0], $v[1], $v[2], $v[3], $v[4], $v[5], $v[6], $v[7], $v[8], $v[9]);
-                        break;
-                }
-                unset($t);
-                $stmt->execute();
-                if ($stmt->errno != 0) {
-                    echo $this->setFeedbackModern('error', 'MySQL error', $stmt->error . ' (' . $qry . ')');
-                }
-            }
-            $stmt->close();
-        } else {
-            if ($stmt->errno != 0) {
-                echo $this->setFeedbackModern('error', 'MySQL error', $stmt->error . ' (' . $qry . ')');
-            }
         }
     }
 
@@ -896,27 +831,5 @@ trait MySQLiByDanielGP
             }
         }
         return $aReturn;
-    }
-
-    /**
-     * Detects what kind of variable has been transmited
-     * to return the identifier needed by MySQL statement preparing
-     *
-     * @param type $variabaleValue
-     * @return string
-     */
-    protected function setVariableTypeForMySqlStatements($variabaleValue)
-    {
-        $sReturn = '';
-        if (is_int($variabaleValue)) {
-            $sReturn = 'i';
-        } elseif (is_double($variabaleValue)) {
-            $sReturn = 'd';
-        } elseif (is_string($variabaleValue)) {
-            $sReturn = 's';
-        } else {
-            $sReturn = 'b';
-        }
-        return $sReturn;
     }
 }
