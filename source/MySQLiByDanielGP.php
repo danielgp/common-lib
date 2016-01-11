@@ -172,6 +172,7 @@ trait MySQLiByDanielGP
                     break;
             }
         } else {
+            $query = '';
             switch ($returnChoice) {
                 case 'Columns':
                     $query = $this->sQueryMySqlColumns($additionalFeatures);
@@ -769,6 +770,7 @@ trait MySQLiByDanielGP
                 break;
         }
         if ($buildArray) {
+            $counter2 = 0;
             for ($counter = 0; $counter < $parameters['NoOfRows']; $counter++) {
                 $line = $parameters['QueryResult']->fetch_row();
                 switch ($parameters['returnType']) {
