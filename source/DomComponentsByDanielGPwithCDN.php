@@ -36,6 +36,23 @@ namespace danielgp\common_lib;
 trait DomComponentsByDanielGPwithCDN
 {
 
+    private function knownCloudFlareJavascript($jsFileName)
+    {
+        $justFile = pathinfo($jsFileName)['basename'];
+        switch ($justFile) {
+            case 'jquery.placeholder.min.js':
+                $version             = 'jquery-placeholder/2.0.8/';
+                $fnExistanceToVerify = 'jQuery.placeholder';
+                break;
+            case 'jquery.easing.1.3.min.js':
+                $version             = 'jquery-easing/1.3/';
+                $fnExistanceToVerify = 'jQuery.easing["jswing"]';
+                $justFile            = str_replace('.1.3', '', $justFile);
+                break;
+        }
+        return ['justFile' => $justFile, 'version' => $version, 'ExistanceToVerify' => $fnExistanceToVerify];
+    }
+
     /**
      * Manages all known CSS that can be handled through CDNs
      *
@@ -216,29 +233,17 @@ trait DomComponentsByDanielGPwithCDN
     private function setJavascriptFileCDNjQueryLibs($jsFileName)
     {
         $patternFound = null;
-        $version      = null;
-        $justFile     = pathinfo($jsFileName)['basename'];
-        switch ($justFile) {
-            case 'jquery.placeholder.min.js':
-                $version             = 'jquery-placeholder/2.0.8/';
-                $fnExistanceToVerify = 'jQuery.placeholder';
-                break;
-            case 'jquery.easing.1.3.min.js':
-                $version             = 'jquery-easing/1.3/';
-                $fnExistanceToVerify = 'jQuery.easing["jswing"]';
-                $justFile            = str_replace('.1.3', '', $justFile);
-                break;
-        }
-        if (!is_null($version)) {
+        $eArray       = $this->knownCloudFlareJavascript(filter_var($jsFileName, FILTER_SANITIZE_STRING));
+        if (!is_null($eArray['version'])) {
             $patternFound = [
                 true,
                 implode('', [
                     '//cdnjs.cloudflare.com/ajax/libs/',
-                    $version,
-                    $justFile,
+                    $eArray['version'],
+                    $eArray['justFile'],
                 ]),
                 implode('', [
-                    '<script>' . $fnExistanceToVerify . ' || document.write(\'<script src="',
+                    '<script>' . $eArray['ExistanceToVerify'] . ' || document.write(\'<script src="',
                     filter_var($jsFileName, FILTER_SANITIZE_STRING),
                     '">\x3C/script>\')</script>'
                 ])
