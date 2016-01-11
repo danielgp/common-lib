@@ -41,7 +41,7 @@ trait MySQLiMultiple
         $stmt     = $this->mySQLconnection->stmt_init();
         $alocated = $stmt->prepare($qry);
         if ($stmt->errno != 0) {
-            throw new Exception('MySQL error, when preparing statement ' . $stmt->error . ' (' . $qry . ')');
+            throw new \Exception('MySQL error, when preparing statement ' . $stmt->error . ' (' . $qry . ')');
         }
         if ($alocated) {
             foreach ($prmtrs as $vParams) {
@@ -54,7 +54,7 @@ trait MySQLiMultiple
                 call_user_func_array([$stmt, 'bind_param'], $aParams);
                 $stmt->execute();
                 if ($stmt->errno != 0) {
-                    throw new Exception('MySQL error, on executing prepared statement '
+                    throw new \Exception('MySQL error, on executing prepared statement '
                     . $stmt->error . ' (' . $qry . ')');
                 }
             }
