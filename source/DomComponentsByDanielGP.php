@@ -1074,7 +1074,6 @@ trait DomComponentsByDanielGP
      */
     protected function setStringIntoShortTag($sTag, $features = null)
     {
-        $attributes = $this->buildAttributesForTag($features);
         return '<' . $sTag . $this->buildAttributesForTag($features)
                 . (isset($features['dont_close']) ? '' : '/') . '>';
     }
