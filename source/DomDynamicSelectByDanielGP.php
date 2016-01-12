@@ -74,7 +74,6 @@ trait DomDynamicSelectByDanielGP
 
     private function eventOnChange($featArray)
     {
-        $tempString = '';
         if (in_array('autosubmit', $featArray)) {
             return ' onchange="javascript:' . $featArray['additional_javascript_action'] . 'submit();"';
         }
