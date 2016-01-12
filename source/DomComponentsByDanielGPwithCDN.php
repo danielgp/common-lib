@@ -109,9 +109,8 @@ trait DomComponentsByDanielGPwithCDN
     protected function setJavascriptFileCDN($jsFileName)
     {
         $onlyFileName = pathinfo($jsFileName)['basename'];
-        /**
-         * if within local network makes no sense to use CDNs
-         */
+        // if within local network makes no sense to use CDNs
+        $patternFound = null;
         if (strpos($onlyFileName, 'jquery-') !== false) {
             $patternFound = $this->setJavascriptFileCDNjQuery($jsFileName);
         } elseif (strpos($onlyFileName, 'jquery.placeholder.min.js') !== false) {
@@ -122,15 +121,9 @@ trait DomComponentsByDanielGPwithCDN
             $patternFound = $this->setJavascriptFileCDNforHighCharts($jsFileName);
         } elseif (strpos($onlyFileName, 'exporting-') !== false) {
             $patternFound = $this->setJavascriptFileCDNforHighChartsExporting($jsFileName);
-        } else {
-            $patternFound = null;
         }
         if (is_null($patternFound)) {
-            $patternFound = [
-                false,
-                filter_var($jsFileName, FILTER_SANITIZE_STRING),
-                '',
-            ];
+            $patternFound = [false, filter_var($jsFileName, FILTER_SANITIZE_STRING), ''];
         }
         return $patternFound;
     }

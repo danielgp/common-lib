@@ -36,7 +36,8 @@ namespace danielgp\common_lib;
 trait DomComponentsByDanielGP
 {
 
-    use \danielgp\browser_agent_info\BrowserAgentInfosByDanielGP;
+    use \danielgp\browser_agent_info\BrowserAgentInfosByDanielGP,
+        DomComponentsByDanielGPwithCDN;
 
     private function buildAttributesForTag($features)
     {
@@ -688,6 +689,7 @@ trait DomComponentsByDanielGP
      */
     protected function setCssContent($cssContent, $optionalFlags = null)
     {
+        $attr = [];
         if (is_null($optionalFlags)) {
             $attr['media'] = 'all';
         } else {
@@ -699,8 +701,7 @@ trait DomComponentsByDanielGP
             }
         }
         return '<style type="text/css" media="' . $attr['media'] . '">'
-                . $cssContent
-                . '</style>';
+                . $cssContent . '</style>';
     }
 
     /**
@@ -711,21 +712,16 @@ trait DomComponentsByDanielGP
      */
     protected function setCssFile($cssFileName, $hostsWithoutCDNrq = null)
     {
-        $sReturn = null;
         if (is_null($hostsWithoutCDNrq)) {
             $hostsWithoutCDNrq = [];
         }
         if (in_array($this->getClientRealIpAddress(), $hostsWithoutCDNrq)) {
-            $sReturn = '<link rel="stylesheet" type="text/css" href="'
-                    . filter_var($cssFileName, FILTER_SANITIZE_STRING)
-                    . '" />';
-        } else {
-            $patternFound = $this->setCssFileCDN($cssFileName);
-            $sReturn      = '<link rel="stylesheet" type="text/css" href="'
-                    . filter_var($patternFound[1], FILTER_SANITIZE_STRING)
-                    . '" />';
+            return '<link rel="stylesheet" type="text/css" href="'
+                    . filter_var($cssFileName, FILTER_SANITIZE_STRING) . '" />';
         }
-        return $sReturn;
+        $patternFound = $this->setCssFileCDN($cssFileName);
+        return '<link rel="stylesheet" type="text/css" href="'
+                . filter_var($patternFound[1], FILTER_SANITIZE_STRING) . '" />';
     }
 
     /**
@@ -961,7 +957,7 @@ trait DomComponentsByDanielGP
      */
     protected function setJavascriptDeleteWithConfirmation()
     {
-        return $this->setJavascriptContent(' function setQuest(a, b) { '
+        return $this->setJavascriptContent('function setQuest(a, b) { '
                         . 'c = a.indexOf("_"); switch(a.slice(0, c)) { '
                         . 'case \'delete\': '
                         . 'if (confirm(\'' . $this->lclMsgCmn('i18n_ActionDelete_ConfirmationQuestion') . '\')) { '
@@ -978,18 +974,14 @@ trait DomComponentsByDanielGP
      */
     protected function setJavascriptFile($jsFileName, $hostsWithoutCDNrq = null)
     {
-        $sReturn = null;
         if (is_null($hostsWithoutCDNrq)) {
             $hostsWithoutCDNrq = [];
         }
         if (in_array($this->getClientRealIpAddress(), $hostsWithoutCDNrq)) {
-            $sReturn = '<script type="text/javascript" src="' . $jsFileName . '"></script>';
-        } else {
-            $patternFound = $this->setJavascriptFileCDN($jsFileName);
-            $sReturn      = '<script type="text/javascript" src="' . $patternFound[1] . '"></script>'
-                    . $patternFound[2];
+            return '<script type="text/javascript" src="' . $jsFileName . '"></script>';
         }
-        return $sReturn;
+        $patternFound = $this->setJavascriptFileCDN($jsFileName);
+        return '<script type="text/javascript" src="' . $patternFound[1] . '"></script>' . $patternFound[2];
     }
 
     /**
@@ -1000,10 +992,7 @@ trait DomComponentsByDanielGP
      */
     protected function setJavascriptFileContent($jsFileName)
     {
-        $sReturn[] = '<script type="text/javascript"><!-- ';
-        $sReturn[] = file_get_contents($jsFileName, true);
-        $sReturn[] = ' //--></script>';
-        return implode('', $sReturn);
+        return '<script type="text/javascript">' . file_get_contents($jsFileName, true) . '</script>';
     }
 
     /**
