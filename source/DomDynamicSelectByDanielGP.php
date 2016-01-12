@@ -54,17 +54,11 @@ trait DomDynamicSelectByDanielGP
      */
     private function calculateSelectOptionsSize($aElements, $aFeatures = [])
     {
-        if (is_array($aElements)) {
-            if (!is_array($aFeatures)) {
-                $aFeatures = [];
-            }
-            $selectSize = $this->calculateSelectOptionsSizeForced($aElements, $aFeatures);
-            if ((in_array('include_null', $aFeatures)) && ($selectSize != '1')) {
-                $selectSize++;
-            }
-            return $selectSize;
+        $selectSize = $this->calculateSelectOptionsSizeForced($aElements, $aFeatures);
+        if ((in_array('include_null', $aFeatures)) && ($selectSize != '1')) {
+            $selectSize++;
         }
-        return '';
+        return $selectSize;
     }
 
     private function calculateSelectOptionsSizeForced($aElements, $aFeatures = [])
@@ -82,7 +76,7 @@ trait DomDynamicSelectByDanielGP
     {
         $tempString = '';
         if (in_array('autosubmit', $featArray)) {
-            return ' onchange="javascript:' . $tempString . 'submit();"';
+            return ' onchange="javascript:' . $featArray['additional_javascript_action'] . 'submit();"';
         }
         if (in_array('additional_javascript_action', $featArray)) {
             return ' onchange="javascript:' . $featArray['additional_javascript_action'] . '"';
@@ -101,8 +95,9 @@ trait DomDynamicSelectByDanielGP
     private function featureArraySimpleTranslated($featArray, $identifier)
     {
         $translation = [
-            'hidden'      => ' style="visibility: hidden;',
-            'multiselect' => ' multiple="multiple"',
+            'hidden'       => ' style="visibility: hidden;',
+            'multiselect'  => ' multiple="multiple"',
+            'include_null' => '<option value="NULL">&nbsp;</option>',
         ];
         if (in_array($identifier, $featArray)) {
             return $translation[$identifier];
@@ -159,14 +154,6 @@ trait DomDynamicSelectByDanielGP
         return ['crtGroup' => $crtGroup, 'groupFooterHeader' => implode('', $sReturn)];
     }
 
-    private function setOptionEmptyWithNullValue($featArray)
-    {
-        if (in_array('include_null', $featArray)) {
-            return '<option value="NULL">&nbsp;</option>';
-        }
-        return '';
-    }
-
     private function setOptionSelected($optionValue, $sDefaultValue, $featArray)
     {
         if (is_array($sDefaultValue)) {
@@ -189,7 +176,7 @@ trait DomDynamicSelectByDanielGP
     private function setOptionStyle($featArray)
     {
         if (array_key_exists('styleForOption', $featArray)) {
-            return ' style="' . $featArray['style'] . '"';
+            return ' style="' . $featArray['styleForOption'] . '"';
         }
         return '';
     }
@@ -218,6 +205,6 @@ trait DomDynamicSelectByDanielGP
                     . str_replace(['&', $crtGroup], ['&amp;', ''], $value) . '</option>';
         }
         $sReturn[] = $this->setOptionGroupEnd($crtGroup, $featArray);
-        return $this->setOptionEmptyWithNullValue($featArray) . implode('', $sReturn);
+        return $this->featureArraySimpleTranslated($featArray, 'include_null') . implode('', $sReturn);
     }
 }
