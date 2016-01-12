@@ -72,6 +72,7 @@ trait CommonCode
      */
     protected function getContentFromUrlThroughCurl($fullURL, $features = null)
     {
+        $aReturn = [];
         if (!function_exists('curl_init')) {
             $aReturn['info']     = $this->lclMsgCmn('i18n_Error_ExtensionNotLoaded');
             $aReturn['response'] = '';
@@ -80,8 +81,7 @@ trait CommonCode
             $aReturn['info']     = $this->lclMsgCmn('i18n_Error_GivenUrlIsNotValid');
             $aReturn['response'] = '';
         }
-        $aReturn = [];
-        $chanel  = curl_init();
+        $chanel = curl_init();
         curl_setopt($chanel, CURLOPT_USERAGENT, $this->getUserAgentByCommonLib());
         if ((strpos($fullURL, 'https') !== false) || (isset($features['forceSSLverification']))) {
             curl_setopt($chanel, CURLOPT_SSL_VERIFYHOST, false);
@@ -150,9 +150,7 @@ trait CommonCode
             $afRows  = $this->mySQLconnection->affected_rows;
             $message = sprintf($this->lclMsgCmnNumber('i18n_Record', 'i18n_Records', $afRows), $afRows);
         }
-        return '<div>'
-                . $message
-                . '</div>';
+        return '<div>' . $message . '</div>';
     }
 
     /**
@@ -166,8 +164,8 @@ trait CommonCode
         if (!file_exists($fileGiven)) {
             return ['error' => sprintf($this->lclMsgCmn('i18n_Error_GivenFileDoesNotExist'), $fileGiven)];
         }
-        $info    = new \SplFileInfo($fileGiven);
-        $sReturn = [
+        $info = new \SplFileInfo($fileGiven);
+        return [
             'File Extension'         => $info->getExtension(),
             'File Group'             => $info->getGroup(),
             'File Inode'             => $info->getInode(),
@@ -200,7 +198,6 @@ trait CommonCode
             ],
             'Type'                   => $info->getType(),
         ];
-        return $sReturn;
     }
 
     /**
@@ -213,22 +210,18 @@ trait CommonCode
     protected function getListOfFiles($pathAnalised)
     {
         if (realpath($pathAnalised) === false) {
-            $aFiles = [
-                'error' => sprintf($this->lclMsgCmn('i18n_Error_GivenPathIsNotValid'), $pathAnalised)
-            ];
+            return ['error' => sprintf($this->lclMsgCmn('i18n_Error_GivenPathIsNotValid'), $pathAnalised)];
         } elseif (!is_dir($pathAnalised)) {
-            $aFiles = [
-                'error' => $this->lclMsgCmn('i18n_Error_GivenPathIsNotFolder')
-            ];
-        } else {
-            $finder   = new \Symfony\Component\Finder\Finder();
-            $iterator = $finder
-                    ->files()
-                    ->sortByName()
-                    ->in($pathAnalised);
-            foreach ($iterator as $file) {
-                $aFiles[$file->getRealPath()] = $this->getFileDetails($file);
-            }
+            return ['error' => $this->lclMsgCmn('i18n_Error_GivenPathIsNotFolder')];
+        }
+        $aFiles   = null;
+        $finder   = new \Symfony\Component\Finder\Finder();
+        $iterator = $finder
+                ->files()
+                ->sortByName()
+                ->in($pathAnalised);
+        foreach ($iterator as $file) {
+            $aFiles[$file->getRealPath()] = $this->getFileDetails($file);
         }
         return $aFiles;
     }
@@ -359,9 +352,8 @@ trait CommonCode
                 $filesystem->remove($aFiles);
                 return $this->setArrayToJson($aFiles);
             }
-        } else {
-            return $error;
         }
+        return $error;
     }
 
     /**
@@ -437,6 +429,7 @@ trait CommonCode
      */
     protected function setArrayToArrayKbr(array $aElements)
     {
+        $aReturn = [];
         foreach ($aElements as $key => $value) {
             $aReturn[str_replace(' ', '<br/>', $key)] = $value;
         }
