@@ -62,40 +62,6 @@ trait DomBasicComponentsByDanielGP
         return $val;
     }
 
-    private function calculateSelectOptionsSizeForced($aElements, $aFeatures = [])
-    {
-        $selectSize = 1;
-        if (isset($aFeatures['size'])) {
-            if ($aFeatures['size'] == 0) {
-                $selectSize = count($aElements);
-            }
-            $selectSize = min(count($aElements), $aFeatures['size']);
-        }
-        return $selectSize;
-    }
-
-    /**
-     * Calculate the optimal for all options within a select tag
-     *
-     * @param array $aElements
-     * @param array $aFeatures
-     * @return string|int
-     */
-    private function calculateSelectOptionsSize($aElements, $aFeatures = [])
-    {
-        if (is_array($aElements)) {
-            if (!is_array($aFeatures)) {
-                $aFeatures = [];
-            }
-            $selectSize = $this->calculateSelectOptionsSizeForced($aElements, $aFeatures);
-            if ((in_array('include_null', $aFeatures)) && ($selectSize != '1')) {
-                $selectSize++;
-            }
-            return $selectSize;
-        }
-        return '';
-    }
-
     /**
      * Capatalize first letter of each word
      * AND filters only letters and numbers

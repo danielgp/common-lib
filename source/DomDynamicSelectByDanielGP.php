@@ -45,6 +45,39 @@ trait DomDynamicSelectByDanielGP
         return $selectId;
     }
 
+    /**
+     * Calculate the optimal for all options within a select tag
+     *
+     * @param array $aElements
+     * @param array $aFeatures
+     * @return string|int
+     */
+    private function calculateSelectOptionsSize($aElements, $aFeatures = [])
+    {
+        if (is_array($aElements)) {
+            if (!is_array($aFeatures)) {
+                $aFeatures = [];
+            }
+            $selectSize = $this->calculateSelectOptionsSizeForced($aElements, $aFeatures);
+            if ((in_array('include_null', $aFeatures)) && ($selectSize != '1')) {
+                $selectSize++;
+            }
+            return $selectSize;
+        }
+        return '';
+    }
+
+    private function calculateSelectOptionsSizeForced($aElements, $aFeatures = [])
+    {
+        if (isset($aFeatures['size'])) {
+            if ($aFeatures['size'] == 0) {
+                return count($aElements);
+            }
+            return min(count($aElements), $aFeatures['size']);
+        }
+        return 1;
+    }
+
     private function eventOnChange($featArray)
     {
         $tempString = '';
@@ -60,7 +93,7 @@ trait DomDynamicSelectByDanielGP
     private function featureArraySimpleDirect($featArray, $identifier)
     {
         if (in_array($identifier, $featArray)) {
-            return ' ' . $identifier . '="' . $identifier . '"';
+            return implode(' ', $identifier, '="', $identifier, '"');
         }
         return '';
     }
