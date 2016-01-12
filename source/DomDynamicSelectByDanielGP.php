@@ -161,16 +161,12 @@ trait DomDynamicSelectByDanielGP
 
     private function setOptionSelected($optionValue, $sDefaultValue, $featArray)
     {
-        if (isset($featArray['defaultValue_isSubstring'])) {
-            if (in_array($optionValue, explode($featArray['defaultValue_isSubstring'], $sDefaultValue))) {
-                return ' selected';
-            }
-        } elseif (is_array($sDefaultValue)) {
+        if (is_array($sDefaultValue)) {
             if (in_array($optionValue, $sDefaultValue)) {
-                return ' selected';
+                return ' selected="selected"';
             }
         } elseif (strcasecmp($optionValue, $sDefaultValue) === 0) {
-            return ' selected';
+            return ' selected="selected"';
         }
         return '';
     }
