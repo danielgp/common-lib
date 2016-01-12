@@ -58,33 +58,29 @@ trait MySQLiByDanielGPqueries
     private function sGlueFilterValueIntoWhereString($filterValue)
     {
         if (is_array($filterValue)) {
-            $sReturn = 'IN ("' . implode('", "', $filterValue) . '")';
-        } elseif (is_string($filterValue)) {
-            switch ($filterValue) {
-                case 'CONNECTION_ID()':
-                case 'CURDATE()':
-                case 'CURRENT_USER':
-                case 'CURRENT_USER()':
-                case 'CURRENT_DATETIME':
-                case 'DATABASE()':
-                case 'NOW()':
-                case 'USER()':
-                    $sReturn = '= ' . $filterValue;
-                    break;
-                case 'IS NULL':
-                case 'IS NOT NULL':
-                    $sReturn = $filterValue;
-                    break;
-                case 'NOT NULL':
-                case 'NULL':
-                    $sReturn = 'IS ' . $filterValue;
-                    break;
-                default:
-                    $sReturn = '= "' . $filterValue . '"';
-                    break;
-            }
+            return 'IN ("' . implode('", "', $filterValue) . '")';
         }
-        return $sReturn;
+        switch ($filterValue) {
+            case 'CONNECTION_ID()':
+            case 'CURDATE()':
+            case 'CURRENT_USER':
+            case 'CURRENT_USER()':
+            case 'CURRENT_DATETIME':
+            case 'DATABASE()':
+            case 'NOW()':
+            case 'USER()':
+                return '= ' . $filterValue;
+            // intentionally left blank
+            case 'IS NULL':
+            case 'IS NOT NULL':
+                return $filterValue;
+            // intentionally left blank
+            case 'NOT NULL':
+            case 'NULL':
+                return 'IS ' . $filterValue;
+            // intentionally left blank
+        }
+        return '= "' . $filterValue . '"';
     }
 
     /**
