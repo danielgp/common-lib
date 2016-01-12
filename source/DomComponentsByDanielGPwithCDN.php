@@ -66,16 +66,12 @@ trait DomComponentsByDanielGPwithCDN
     protected function setCssFileCDN($cssFileName)
     {
         $onlyFileName = pathinfo($cssFileName)['basename'];
+        $patternFound = null;
         if (strpos($onlyFileName, 'font-awesome-') !== false) {
             $patternFound = $this->setCssFileCDNforFontAwesome($cssFileName);
-        } else {
-            $patternFound = null;
         }
         if (is_null($patternFound)) {
-            $patternFound = [
-                false,
-                filter_var($cssFileName, FILTER_SANITIZE_STRING),
-            ];
+            $patternFound = [false, filter_var($cssFileName, FILTER_SANITIZE_STRING)];
         }
         return $patternFound;
     }
