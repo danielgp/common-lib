@@ -37,63 +37,9 @@ trait DomComponentsByDanielGP
 {
 
     use \danielgp\browser_agent_info\BrowserAgentInfosByDanielGP,
+        DomBasicComponentsByDanielGP,
+        DomDynamicSelectByDanielGP,
         DomComponentsByDanielGPwithCDN;
-
-    private function buildAttributesForTag($features)
-    {
-        if (!is_array($features)) {
-            return '';
-        }
-        $attributes = '';
-        foreach ($features as $key => $value) {
-            $val = $value;
-            if (is_array($value)) {
-                $valA = [];
-                foreach ($value as $key2 => $value2) {
-                    $valA[] = $key2 . ':' . $value2 . ';';
-                }
-                $val = implode(';', $valA);
-            }
-            $attributes .= ' ' . $key . '="' . $val . '"';
-        }
-        return $attributes;
-    }
-
-    /**
-     * Calculate the optimal for all options within a select tag
-     *
-     * @param array $aElements
-     * @param array $aFeatures
-     * @return string|int
-     */
-    private function calculateSelectOptionsSize($aElements, $aFeatures = [])
-    {
-        if (is_null($aFeatures)) {
-            $aFeatures = [];
-        }
-        if (is_array($aElements)) {
-            if (isset($aFeatures['size'])) {
-                if ($aFeatures['size'] == 0) {
-                    $selectSize = count($aElements);
-                } else {
-                    $selectSize = min(count($aElements), $aFeatures['size']);
-                }
-            } else {
-                $selectSize = 1;
-            }
-            if ((in_array('include_null', $aFeatures)) && ($selectSize != '1')) {
-                $selectSize++;
-            }
-            return $selectSize;
-        } else {
-            return '';
-        }
-    }
-
-    protected function cleanStringForId($givenString)
-    {
-        return preg_replace("/[^a-zA-Z0-9]/", '', ucwords($givenString));
-    }
 
     /**
      * Builds a <select> based on a given array
@@ -101,61 +47,25 @@ trait DomComponentsByDanielGP
      * @version 20080618
      * @param array $aElements
      * @param string/array $sDefaultValue
-     * @param string $select_name
-     * @param array $features_array
+     * @param string $selectName
+     * @param array $featArray
      * @return string
      */
-    protected function setArrayToSelect($aElements, $sDefaultValue, $select_name, $features_array = null)
+    protected function setArrayToSelect($aElements, $sDefaultValue, $selectName, $featArray = null)
     {
         if (!is_array($aElements)) {
             return '';
         }
-        $select_id = '" id="' . str_replace(['[', ']'], ['', ''], $select_name)
-                . (isset($features_array['id_no']) ? $features_array['id_no'] : '');
-        if (isset($features_array['readonly'])) {
+        if (isset($featArray['readonly'])) {
             return $this->setStringIntoShortTag('input', [
-                        'name'     => $select_name,
-                        'id'       => $select_id,
+                        'name'     => $selectName,
+                        'id'       => $this->buildSelectId($selectName, $featArray),
                         'readonly' => 'readonly',
                         'class'    => 'input_readonly',
                         'value'    => $sDefaultValue,
                     ]) . $aElements[$sDefaultValue];
         }
-        if (isset($features_array['id_no'])) {
-            unset($features_array['id_no']);
-        }
-        $string2return = '<select name="' . $select_name . $select_id
-                . '" size="' . $this->calculateSelectOptionsSize($aElements, $features_array) . '"';
-        if (is_array($features_array)) {
-            if (isset($features_array['additional_javascript_action'])) {
-                $temporary_string = $features_array['additional_javascript_action'];
-            } else {
-                $temporary_string = '';
-            }
-            if (in_array('autosubmit', $features_array)) {
-                $string2return .= ' onchange="javascript:' . $temporary_string . 'submit();"';
-            } else {
-                if ($temporary_string != '') {
-                    $string2return .= ' onchange="javascript:' . $temporary_string . '"';
-                }
-            }
-            if (in_array('disabled', $features_array)) {
-                $string2return .= ' disabled="disabled"';
-            }
-            if (in_array('hidden', $features_array)) {
-                $string2return .= ' style="visibility: hidden;"';
-            }
-            if (in_array('multiselect', $features_array)) {
-                $string2return .= ' multiple="multiple"';
-            }
-            if (array_key_exists('style', $features_array)) {
-                $string2return .= ' style="' . $features_array['style'] . '"';
-            }
-        }
-        $string2return .= '>'
-                . $this->setOptionsForSelect($aElements, $sDefaultValue, $features_array)
-                . '</select>';
-        return $string2return;
+        return $this->setArrayToSelectNotReadOnly($aElements, $sDefaultValue, $selectName, $featArray);
     }
 
     /**
@@ -644,43 +554,6 @@ trait DomComponentsByDanielGP
     }
 
     /**
-     * Cleans a string for certain internal rules
-     *
-     * @param type $urlString
-     * @return type
-     */
-    protected function setCleanUrl($urlString)
-    {
-        $arrayToReplace = [
-            '&#038;'    => '&amp;',
-            '&'         => '&amp;',
-            '&amp;amp;' => '&amp;',
-            ' '         => '%20',
-        ];
-        $kys            = array_keys($arrayToReplace);
-        $vls            = array_values($arrayToReplace);
-        return str_replace($kys, $vls, filter_var($urlString, FILTER_SANITIZE_URL));
-    }
-
-    /**
-     * Returns a div tag that clear any float
-     *
-     * @param integer $height
-     */
-    protected function setClearBoth1px($height = 1)
-    {
-        return $this->setStringIntoTag('&nbsp;', 'div', [
-                    'style' => implode('', [
-                        'height:' . $height . 'px;',
-                        'line-height:' . $height . 'px;',
-                        'float:none;',
-                        'clear:both;',
-                        'margin:0px;'
-                    ])
-        ]);
-    }
-
-    /**
      * Returns css codes
      *
      * @param string $cssContent
@@ -755,16 +628,15 @@ trait DomComponentsByDanielGP
                 break;
         }
         if ($sTitle == 'light') {
-            echo $sMsg;
-        } else {
-            $legend = $this->setStringIntoTag($sTitle, 'legend', ['style' => implode('', $formatTitle)]);
-            return implode('', [
-                ($skipBr ? '' : '<br/>'),
-                $this->setStringIntoTag($legend . $sMsg, 'fieldset', [
-                    'style' => implode('', $formatMessage)
-                ]),
-            ]);
+            return $sMsg;
         }
+        $legend = $this->setStringIntoTag($sTitle, 'legend', ['style' => implode('', $formatTitle)]);
+        return implode('', [
+            ($skipBr ? '' : '<br/>'),
+            $this->setStringIntoTag($legend . $sMsg, 'fieldset', [
+                'style' => implode('', $formatMessage)
+            ]),
+        ]);
     }
 
     /**
@@ -798,20 +670,34 @@ trait DomComponentsByDanielGP
      */
     protected function setFooterGZiped()
     {
-        if (isset($_SERVER['HTTP_ACCEPT_ENCODING'])) {
-            if (strstr($_SERVER['HTTP_ACCEPT_ENCODING'], 'gzip')) {
-                if (extension_loaded('zlib')) {
-                    $gzip_contents = ob_get_contents();
+        if (extension_loaded('zlib')) {
+            return $this->setGZipedUnsafe('Footer');
+        }
+        return '';
+    }
+
+    private function setGZipedUnsafe($outputType)
+    {
+        $rqst = new \Symfony\Component\HttpFoundation\Request;
+        if (!is_null($rqst->server->get('HTTP_ACCEPT_ENCODING'))) {
+            return '';
+        }
+        if (strstr($rqst->server->get('HTTP_ACCEPT_ENCODING'), 'gzip')) {
+            switch ($outputType) {
+                case 'Footer':
+                    $gzipCntnt = ob_get_contents();
                     ob_end_clean();
-                    $gzip_size     = strlen($gzip_contents);
-                    $gzip_crc      = crc32($gzip_contents);
-                    $gzip_contents = gzcompress($gzip_contents, 9);
-                    $gzip_contents = substr($gzip_contents, 0, strlen($gzip_contents) - 4);
-                    echo "\x1f\x8b\x08\x00\x00\x00\x00\x00";
-                    echo $gzip_contents;
-                    echo pack('V', $gzip_crc);
-                    echo pack('V', $gzip_size);
-                }
+                    $gzipSize  = strlen($gzipCntnt);
+                    $gzipCrc   = crc32($gzipCntnt);
+                    $gzipCntnt = gzcompress($gzipCntnt, 9);
+                    $gzipCntnt = substr($gzipCntnt, 0, strlen($gzipCntnt) - 4);
+                    echo "\x1f\x8b\x08\x00\x00\x00\x00\x00" . $gzipCntnt . pack('V', $gzipCrc) . pack('V', $gzipSize);
+                    break;
+                case 'Header':
+                    ob_start();
+                    ob_implicit_flush(0);
+                    header('Content-Encoding: gzip');
+                    break;
             }
         }
     }
@@ -896,27 +782,10 @@ trait DomComponentsByDanielGP
      */
     protected function setHeaderGZiped()
     {
-        if (isset($_SERVER['HTTP_ACCEPT_ENCODING'])) {
-            if (strstr($_SERVER['HTTP_ACCEPT_ENCODING'], 'gzip')) {
-                if (extension_loaded('zlib')) {
-                    ob_start();
-                    ob_implicit_flush(0);
-                    header('Content-Encoding: gzip');
-                }
-            }
+        if (extension_loaded('zlib')) {
+            return $this->setGZipedUnsafe('Header');
         }
-    }
-
-    /**
-     * Sets the no-cache header
-     */
-    protected function setHeaderNoCache($contentType = 'application/json')
-    {
-        header("Content-Type: " . $contentType . "; charset=utf-8");
-        header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
-        header("Cache-Control: no-store, no-cache, must-revalidate");
-        header("Cache-Control: post-check=0, pre-check=0", false);
-        header("Pragma: no-cache");
+        return '';
     }
 
     /**
@@ -993,94 +862,6 @@ trait DomComponentsByDanielGP
     protected function setJavascriptFileContent($jsFileName)
     {
         return '<script type="text/javascript">' . file_get_contents($jsFileName, true) . '</script>';
-    }
-
-    /**
-     * Creates all the child tags required to populate a SELECT tag
-     *
-     * @param array $aElements
-     * @param string|array $sDefaultValue
-     * @param array $features_array
-     * @return string
-     */
-    private function setOptionsForSelect($aElements, $sDefaultValue, $features_array = [])
-    {
-        $string2return = '';
-        if (is_array($features_array)) {
-            if (in_array('include_null', $features_array)) {
-                $string2return .= '<option value="NULL">&nbsp;</option>';
-            }
-            if (isset($features_array['defaultValue_isSubstring'])) {
-                $default_value_array = explode($features_array['defaultValue_isSubstring'], $sDefaultValue);
-            }
-        }
-        $current_group = null;
-        foreach ($aElements as $key => $value) {
-            if (isset($features_array['grouping'])) {
-                $temporary_string = substr($value, 0, strpos($value, $features_array['grouping']) + 1);
-                if ($current_group != $temporary_string) {
-                    if ($current_group != '') {
-                        $string2return .= '</optgroup>';
-                    }
-                    $current_group = $temporary_string;
-                    $string2return .= '<optgroup label="'
-                            . str_replace($features_array['grouping'], '', $current_group) . '">';
-                }
-            } else {
-                $current_group = '';
-            }
-            $string2return .= '<option value="' . $key . '"';
-            if (is_array($sDefaultValue)) {
-                if (in_array($key, $sDefaultValue)) {
-                    $string2return .= ' selected="selected"';
-                }
-            } else {
-                if (strcasecmp($key, $sDefaultValue) === 0) {
-                    $string2return .= ' selected="selected"';
-                }
-                if (isset($default_value_array) && is_array($default_value_array)) {
-                    if (in_array($key, $default_value_array)) {
-                        $string2return .= ' selected="selected"';
-                    }
-                }
-            }
-            if (array_key_exists('styleForOption', $features_array)) {
-                $string2return .= ' style="' . $features_array['style'] . '"';
-            }
-            $string2return .= '>' . str_replace(['&', $current_group], ['&amp;', ''], $value) . '</option>';
-        }
-        if (isset($features_array['grouping'])) {
-            if ($current_group != '') {
-                $string2return .= '</optgroup>';
-            }
-        }
-        return $string2return;
-    }
-
-    /**
-     * Puts a given string into a specific short tag
-     *
-     * @param string $sTag
-     * @param array $features
-     * @return string
-     */
-    protected function setStringIntoShortTag($sTag, $features = null)
-    {
-        return '<' . $sTag . $this->buildAttributesForTag($features)
-                . (isset($features['dont_close']) ? '' : '/') . '>';
-    }
-
-    /**
-     * Puts a given string into a specific tag
-     *
-     * @param string $sString
-     * @param string $sTag
-     * @param array $features
-     * @return string
-     */
-    protected function setStringIntoTag($sString, $sTag, $features = null)
-    {
-        return '<' . $sTag . $this->buildAttributesForTag($features) . '>' . $sString . '</' . $sTag . '>';
     }
 
     /**
