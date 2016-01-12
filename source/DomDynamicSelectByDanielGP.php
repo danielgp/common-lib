@@ -74,42 +74,48 @@ trait DomDynamicSelectByDanielGP
 
     private function eventOnChange($featArray)
     {
-        if (in_array('autosubmit', $featArray)) {
-            return ' onchange="javascript:' . $featArray['additional_javascript_action'] . 'submit();"';
+        $sReturn = null;
+        if (array_key_exists('additional_javascript_action', $featArray)) {
+            $sReturn[] = $featArray['additional_javascript_action'];
         }
-        if (in_array('additional_javascript_action', $featArray)) {
-            return ' onchange="javascript:' . $featArray['additional_javascript_action'] . '"';
+        if (array_key_exists('autosubmit', $featArray)) {
+            $sReturn[] = 'submit();';
         }
-        return '';
-    }
-
-    private function featureArraySimpleDirect($featArray, $identifier)
-    {
-        if (in_array($identifier, $featArray)) {
-            return implode(' ', $identifier, '="', $identifier, '"');
+        if (is_array($sReturn)) {
+            return ' onchange="javascript:' . implode('', $sReturn) . '"';
         }
-        return '';
+        return $sReturn;
     }
 
     private function featureArraySimpleTranslated($featArray, $identifier)
     {
         $translation = [
-            'hidden'       => ' style="visibility: hidden;',
-            'multiselect'  => ' multiple="multiple"',
-            'include_null' => '<option value="NULL">&nbsp;</option>',
+            'disabled'       => ' disabled',
+            'hidden'         => ' style="visibility: hidden;',
+            'include_null'   => '<option value="NULL">&nbsp;</option>',
+            'multiselect'    => ' multiple="multiple"',
+            'style'          => null,
+            'styleForOption' => null,
         ];
-        if (in_array($identifier, $featArray)) {
+        if (array_key_exists($identifier, $featArray)) {
+            if (is_null($translation[$identifier])) {
+                return ' ' . $identifier . '="' . $featArray[$identifier] . '"';
+            }
             return $translation[$identifier];
         }
         return '';
     }
 
-    private function featureArrayAssociative($featArray, $identifier)
+    private function normalizeFeatureArray($featArray)
     {
-        if (in_array($identifier, $featArray)) {
-            return ' ' . $identifier . '="' . $featArray[$identifier] . '"';
+        $nonAsociative = ['autosubmit', 'disabled', 'hidden', 'include_null', 'multiselect'];
+        foreach ($featArray as $key => $value) {
+            if (in_array($value, $nonAsociative)) {
+                $featArray[$value] = $value;
+                unset($featArray[$key]);
+            }
         }
-        return '';
+        return $featArray;
     }
 
     protected function setArrayToSelectNotReadOnly($aElements, $sDefaultValue, $selectName, $featArray = null)
@@ -117,16 +123,16 @@ trait DomDynamicSelectByDanielGP
         if (!is_array($featArray)) {
             $featArray = [];
         }
+        $featArray = $this->normalizeFeatureArray($featArray);
         return '<select name="' . $selectName . '" '
                 . 'id="' . $this->buildSelectId($selectName, $featArray) . '" '
                 . 'size="' . $this->calculateSelectOptionsSize($aElements, $featArray) . '"'
                 . $this->eventOnChange($featArray)
-                . $this->featureArraySimpleDirect($featArray, 'disabled')
+                . $this->featureArraySimpleTranslated($featArray, 'disabled')
                 . $this->featureArraySimpleTranslated($featArray, 'hidden')
                 . $this->featureArraySimpleTranslated($featArray, 'multiselect')
-                . $this->featureArrayAssociative($featArray, 'style')
-                . '>'
-                . $this->setOptionsForSelect($aElements, $sDefaultValue, $featArray) . '</select>';
+                . $this->featureArraySimpleTranslated($featArray, 'style')
+                . '>' . $this->setOptionsForSelect($aElements, $sDefaultValue, $featArray) . '</select>';
     }
 
     private function setOptionGroupEnd($crtGroup, $featArray)
@@ -155,27 +161,16 @@ trait DomDynamicSelectByDanielGP
 
     private function setOptionSelected($optionValue, $sDefaultValue, $featArray)
     {
-        if (is_array($sDefaultValue)) {
-            if (in_array($optionValue, $sDefaultValue)) {
-                return ' selected="selected"';
-            }
-        }
-        if (strcasecmp($optionValue, $sDefaultValue) === 0) {
-            return ' selected="selected"';
-        }
         if (isset($featArray['defaultValue_isSubstring'])) {
-            $defaultValueArray = explode($featArray['defaultValue_isSubstring'], $sDefaultValue);
-            if (in_array($optionValue, $defaultValueArray)) {
-                return ' selected="selected"';
+            if (in_array($optionValue, explode($featArray['defaultValue_isSubstring'], $sDefaultValue))) {
+                return ' selected';
             }
-        }
-        return '';
-    }
-
-    private function setOptionStyle($featArray)
-    {
-        if (array_key_exists('styleForOption', $featArray)) {
-            return ' style="' . $featArray['styleForOption'] . '"';
+        } elseif (is_array($sDefaultValue)) {
+            if (in_array($optionValue, $sDefaultValue)) {
+                return ' selected';
+            }
+        } elseif (strcasecmp($optionValue, $sDefaultValue) === 0) {
+            return ' selected';
         }
         return '';
     }
@@ -199,8 +194,9 @@ trait DomDynamicSelectByDanielGP
             $aFH       = $this->setOptionGroupFooterHeader($featArray, $value, $crtGroup);
             $crtGroup  = $aFH['crtGroup'];
             $sReturn[] = $aFH['groupFooterHeader']
-                    . '<option value="' . $key . '"' . $this->setOptionSelected($key, $sDefaultValue, $featArray)
-                    . $this->setOptionStyle($featArray) . '>'
+                    . '<option value="' . $key . '"'
+                    . $this->setOptionSelected($key, $sDefaultValue, $featArray)
+                    . $this->featureArraySimpleTranslated($featArray, 'styleForOption') . '>'
                     . str_replace(['&', $crtGroup], ['&amp;', ''], $value) . '</option>';
         }
         $sReturn[] = $this->setOptionGroupEnd($crtGroup, $featArray);
