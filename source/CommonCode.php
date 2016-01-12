@@ -318,18 +318,14 @@ trait CommonCode
      */
     protected function removeFilesOlderThanGivenRule($inputArray)
     {
+        $proceedWithDeletion = false;
         if (is_array($inputArray)) {
             if (!isset($inputArray['path'])) {
-                $proceedWithDeletion = false;
-                $error               = '`path` has not been provided';
+                return '`path` has not been provided';
             } elseif (!isset($inputArray['dateRule'])) {
-                $proceedWithDeletion = false;
-                $error               = '`dateRule` has not been provided';
-            } else {
-                $proceedWithDeletion = true;
+                return '`dateRule` has not been provided';
             }
-        } else {
-            $proceedWithDeletion = false;
+            $proceedWithDeletion = true;
         }
         if ($proceedWithDeletion) {
             $finder   = new \Symfony\Component\Finder\Finder();
@@ -352,7 +348,6 @@ trait CommonCode
                 return $this->setArrayToJson($aFiles);
             }
         }
-        return $error;
     }
 
     /**
