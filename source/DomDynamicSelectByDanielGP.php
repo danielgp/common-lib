@@ -159,7 +159,7 @@ trait DomDynamicSelectByDanielGP
         return ['crtGroup' => $crtGroup, 'groupFooterHeader' => implode('', $sReturn)];
     }
 
-    private function setOptionSelected($optionValue, $sDefaultValue, $featArray)
+    private function setOptionSelected($optionValue, $sDefaultValue)
     {
         if (is_array($sDefaultValue)) {
             if (in_array($optionValue, $sDefaultValue)) {
@@ -190,8 +190,7 @@ trait DomDynamicSelectByDanielGP
             $aFH       = $this->setOptionGroupFooterHeader($featArray, $value, $crtGroup);
             $crtGroup  = $aFH['crtGroup'];
             $sReturn[] = $aFH['groupFooterHeader']
-                    . '<option value="' . $key . '"'
-                    . $this->setOptionSelected($key, $sDefaultValue, $featArray)
+                    . '<option value="' . $key . '"' . $this->setOptionSelected($key, $sDefaultValue)
                     . $this->featureArraySimpleTranslated($featArray, 'styleForOption') . '>'
                     . str_replace(['&', $crtGroup], ['&amp;', ''], $value) . '</option>';
         }
