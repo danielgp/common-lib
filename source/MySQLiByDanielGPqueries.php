@@ -59,7 +59,7 @@ trait MySQLiByDanielGPqueries
     {
         if (is_array($filterValue)) {
             $sReturn = 'IN ("' . implode('", "', $filterValue) . '")';
-        } else {
+        } elseif (is_string($filterValue)) {
             switch ($filterValue) {
                 case 'CONNECTION_ID()':
                 case 'CURDATE()':
@@ -114,9 +114,8 @@ trait MySQLiByDanielGPqueries
                         . $this->sGlueFilterValueIntoWhereString($value);
             }
         }
-        if (count($filters) == 0) {
-            $finalFilter = '';
-        } else {
+        $finalFilter = '';
+        if (count($filters) > 0) {
             $finalFilter = implode(' ', [
                         'WHERE',
                         $this->sGlueFiltersIntoWhereArrayFilter($filters),
@@ -133,10 +132,9 @@ trait MySQLiByDanielGPqueries
      */
     protected function sQueryMySqlActiveDatabases($excludeSystemDbs = true)
     {
+        $filterChoice = '';
         if ($excludeSystemDbs) {
             $filterChoice = 'WHERE `SCHEMA_NAME` NOT IN ("information_schema", "mysql", "performance_schema", "sys") ';
-        } else {
-            $filterChoice = '';
         }
         return 'SELECT '
                 . '`SCHEMA_NAME` As `Db`, '
@@ -155,10 +153,9 @@ trait MySQLiByDanielGPqueries
      */
     protected function sQueryMySqlActiveEngines($onlyActiveOnes = true)
     {
+        $finalFilter = '';
         if ($onlyActiveOnes) {
             $finalFilter = 'WHERE (`SUPPORT` IN ("DEFAULT", "YES")) ';
-        } else {
-            $finalFilter = '';
         }
         return 'SELECT '
                 . '`ENGINE` AS `Engine`, '
