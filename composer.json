@@ -30,6 +30,7 @@
             "source/CommonLibLocale.php",
             "source/CommonCode.php",
             "source/CommonPermissions.php",
+            "source/DomBasicComponentsByDanielGP.php",
             "source/DomComponentsByDanielGP.php",
             "source/DomComponentsByDanielGPwithCDN.php",
             "source/MySQLiAdvancedOutput.php",
