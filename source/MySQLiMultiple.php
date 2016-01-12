@@ -44,22 +44,17 @@ trait MySQLiMultiple
         if ($stmt->prepare($qry)) {
             foreach ($prmtrs as $vParams) {
                 $paramType = $this->setVariableTypeForMySqlStatementsMany($vParams);
-                $aParams    = [];
-                $aParams[]  = &$paramType;
+                $aParams   = [];
+                $aParams[] = &$paramType;
                 for ($counter = 0; $counter < $stmt->param_count; $counter++) {
                     $aParams[] = &$vParams[$counter];
                 }
                 call_user_func_array([$stmt, 'bind_param'], $aParams);
                 $stmt->execute();
-                if ($stmt->errno != 0) {
-                    throw new \Exception('MySQL error, on executing prepared statement '
-                    . $stmt->error . ' (' . $qry . ')');
-                }
             }
             $stmt->close();
             return '';
         }
-        throw new \Exception('MySQL error, when preparing statement ' . $qry . ' (error ' . $stmt->error . ')');
     }
 
     /**
