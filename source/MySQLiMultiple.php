@@ -43,9 +43,9 @@ trait MySQLiMultiple
         $stmt = $this->mySQLconnection->stmt_init();
         if ($stmt->prepare($qry)) {
             foreach ($prmtrs as $vParams) {
-                $param_type = $this->setVariableTypeForMySqlStatementsMany($vParams);
+                $paramType = $this->setVariableTypeForMySqlStatementsMany($vParams);
                 $aParams    = [];
-                $aParams[]  = &$param_type;
+                $aParams[]  = &$paramType;
                 for ($counter = 0; $counter < $stmt->param_count; $counter++) {
                     $aParams[] = &$vParams[$counter];
                 }
