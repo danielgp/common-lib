@@ -39,7 +39,6 @@ trait CommonCode
     use CommonLibLocale,
         CommonPermissions,
         DomComponentsByDanielGP,
-        DomComponentsByDanielGPwithCDN,
         MySQLiByDanielGPqueries,
         MySQLiByDanielGP;
 
