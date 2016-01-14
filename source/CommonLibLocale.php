@@ -116,25 +116,30 @@ trait CommonLibLocale
 
     protected function setNumberFormat($content, $features = null)
     {
+        $features = $this->setNumberFormatFeatures($features);
+        $fmt      = new \NumberFormatter($features['locale'], $features['style']);
+        $fmt->setAttribute(\NumberFormatter::MIN_FRACTION_DIGITS, $features['MinFractionDigits']);
+        $fmt->setAttribute(\NumberFormatter::MAX_FRACTION_DIGITS, $features['MaxFractionDigits']);
+        return $fmt->format($content);
+    }
+
+    private function setNumberFormatFeatures($features)
+    {
         if (is_null($features)) {
             $features = [
                 'locale'            => $_SESSION['lang'],
                 'style'             => \NumberFormatter::DECIMAL,
                 'MinFractionDigits' => 0,
-                'MaxFractionDigits' => 0
+                'MaxFractionDigits' => 0,
             ];
-        } else {
-            if (!isset($features['locale'])) {
-                $features['locale'] = $_SESSION['lang'];
-            }
-            if (!isset($features['style'])) {
-                $features['style'] = \NumberFormatter::DECIMAL;
-            }
         }
-        $fmt = new \NumberFormatter($features['locale'], $features['style']);
-        $fmt->setAttribute(\NumberFormatter::MIN_FRACTION_DIGITS, $features['MinFractionDigits']);
-        $fmt->setAttribute(\NumberFormatter::MAX_FRACTION_DIGITS, $features['MaxFractionDigits']);
-        return $fmt->format($content);
+        if (!isset($features['locale'])) {
+            $features['locale'] = $_SESSION['lang'];
+        }
+        if (!isset($features['style'])) {
+            $features['style'] = \NumberFormatter::DECIMAL;
+        }
+        return $features;
     }
 
     /**
@@ -147,13 +152,19 @@ trait CommonLibLocale
      */
     protected function setUpperRightBoxLanguages($aAvailableLanguages)
     {
-        $sReturn             = [];
         $this->handleLanguageIntoSession();
-        $sReturn[]           = '<div style="text-align:right;">'
+        return '<div class="upperRightBox">'
+                . '<div style="text-align:right;">'
                 . '<span class="flag-icon flag-icon-' . strtolower(substr($_SESSION['lang'], -2))
                 . '" style="margin-right:2px;">&nbsp;</span>'
                 . $aAvailableLanguages[$_SESSION['lang']]
-                . '</div><!-- default Language -->';
+                . '</div><!-- default Language -->'
+                . $this->setVisibleOnHoverLanguages($aAvailableLanguages)
+                . '</div><!-- upperRightBox end -->';
+    }
+
+    private function setVisibleOnHoverLanguages($aAvailableLanguages)
+    {
         $linkWithoutLanguage = '';
         if (isset($_REQUEST)) {
             $linkWithoutLanguage = $this->setArrayToStringForUrl('&amp;', $_REQUEST, ['lang']) . '&amp;';
@@ -168,9 +179,7 @@ trait CommonLibLocale
             }
         }
         $sReturn[] = '</div><!-- visibleOnHover end -->';
-        return '<div class="upperRightBox">'
-                . implode('', $sReturn)
-                . '</div><!-- upperRightBox end -->';
+        return implode('', $sReturn);
     }
 
     /**
