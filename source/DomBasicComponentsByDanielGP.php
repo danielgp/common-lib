@@ -128,17 +128,14 @@ trait DomBasicComponentsByDanielGP
         $this->initializeSprGlbAndSession();
         if (!is_null($this->tCmnRequest->server->get('HTTP_ACCEPT_ENCODING'))) {
             return '';
-        }
-        if (strstr($this->tCmnRequest->server->get('HTTP_ACCEPT_ENCODING'), 'gzip')) {
+        } elseif (strstr($this->tCmnRequest->server->get('HTTP_ACCEPT_ENCODING'), 'gzip')) {
             switch ($outputType) {
                 case 'Footer':
-                    $gzipCntnt = ob_get_contents();
+                    $gzipCntntOriginal = ob_get_contents();
                     ob_end_clean();
-                    $gzipSize  = strlen($gzipCntnt);
-                    $gzipCrc   = crc32($gzipCntnt);
-                    $gzipCntnt = gzcompress($gzipCntnt, 9);
-                    $gzipCntnt = substr($gzipCntnt, 0, strlen($gzipCntnt) - 4);
-                    echo "\x1f\x8b\x08\x00\x00\x00\x00\x00" . $gzipCntnt . pack('V', $gzipCrc) . pack('V', $gzipSize);
+                    $gzipCntnt         = gzcompress($gzipCntntOriginal, 9);
+                    echo "\x1f\x8b\x08\x00\x00\x00\x00\x00" . substr($gzipCntnt, 0, strlen($gzipCntnt) - 4)
+                    . pack('V', crc32($gzipCntntOriginal)) . pack('V', strlen($gzipCntntOriginal));
                     break;
                 case 'Header':
                     ob_start();
