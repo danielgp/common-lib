@@ -135,25 +135,25 @@ trait DomBasicComponentsByDanielGP
     private function setFeedbackStyleTitle($sType)
     {
         $formatTitle = 'margin-top:-5px;margin-right:20px;padding:5px;';
-        $styleByType = [
+        $styleByTypeForTitle = [
             'alert' => 'border:medium solid orange;background-color:orange;color:navy;',
             'check' => 'border:medium solid green;background-color:green;color:white;',
             'error' => 'border:medium solid red;background-color:red;color:white;',
             'info'  => 'border:medium solid black;background-color:black;color:white;font-weight:bold;',
         ];
-        return $formatTitle . $styleByType[$sType];
+        return $formatTitle . $styleByTypeForTitle[$sType];
     }
 
     private function setFeedbackStyleMessage($sType)
     {
         $formatMessage = 'display:inline;padding-right:5px;padding-bottom:5px;';
-        $styleByType   = [
+        $styleByTypeMsg   = [
             'alert' => 'background-color:navy;color:orange;border:medium solid orange;',
             'check' => 'background-color:yellow;color:green;border:medium solid green;',
             'error' => 'background-color:yellow;color:red;border:medium solid red;',
             'info'  => 'background-color: white; color: black;border:medium solid black;',
         ];
-        return $formatMessage . $styleByType[$sType];
+        return $formatMessage . $styleByTypeMsg[$sType];
     }
 
     /**
