@@ -67,7 +67,7 @@ trait DomCssAndJavascriptByDanielGP
     /**
      * Returns css link to a given file
      *
-     * @param string $cssFile
+     * @param string $cssFileName
      * @return string
      */
     protected function setCssFile($cssFileName, $hostsWithoutCDNrq = null)
