@@ -138,21 +138,19 @@ trait CommonLibLocale
 
     private function setNumberFormatFeatures($features)
     {
-        if (is_null($this->tCmnSession)) {
-            $this->initializeSprGlbAndSession();
-        }
+        $this->handleLanguageIntoSession();
         if (is_null($features)) {
             $features = [
-                'locale'            => $this->tCmnSuperGlobals->get('lang'),
+                'locale'            => $this->tCmnSession->get('lang'),
                 'style'             => \NumberFormatter::DECIMAL,
                 'MinFractionDigits' => 0,
                 'MaxFractionDigits' => 0,
             ];
         }
-        if (!isset($features['locale'])) {
-            $features['locale'] = $this->tCmnSuperGlobals->get('lang');
+        if (!array_key_exists('locale', $features)) {
+            $features['locale'] = $this->tCmnSession->get('lang');
         }
-        if (!isset($features['style'])) {
+        if (!array_key_exists('style', $features)) {
             $features['style'] = \NumberFormatter::DECIMAL;
         }
         return $features;
