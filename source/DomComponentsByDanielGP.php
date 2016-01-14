@@ -68,13 +68,14 @@ trait DomComponentsByDanielGP
             return '';
         }
         if (isset($featArray['readonly'])) {
-            return $this->setStringIntoShortTag('input', [
-                        'name'     => $selectName,
-                        'id'       => $this->buildSelectId($selectName, $featArray),
-                        'readonly' => 'readonly',
-                        'class'    => 'input_readonly',
-                        'value'    => $sDefaultValue,
-                    ]) . $aElements[$sDefaultValue];
+            $inputFeatures = [
+                'name'     => $selectName,
+                'id'       => $this->buildSelectId($selectName, $featArray),
+                'readonly' => 'readonly',
+                'class'    => 'input_readonly',
+                'value'    => $sDefaultValue,
+            ];
+            return $this->setStringIntoShortTag('input', $inputFeatures) . $aElements[$sDefaultValue];
         }
         return $this->setArrayToSelectNotReadOnly($aElements, $sDefaultValue, $selectName, $featArray);
     }
@@ -540,52 +541,6 @@ trait DomComponentsByDanielGP
                     'id'      => $controlName . '_picker',
                     'style'   => 'cursor:pointer;' . $additionalStyle,
         ]);
-    }
-
-    /**
-     * Builds a structured modern message
-     *
-     * @param string $sType
-     * @param string $sTitle
-     * @param string $sMsg
-     * @param boolean $skipBr
-     */
-    protected function setFeedbackModern($sType, $sTitle, $sMsg, $skipBr = false)
-    {
-        if ($sTitle == 'light') {
-            return $sMsg;
-        }
-        $stl    = $this->setFeedbackModernStyles($sType);
-        $legend = $this->setStringIntoTag($sTitle, 'legend', ['style' => $stl['Ttl']]);
-        return implode('', [
-            ($skipBr ? '' : '<br/>'),
-            $this->setStringIntoTag($legend . $sMsg, 'fieldset', ['style' => $stl['Msg']]),
-        ]);
-    }
-
-    private function setFeedbackModernStyles($sType)
-    {
-        $formatTitle   = 'margin-top:-5px;margin-right:20px;padding:5px;';
-        $formatMessage = 'display:inline;padding-right:5px;padding-bottom:5px;';
-        $styleByType   = [
-            'alert' => [
-                'border:medium solid orange;background-color:orange;color:navy;',
-                'background-color:navy;color:orange;border:medium solid orange;',
-            ],
-            'check' => [
-                'border:medium solid green;background-color:green;color:white;',
-                'background-color:yellow;color:green;border:medium solid green;',
-            ],
-            'error' => [
-                'border:medium solid red;background-color:red;color:white;',
-                'background-color:yellow;color:red;border:medium solid red;',
-            ],
-            'info'  => [
-                'border:medium solid black;background-color:black;color:white;font-weight:bold;',
-                'background-color: white; color: black;border:medium solid black;',
-            ],
-        ];
-        return ['Ttl' => $formatTitle . $styleByType[$sType], 'Msg' => $formatMessage . $styleByType[$sType]];
     }
 
     /**
