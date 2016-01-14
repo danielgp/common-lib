@@ -325,7 +325,7 @@ trait CommonCode
         $out   = [];
         $out[] = 'POST ' . $pUrlParts['path'] . ' ' . $this->tCmnSuperGlobals->server->get['SERVER_PROTOCOL'];
         $out[] = 'Host: ' . $pUrlParts['host'];
-        if (isset($_SERVER['HTTP_USER_AGENT'])) {
+        if (is_null($this->tCmnSuperGlobals->server->get('HTTP_USER_AGENT'))) {
             $out[] = 'User-Agent: ' . $this->tCmnSuperGlobals->server->get('HTTP_USER_AGENT');
         }
         $out[] = 'Content-Type: application/x-www-form-urlencoded';
