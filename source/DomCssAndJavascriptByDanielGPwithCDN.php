@@ -33,7 +33,7 @@ namespace danielgp\common_lib;
  *
  * @author Daniel Popiniuc
  */
-trait DomComponentsByDanielGPwithCDN
+trait DomCssAndJavascriptByDanielGPwithCDN
 {
 
     private function knownCloudFlareJavascript($jsFileName)
@@ -65,9 +65,8 @@ trait DomComponentsByDanielGPwithCDN
      */
     protected function setCssFileCDN($cssFileName)
     {
-        $onlyFileName = pathinfo($cssFileName)['basename'];
         $patternFound = null;
-        if (strpos($onlyFileName, 'font-awesome-') !== false) {
+        if (strpos(pathinfo($cssFileName)['basename'], 'font-awesome-') !== false) {
             $patternFound = $this->setCssFileCDNforFontAwesome($cssFileName);
         }
         if (is_null($patternFound)) {
@@ -80,7 +79,7 @@ trait DomComponentsByDanielGPwithCDN
      * Returns css link to a given file
      * Returns an array with CDN call of a known Font-websome css
      *
-     * @param string $cssFile
+     * @param string $cssFileName
      * @return string
      */
     private function setCssFileCDNforFontAwesome($cssFileName)
@@ -134,9 +133,8 @@ trait DomComponentsByDanielGPwithCDN
      */
     private function setJavascriptFileCDNforHighCharts($jsFileName)
     {
-        $patternFound   = null;
-        $jQueryPosition = strpos($jsFileName, 'highcharts');
-        if ($jQueryPosition !== false) {
+        $patternFound = null;
+        if (strpos($jsFileName, 'highcharts') !== false) {
             $patternFound = [
                 true,
                 implode('', [

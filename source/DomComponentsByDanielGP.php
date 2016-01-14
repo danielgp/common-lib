@@ -36,10 +36,19 @@ namespace danielgp\common_lib;
 trait DomComponentsByDanielGP
 {
 
-    use \danielgp\browser_agent_info\BrowserAgentInfosByDanielGP,
-        DomBasicComponentsByDanielGP,
-        DomDynamicSelectByDanielGP,
-        DomComponentsByDanielGPwithCDN;
+    use DomCssAndJavascriptByDanielGP,
+        DomDynamicSelectByDanielGP;
+
+    private function normalizeArrayForUrl($featArray)
+    {
+        foreach ($featArray as $key => $value) {
+            if (is_numeric($key)) {
+                $featArray[$value] = 1;
+                unset($featArray[$key]);
+            }
+        }
+        return $featArray;
+    }
 
     /**
      * Builds a <select> based on a given array
@@ -77,32 +86,10 @@ trait DomComponentsByDanielGP
      */
     protected function setArrayToStringForUrl($sSeparator, $aElements, $aExceptedElements = [''])
     {
-        if (is_array($aElements)) {
-            if (count($aElements) == 0) {
-                $sReturn = [''];
-            } else {
-                $sReturn = [];
-                foreach ($aElements as $key => $value) {
-                    if (!in_array($key, $aExceptedElements)) {
-                        if (is_array($aElements[$key])) {
-                            $aCounter = count($aElements[$key]);
-                            for ($counter2 = 0; $counter2 < $aCounter; $counter2++) {
-                                if ($value[$counter2] !== '') {
-                                    $sReturn[] = $key . '[]=' . $value[$counter2];
-                                }
-                            }
-                        } else {
-                            if ($value !== '') {
-                                $sReturn[] = $key . '=' . $value;
-                            }
-                        }
-                    }
-                }
-            }
-        } else {
-            $sReturn = [''];
-        }
-        return implode($sSeparator, $sReturn);
+        $outArray   = $this->normalizeArrayForUrl($aElements);
+        $xptArray   = $this->normalizeArrayForUrl($aExceptedElements);
+        $finalArray = array_diff_key($outArray, $xptArray);
+        return http_build_query($finalArray, '', $sSeparator);
     }
 
     /**
@@ -554,50 +541,6 @@ trait DomComponentsByDanielGP
     }
 
     /**
-     * Returns css codes
-     *
-     * @param string $cssContent
-     * @param array $optionalFlags
-     * @return string
-     */
-    protected function setCssContent($cssContent, $optionalFlags = null)
-    {
-        $attr = [];
-        if (is_null($optionalFlags)) {
-            $attr['media'] = 'all';
-        } else {
-            $knownAttributes = ['media'];
-            foreach ($knownAttributes as $value) {
-                if (in_array($value, array_keys($optionalFlags))) {
-                    $attr[$value] = $optionalFlags[$value];
-                }
-            }
-        }
-        return '<style type="text/css" media="' . $attr['media'] . '">'
-                . $cssContent . '</style>';
-    }
-
-    /**
-     * Returns css link to a given file
-     *
-     * @param string $cssFile
-     * @return string
-     */
-    protected function setCssFile($cssFileName, $hostsWithoutCDNrq = null)
-    {
-        if (is_null($hostsWithoutCDNrq)) {
-            $hostsWithoutCDNrq = [];
-        }
-        if (in_array($this->getClientRealIpAddress(), $hostsWithoutCDNrq)) {
-            return '<link rel="stylesheet" type="text/css" href="'
-                    . filter_var($cssFileName, FILTER_SANITIZE_STRING) . '" />';
-        }
-        $patternFound = $this->setCssFileCDN($cssFileName);
-        return '<link rel="stylesheet" type="text/css" href="'
-                . filter_var($patternFound[1], FILTER_SANITIZE_STRING) . '" />';
-    }
-
-    /**
      * Builds a structured modern message
      *
      * @param string $sType
@@ -607,36 +550,40 @@ trait DomComponentsByDanielGP
      */
     protected function setFeedbackModern($sType, $sTitle, $sMsg, $skipBr = false)
     {
-        $formatTitle[]   = 'margin-top:-5px;margin-right:20px;padding:5px;';
-        $formatMessage[] = 'display:inline;padding-right:5px;padding-bottom:5px;';
-        switch ($sType) {
-            case 'alert':
-                $formatTitle[]   = 'border:medium solid orange;background-color:orange;color:navy;';
-                $formatMessage[] = 'background-color:navy;color:orange;border:medium solid orange;';
-                break;
-            case 'check':
-                $formatTitle[]   = 'border:medium solid green;background-color:green;color:white;';
-                $formatMessage[] = 'background-color:yellow;color:green;border:medium solid green;';
-                break;
-            case 'error':
-                $formatTitle[]   = 'border:medium solid red;background-color:red;color:white;';
-                $formatMessage[] = 'background-color:yellow;color:red;border:medium solid red;';
-                break;
-            case 'info':
-                $formatTitle[]   = 'border:medium solid black;background-color:black;color:white;font-weight:bold;';
-                $formatMessage[] = 'background-color: white; color: black;border:medium solid black;';
-                break;
-        }
         if ($sTitle == 'light') {
             return $sMsg;
         }
-        $legend = $this->setStringIntoTag($sTitle, 'legend', ['style' => implode('', $formatTitle)]);
+        $stl    = $this->setFeedbackModernStyles($sType);
+        $legend = $this->setStringIntoTag($sTitle, 'legend', ['style' => $stl['Ttl']]);
         return implode('', [
             ($skipBr ? '' : '<br/>'),
-            $this->setStringIntoTag($legend . $sMsg, 'fieldset', [
-                'style' => implode('', $formatMessage)
-            ]),
+            $this->setStringIntoTag($legend . $sMsg, 'fieldset', ['style' => $stl['Msg']]),
         ]);
+    }
+
+    private function setFeedbackModernStyles($sType)
+    {
+        $formatTitle   = 'margin-top:-5px;margin-right:20px;padding:5px;';
+        $formatMessage = 'display:inline;padding-right:5px;padding-bottom:5px;';
+        $styleByType   = [
+            'alert' => [
+                'border:medium solid orange;background-color:orange;color:navy;',
+                'background-color:navy;color:orange;border:medium solid orange;',
+            ],
+            'check' => [
+                'border:medium solid green;background-color:green;color:white;',
+                'background-color:yellow;color:green;border:medium solid green;',
+            ],
+            'error' => [
+                'border:medium solid red;background-color:red;color:white;',
+                'background-color:yellow;color:red;border:medium solid red;',
+            ],
+            'info'  => [
+                'border:medium solid black;background-color:black;color:white;font-weight:bold;',
+                'background-color: white; color: black;border:medium solid black;',
+            ],
+        ];
+        return ['Ttl' => $formatTitle . $styleByType[$sType], 'Msg' => $formatMessage . $styleByType[$sType]];
     }
 
     /**
@@ -738,82 +685,6 @@ trait DomComponentsByDanielGP
             }
         }
         return implode('', $sReturn);
-    }
-
-    /**
-     * Returns javascript function to support Add or Edit through Ajax
-     *
-     * @return string
-     */
-    protected function setJavascriptAddEditByAjax($tabName = 'tabStandard')
-    {
-        return $this->setJavascriptContent(implode('', [
-                    'function loadAE(action) {',
-                    'document.getElementById("' . $tabName . '").tabber.tabShow(1);',
-                    '$("#DynamicAddEditSpacer").load(action',
-                    '+"&specialHook[]=noHeader"',
-                    '+"&specialHook[]=noMenu"',
-                    '+"&specialHook[]=noContainer"',
-                    '+"&specialHook[]=noFooter"',
-                    ');',
-                    '}',
-        ]));
-    }
-
-    /**
-     * Returns javascript codes
-     *
-     * @param string $javascriptContent
-     * @return string
-     */
-    protected function setJavascriptContent($javascriptContent)
-    {
-        return '<script type="text/javascript">' . $javascriptContent . '</script>';
-    }
-
-    /**
-     * Builds up a confirmation dialog and return delection if Yes
-     *
-     * @return string
-     */
-    protected function setJavascriptDeleteWithConfirmation()
-    {
-        return $this->setJavascriptContent('function setQuest(a, b) { '
-                        . 'c = a.indexOf("_"); switch(a.slice(0, c)) { '
-                        . 'case \'delete\': '
-                        . 'if (confirm(\'' . $this->lclMsgCmn('i18n_ActionDelete_ConfirmationQuestion') . '\')) { '
-                        . 'window.location = document.location.protocol + "//" + '
-                        . 'document.location.host + document.location.pathname + '
-                        . '"?view=" + a + "&" + b; } break; } }');
-    }
-
-    /**
-     * Returns javascript link to a given file
-     *
-     * @param string $jsFileName
-     * @return string
-     */
-    protected function setJavascriptFile($jsFileName, $hostsWithoutCDNrq = null)
-    {
-        if (is_null($hostsWithoutCDNrq)) {
-            $hostsWithoutCDNrq = [];
-        }
-        if (in_array($this->getClientRealIpAddress(), $hostsWithoutCDNrq)) {
-            return '<script type="text/javascript" src="' . $jsFileName . '"></script>';
-        }
-        $patternFound = $this->setJavascriptFileCDN($jsFileName);
-        return '<script type="text/javascript" src="' . $patternFound[1] . '"></script>' . $patternFound[2];
-    }
-
-    /**
-     * Returns javascript codes from given file
-     *
-     * @param string $jsFileName
-     * @return string
-     */
-    protected function setJavascriptFileContent($jsFileName)
-    {
-        return '<script type="text/javascript">' . file_get_contents($jsFileName, true) . '</script>';
     }
 
     /**
@@ -941,13 +812,5 @@ trait DomComponentsByDanielGP
             }
         }
         return '<div id="visibleOnHover">' . implode('', $sReturn) . '</div><!-- visibleOnHover end -->';
-    }
-
-    protected function updateDivTitleName($rememberGroupVal, $groupCounter)
-    {
-        $jsContent = '$(document).ready(function() { $("#tab_'
-                . $this->cleanStringForId($rememberGroupVal) . '").attr("title", "'
-                . $rememberGroupVal . ' (' . $groupCounter . ')"); });';
-        return $this->setJavascriptContent($jsContent);
     }
 }
