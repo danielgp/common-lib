@@ -60,15 +60,7 @@ trait CommonBasic
         return '"' . $keyToWorkWith . '": {' . $aReturn[$keyToWorkWith] . ' }';
     }
 
-    /**
-     * Remove files older than given rule
-     * (both Access time and Modified time will be checked
-     * and only if both matches removal will take place)
-     *
-     * @param array $inputArray
-     * @return string
-     */
-    protected function removeFilesOlderThanGivenRule($inputArray)
+    protected function removeFilesDecision($inputArray)
     {
         $proceedWithDeletion = false;
         if (is_array($inputArray)) {
@@ -79,13 +71,35 @@ trait CommonBasic
             }
             $proceedWithDeletion = true;
         }
-        if ($proceedWithDeletion) {
+        return $proceedWithDeletion;
+    }
+
+    /**
+     * Remove files older than given rule
+     * (both Access time and Modified time will be checked
+     * and only if both matches removal will take place)
+     *
+     * @param array $inputArray
+     * @return string
+     */
+    protected function removeFilesOlderThanGivenRule($inputArray)
+    {
+        $aFiles = $this->retrieveFilesOlderThanGivenRule($inputArray);
+        if (is_null($aFiles)) {
+            return null;
+        }
+        $filesystem = new \Symfony\Component\Filesystem\Filesystem();
+        $filesystem->remove($aFiles);
+        $jsonResult = json_encode($aFiles, JSON_FORCE_OBJECT | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
+        return utf8_encode($jsonResult);
+    }
+
+    protected function retrieveFilesOlderThanGivenRule($inputArray)
+    {
+        $proceedWithRetrieving = $this->removeFilesDecision($inputArray);
+        if ($proceedWithRetrieving) {
             $finder   = new \Symfony\Component\Finder\Finder();
-            $iterator = $finder
-                    ->files()
-                    ->ignoreUnreadableDirs(true)
-                    ->followLinks()
-                    ->in($inputArray['path']);
+            $iterator = $finder->files()->ignoreUnreadableDirs(true)->followLinks()->in($inputArray['path']);
             $aFiles   = null;
             foreach ($iterator as $file) {
                 if ($file->getATime() < strtotime($inputArray['dateRule'])) {
@@ -94,11 +108,8 @@ trait CommonBasic
             }
             if (is_null($aFiles)) {
                 return null;
-            } else {
-                $filesystem = new \Symfony\Component\Filesystem\Filesystem();
-                $filesystem->remove($aFiles);
-                return $this->setArrayToJson($aFiles);
             }
+            return $aFiles;
         }
     }
 
