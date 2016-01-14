@@ -27,6 +27,7 @@
     },
     "autoload": {
         "classmap": [
+            "source/CommonBasic.php",
             "source/CommonLibLocale.php",
             "source/CommonCode.php",
             "source/CommonPermissions.php",

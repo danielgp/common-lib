@@ -36,7 +36,8 @@ namespace danielgp\common_lib;
 trait CommonCode
 {
 
-    use CommonPermissions,
+    use CommonBasic,
+        CommonPermissions,
         DomComponentsByDanielGP,
         MySQLiByDanielGPqueries,
         MySQLiByDanielGP;
@@ -102,19 +103,7 @@ trait CommonCode
             $aReturn['response'] = $rspJsonFromClient;
         }
         curl_close($chanel);
-        $sReturn = '';
-        if ($this->isJsonByDanielGP($aReturn['info'])) {
-            $sReturn = '"info": ' . $aReturn['info'];
-        } else {
-            $sReturn = '"info": {' . $aReturn['info'] . ' }';
-        }
-        $sReturn .= ', ';
-        if ($this->isJsonByDanielGP($aReturn['response'])) {
-            $sReturn .= '"response": ' . $aReturn['response'];
-        } else {
-            $sReturn .= '"response": { ' . $aReturn['response'] . ' }';
-        }
-        return '{ ' . $sReturn . ' }';
+        return '{ ' . $this->packIntoJson($aReturn, 'info') . ', ' . $this->packIntoJson($aReturn, 'response') . ' }';
     }
 
     /**
@@ -264,27 +253,10 @@ trait CommonCode
     }
 
     /**
-     * Tests if given string has a valid Json format
-     *
-     * @param string $inputJson
-     * @return boolean|string
-     */
-    protected function isJsonByDanielGP($inputJson)
-    {
-        if (is_string($inputJson)) {
-            json_decode($inputJson);
-            return (json_last_error() == JSON_ERROR_NONE);
-        } else {
-            return $this->lclMsgCmn('i18n_Error_GivenInputIsNotJson');
-        }
-    }
-
-    /**
      * Moves files into another folder
      *
      * @param type $sourcePath
      * @param type $targetPath
-     * @param type $overwrite
      * @return type
      */
     protected function moveFilesIntoTargetFolder($sourcePath, $targetPath)
@@ -308,48 +280,6 @@ trait CommonCode
     }
 
     /**
-     * Remove files older than given rule
-     * (both Access time and Modified time will be checked
-     * and only if both matches removal will take place)
-     *
-     * @param array $inputArray
-     * @return string
-     */
-    protected function removeFilesOlderThanGivenRule($inputArray)
-    {
-        $proceedWithDeletion = false;
-        if (is_array($inputArray)) {
-            if (!isset($inputArray['path'])) {
-                return '`path` has not been provided';
-            } elseif (!isset($inputArray['dateRule'])) {
-                return '`dateRule` has not been provided';
-            }
-            $proceedWithDeletion = true;
-        }
-        if ($proceedWithDeletion) {
-            $finder   = new \Symfony\Component\Finder\Finder();
-            $iterator = $finder
-                    ->files()
-                    ->ignoreUnreadableDirs(true)
-                    ->followLinks()
-                    ->in($inputArray['path']);
-            $aFiles   = null;
-            foreach ($iterator as $file) {
-                if ($file->getATime() < strtotime($inputArray['dateRule'])) {
-                    $aFiles[] = $file->getRealPath();
-                }
-            }
-            if (is_null($aFiles)) {
-                return null;
-            } else {
-                $filesystem = new \Symfony\Component\Filesystem\Filesystem();
-                $filesystem->remove($aFiles);
-                return $this->setArrayToJson($aFiles);
-            }
-        }
-    }
-
-    /**
      * Send an array of parameters like a form through a POST action
      *
      * @param string $urlToSendTo
@@ -365,24 +295,15 @@ trait CommonCode
                 throw new \Exception($exc);
             } else {
                 if (is_array($params)) {
-                    $postingString   = $this->setArrayToStringForUrl('&', $params);
-                    $postingUrlParts = parse_url($postingUrl);
-                    $postingPort     = (isset($postingUrlParts['port']) ? $postingUrlParts['port'] : 80);
-                    $flPointer       = fsockopen($postingUrlParts['host'], $postingPort, $errNo, $errorMessage, 30);
+                    $postingString = $this->setArrayToStringForUrl('&', $params);
+                    $pUrlParts     = parse_url($postingUrl);
+                    $postingPort   = (isset($pUrlParts['port']) ? $pUrlParts['port'] : 80);
+                    $flPointer     = fsockopen($pUrlParts['host'], $postingPort, $errNo, $errorMessage, 30);
                     if ($flPointer === false) {
                         throw new \UnexpectedValueException($this->lclMsgCmn('i18n_Error_FailedToConnect') . ': '
                         . $errNo . ' (' . $errorMessage . ')');
                     } else {
-                        $out[] = 'POST ' . $postingUrlParts['path'] . ' ' . $_SERVER['SERVER_PROTOCOL'];
-                        $out[] = 'Host: ' . $postingUrlParts['host'];
-                        if (isset($_SERVER['HTTP_USER_AGENT'])) {
-                            $out[] = 'User-Agent: ' . filter_var($_SERVER['HTTP_USER_AGENT'], FILTER_SANITIZE_STRING);
-                        }
-                        $out[] = 'Content-Type: application/x-www-form-urlencoded';
-                        $out[] = 'Content-Length: ' . strlen($postingString);
-                        $out[] = 'Connection: Close' . "\r\n";
-                        $out[] = $postingString;
-                        fwrite($flPointer, implode("\r\n", $out));
+                        fwrite($flPointer, $this->sendBackgroundPrepareData($pUrlParts, $postingString));
                         fclose($flPointer);
                     }
                 } else {
@@ -392,6 +313,22 @@ trait CommonCode
         } catch (\Exception $exc) {
             echo '<pre style="color:#f00">' . $exc->getTraceAsString() . '</pre>';
         }
+    }
+
+    protected function sendBackgroundPrepareData($pUrlParts, $postingString)
+    {
+        $this->initializeSprGlbAndSession();
+        $out   = [];
+        $out[] = 'POST ' . $pUrlParts['path'] . ' ' . $this->tCmnSuperGlobals->server->get['SERVER_PROTOCOL'];
+        $out[] = 'Host: ' . $pUrlParts['host'];
+        if (isset($_SERVER['HTTP_USER_AGENT'])) {
+            $out[] = 'User-Agent: ' . $this->tCmnSuperGlobals->server->get('HTTP_USER_AGENT');
+        }
+        $out[] = 'Content-Type: application/x-www-form-urlencoded';
+        $out[] = 'Content-Length: ' . strlen($postingString);
+        $out[] = 'Connection: Close' . "\r\n";
+        $out[] = $postingString;
+        return implode("\r\n", $out);
     }
 
     /**
@@ -415,34 +352,6 @@ trait CommonCode
     }
 
     /**
-     * Replace space with break line for each key element
-     *
-     * @param array $aElements
-     * @return array
-     */
-    protected function setArrayToArrayKbr(array $aElements)
-    {
-        $aReturn = [];
-        foreach ($aElements as $key => $value) {
-            $aReturn[str_replace(' ', '<br/>', $key)] = $value;
-        }
-        return $aReturn;
-    }
-
-    /**
-     * Converts a single-child array into an parent-child one
-     *
-     * @param type $inArray
-     * @return type
-     */
-    protected function setArrayValuesAsKey(array $inArray)
-    {
-        $outArray = array_combine($inArray, $inArray);
-        ksort($outArray);
-        return $outArray;
-    }
-
-    /**
      * Returns proper result from a mathematical division in order to avoid Zero division erorr or Infinite results
      *
      * @param float $fAbove
@@ -454,41 +363,15 @@ trait CommonCode
     {
         // prevent infinite result AND division by 0
         if (($fAbove == 0) || ($fBelow == 0)) {
-            $nReturn = 0;
-        } else {
-            if (is_array($mArguments)) {
-                $nReturn = $this->setNumberFormat(($fAbove / $fBelow), [
-                    'MinFractionDigits' => $mArguments[1],
-                    'MaxFractionDigits' => $mArguments[1],
-                ]);
-            } else {
-                $nReturn = $this->setNumberFormat(round(($fAbove / $fBelow), $mArguments));
-            }
+            return 0;
         }
-        return $nReturn;
-    }
-
-    /**
-     * Provides a list of all known JSON errors and their description
-     *
-     * @return type
-     */
-    private function setJsonErrorInPlainEnglish()
-    {
-        $knownErrors  = [
-            JSON_ERROR_NONE           => null,
-            JSON_ERROR_DEPTH          => 'Maximum stack depth exceeded',
-            JSON_ERROR_STATE_MISMATCH => 'Underflow or the modes mismatch',
-            JSON_ERROR_CTRL_CHAR      => 'Unexpected control character found',
-            JSON_ERROR_SYNTAX         => 'Syntax error, malformed JSON',
-            JSON_ERROR_UTF8           => 'Malformed UTF-8 characters, possibly incorrectly encoded',
-        ];
-        $currentError = json_last_error();
-        $sReturn      = null;
-        if (in_array($currentError, $knownErrors)) {
-            $sReturn = $knownErrors[$currentError];
+        if (is_array($mArguments)) {
+            return $this->setNumberFormat(($fAbove / $fBelow), [
+                        'MinFractionDigits' => $mArguments[1],
+                        'MaxFractionDigits' => $mArguments[1],
+            ]);
         }
-        return $sReturn;
+        return $this->setNumberFormat(round(($fAbove / $fBelow), $mArguments));
     }
 
     /**
@@ -500,18 +383,14 @@ trait CommonCode
     protected function setJsonToArray($inputJson)
     {
         if (!$this->isJsonByDanielGP($inputJson)) {
-            return [
-                'error' => $this->lclMsgCmn('i18n_Error_GivenInputIsNotJson')
-            ];
+            return ['error' => $this->lclMsgCmn('i18n_Error_GivenInputIsNotJson')];
         }
         $sReturn   = (json_decode($inputJson, true));
         $jsonError = $this->setJsonErrorInPlainEnglish();
         if (is_null($jsonError)) {
             return $sReturn;
         } else {
-            return [
-                'error' => $jsonError
-            ];
+            return ['error' => $jsonError];
         }
     }
 }
