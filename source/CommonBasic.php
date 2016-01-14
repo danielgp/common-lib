@@ -106,11 +106,9 @@ trait CommonBasic
                     $aFiles[] = $file->getRealPath();
                 }
             }
-            if (is_null($aFiles)) {
-                return null;
-            }
             return $aFiles;
         }
+        return null;
     }
 
     /**
