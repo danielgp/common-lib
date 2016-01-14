@@ -88,10 +88,7 @@ trait DomComponentsByDanielGP
      */
     protected function setArrayToStringForUrl($sSeparator, $aElements, $aExceptedElements = [''])
     {
-        var_dump($aElements);
-        echo '<hr/>';
         $outArray   = $this->normalizeArrayForUrl($aElements);
-        var_dump($outArray);
         $xptArray   = $this->normalizeArrayForUrl($aExceptedElements);
         $finalArray = array_diff_key($outArray, $xptArray);
         return http_build_query($finalArray, '', $sSeparator);
