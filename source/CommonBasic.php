@@ -37,27 +37,26 @@ trait CommonBasic
 {
 
     /**
-     * Tests if given string has a valid Json format
+     * Moves files into another folder
      *
-     * @param string $inputJson
-     * @return boolean|string
+     * @param type $sourcePath
+     * @param type $targetPath
+     * @return type
      */
-    protected function isJsonByDanielGP($inputJson)
+    protected function moveFilesIntoTargetFolder($sourcePath, $targetPath)
     {
-        if (is_string($inputJson)) {
-            json_decode($inputJson);
-            return (json_last_error() == JSON_ERROR_NONE);
-        } else {
-            return $this->lclMsgCmn('i18n_Error_GivenInputIsNotJson');
+        $filesystem = new \Symfony\Component\Filesystem\Filesystem();
+        $filesystem->mirror($sourcePath, $targetPath);
+        $finder     = new \Symfony\Component\Finder\Finder();
+        $iterator   = $finder->files()->ignoreUnreadableDirs(true)->followLinks()->in($sourcePath);
+        $sFiles     = [];
+        foreach ($iterator as $file) {
+            $relativePathFile = str_replace($sourcePath, '', $file->getRealPath());
+            if (!file_exists($targetPath . $relativePathFile)) {
+                $sFiles[$relativePathFile] = $targetPath . $relativePathFile;
+            }
         }
-    }
-
-    private function packIntoJson($aReturn, $keyToWorkWith)
-    {
-        if ($this->isJsonByDanielGP($aReturn[$keyToWorkWith])) {
-            return '"' . $keyToWorkWith . '": ' . $aReturn[$keyToWorkWith];
-        }
-        return '"' . $keyToWorkWith . '": {' . $aReturn[$keyToWorkWith] . ' }';
+        return $this->setArrayToJson($sFiles);
     }
 
     protected function removeFilesDecision($inputArray)
@@ -86,12 +85,11 @@ trait CommonBasic
     {
         $aFiles = $this->retrieveFilesOlderThanGivenRule($inputArray);
         if (is_null($aFiles)) {
-            return null;
+            return $aFiles;
         }
         $filesystem = new \Symfony\Component\Filesystem\Filesystem();
         $filesystem->remove($aFiles);
-        $jsonResult = json_encode($aFiles, JSON_FORCE_OBJECT | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
-        return utf8_encode($jsonResult);
+        return $this->setArrayToJson($aFiles);
     }
 
     protected function retrieveFilesOlderThanGivenRule($inputArray)
@@ -137,6 +135,23 @@ trait CommonBasic
         $outArray = array_combine($inArray, $inArray);
         ksort($outArray);
         return $outArray;
+    }
+
+    /**
+     * Converts an array into JSON string
+     *
+     * @param array $inArray
+     * @return string
+     */
+    protected function setArrayToJson(array $inArray)
+    {
+        $rtrn      = utf8_encode(json_encode($inArray, JSON_FORCE_OBJECT | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+        $jsonError = $this->setJsonErrorInPlainEnglish();
+        if (is_null($jsonError)) {
+            return $rtrn;
+        } else {
+            return $jsonError;
+        }
     }
 
     /**

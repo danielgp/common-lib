@@ -261,30 +261,26 @@ trait CommonCode
     }
 
     /**
-     * Moves files into another folder
+     * Tests if given string has a valid Json format
      *
-     * @param type $sourcePath
-     * @param type $targetPath
-     * @return type
+     * @param string $inputJson
+     * @return boolean|string
      */
-    protected function moveFilesIntoTargetFolder($sourcePath, $targetPath)
+    protected function isJsonByDanielGP($inputJson)
     {
-        $filesystem = new \Symfony\Component\Filesystem\Filesystem();
-        $filesystem->mirror($sourcePath, $targetPath);
-        $finder     = new \Symfony\Component\Finder\Finder();
-        $iterator   = $finder
-                ->files()
-                ->ignoreUnreadableDirs(true)
-                ->followLinks()
-                ->in($sourcePath);
-        $sFiles     = [];
-        foreach ($iterator as $file) {
-            $relativePathFile = str_replace($sourcePath, '', $file->getRealPath());
-            if (!file_exists($targetPath . $relativePathFile)) {
-                $sFiles[$relativePathFile] = $targetPath . $relativePathFile;
-            }
+        if (is_string($inputJson)) {
+            json_decode($inputJson);
+            return (json_last_error() == JSON_ERROR_NONE);
         }
-        return $this->setArrayToJson($sFiles);
+        return $this->lclMsgCmn('i18n_Error_GivenInputIsNotJson');
+    }
+
+    private function packIntoJson($aReturn, $keyToWorkWith)
+    {
+        if ($this->isJsonByDanielGP($aReturn[$keyToWorkWith])) {
+            return '"' . $keyToWorkWith . '": ' . $aReturn[$keyToWorkWith];
+        }
+        return '"' . $keyToWorkWith . '": {' . $aReturn[$keyToWorkWith] . ' }';
     }
 
     /**
@@ -340,26 +336,6 @@ trait CommonCode
     }
 
     /**
-     * Converts an array into JSON string
-     *
-     * @param array $inArray
-     * @return string
-     */
-    protected function setArrayToJson(array $inArray)
-    {
-        if (!is_array($inArray)) {
-            return $this->lclMsgCmn('i18n_Error_GivenInputIsNotArray');
-        }
-        $rtrn      = utf8_encode(json_encode($inArray, JSON_FORCE_OBJECT | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
-        $jsonError = $this->setJsonErrorInPlainEnglish();
-        if (is_null($jsonError)) {
-            return $rtrn;
-        } else {
-            return $jsonError;
-        }
-    }
-
-    /**
      * Returns proper result from a mathematical division in order to avoid Zero division erorr or Infinite results
      *
      * @param float $fAbove
@@ -369,15 +345,15 @@ trait CommonCode
      */
     protected function setDividedResult($fAbove, $fBelow, $mArguments = 0)
     {
-        // prevent infinite result AND division by 0
-        if (($fAbove == 0) || ($fBelow == 0)) {
+        if (($fAbove == 0) || ($fBelow == 0)) { // prevent infinite result AND division by 0
             return 0;
         }
         if (is_array($mArguments)) {
-            return $this->setNumberFormat(($fAbove / $fBelow), [
-                        'MinFractionDigits' => $mArguments[1],
-                        'MaxFractionDigits' => $mArguments[1],
-            ]);
+            $frMinMax = [
+                'MinFractionDigits' => $mArguments[1],
+                'MaxFractionDigits' => $mArguments[1],
+            ];
+            return $this->setNumberFormat(($fAbove / $fBelow), $frMinMax);
         }
         return $this->setNumberFormat(round(($fAbove / $fBelow), $mArguments));
     }
