@@ -37,6 +37,7 @@ trait DomComponentsByDanielGP
 {
 
     use \danielgp\browser_agent_info\BrowserAgentInfosByDanielGP,
+        CommonLibLocale,
         DomBasicComponentsByDanielGP,
         DomDynamicSelectByDanielGP,
         DomComponentsByDanielGPwithCDN;
@@ -949,6 +950,46 @@ trait DomComponentsByDanielGP
             $sReturn[] = $this->setStringIntoTag($value, 'th');
         }
         return implode('', $sReturn);
+    }
+
+    /**
+     * Create an upper right box with choices for languages
+     * (requires flag-icon.min.css to be loaded)
+     * (makes usage of custom class "upperRightBox" and id = "visibleOnHover", provided here as scss file)
+     *
+     * @param array $aAvailableLanguages
+     * @return string
+     */
+    protected function setUpperRightBoxLanguages($aAvailableLanguages)
+    {
+        $this->handleLanguageIntoSession();
+        return '<div class="upperRightBox">'
+                . '<div style="text-align:right;">'
+                . '<span class="flag-icon flag-icon-' . strtolower(substr($this->tCmnSuperGlobals->get('lang'), -2))
+                . '" style="margin-right:2px;">&nbsp;</span>'
+                . $aAvailableLanguages[$this->tCmnSession->get('lang')]
+                . '</div><!-- default Language -->'
+                . $this->setUpperRightVisibleOnHoverLanguages($aAvailableLanguages)
+                . '</div><!-- upperRightBox end -->';
+    }
+
+    private function setUpperRightVisibleOnHoverLanguages($aAvailableLanguages)
+    {
+        $linkWithoutLanguage = '';
+        if (isset($this->tCmnSuperGlobals->request)) {
+            $linkWithoutLanguage = $this->setArrayToStringForUrl('&amp;', $this->tCmnSuperGlobals->request, ['lang'])
+                    . '&amp;';
+        }
+        $sReturn = [];
+        foreach ($aAvailableLanguages as $key => $value) {
+            if ($this->tCmnSession->get('lang') !== $key) {
+                $sReturn[] = '<a href="?' . $linkWithoutLanguage . 'lang=' . $key . '" style="display:block;">'
+                        . '<span class="flag-icon flag-icon-' . strtolower(substr($key, -2))
+                        . '" style="margin-right:2px;">&nbsp;</span>'
+                        . $value . '</a>';
+            }
+        }
+        return '<div id="visibleOnHover">' . implode('', $sReturn) . '</div><!-- visibleOnHover end -->';
     }
 
     protected function setViewModernLinkAdd($identifier, $ftrs = null)

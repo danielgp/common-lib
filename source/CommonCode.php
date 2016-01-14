@@ -36,8 +36,7 @@ namespace danielgp\common_lib;
 trait CommonCode
 {
 
-    use CommonLibLocale,
-        CommonPermissions,
+    use CommonPermissions,
         DomComponentsByDanielGP,
         MySQLiByDanielGPqueries,
         MySQLiByDanielGP;

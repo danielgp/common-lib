@@ -36,8 +36,10 @@ namespace danielgp\common_lib;
 trait CommonLibLocale
 {
 
-    protected $commonLibFlags = null;
-    protected $tCmnLb         = null;
+    protected $commonLibFlags   = null;
+    protected $tCmnLb           = null;
+    protected $tCmnSession      = null;
+    protected $tCmnSuperGlobals = null;
 
     private function getCommonLocaleFolder()
     {
@@ -54,20 +56,22 @@ trait CommonLibLocale
 
     /**
      * Stores given language or default one into global session variable
+     * (In order to avoid potential language injections from other applications session will revert
+     * to the default language if application one is not among the one are not supported here)
      *
      * @return NOTHING
      */
     private function handleLanguageIntoSession()
     {
         $this->settingsCommonLib();
-        if (isset($_GET['lang'])) {
-            $_SESSION['lang'] = filter_var($_GET['lang'], FILTER_SANITIZE_STRING);
-        } elseif (!isset($_SESSION['lang'])) {
-            $_SESSION['lang'] = $this->commonLibFlags['default_language'];
+        $this->initializeSprGlbAndSession();
+        if (is_null($this->tCmnSuperGlobals->get('lang'))) {
+            $this->tCmnSession->set('lang', $this->commonLibFlags['default_language']);
+        } elseif (!is_null($this->tCmnSuperGlobals->get('lang'))) {
+            $this->tCmnSession->set('lang', filter_var($this->tCmnSuperGlobals->get('lang'), FILTER_SANITIZE_STRING));
         }
-        /* to avoid potential language injections from other applications that do not applies here */
-        if (!in_array($_SESSION['lang'], array_keys($this->commonLibFlags['available_languages']))) {
-            $_SESSION['lang'] = $this->commonLibFlags['default_language'];
+        if (!array_key_exists($this->tCmnSession->get('lang'), $this->commonLibFlags['available_languages'])) {
+            $this->tCmnSession->set('lang', $this->commonLibFlags['default_language']);
         }
     }
 
@@ -81,13 +85,22 @@ trait CommonLibLocale
     {
         $this->handleLanguageIntoSession();
         $localizationFile = $this->getCommonLocaleFolder() . '/locale/'
-                . $_SESSION['lang'] . '/LC_MESSAGES/'
+                . $this->tCmnSuperGlobals->get('lang') . '/LC_MESSAGES/'
                 . $this->commonLibFlags['localization_domain']
                 . '.mo';
         $extrClass        = new \Gettext\Extractors\Mo();
         $translations     = $extrClass->fromFile($localizationFile);
         $this->tCmnLb     = new \Gettext\Translator();
         $this->tCmnLb->loadTranslations($translations);
+    }
+
+    private function initializeSprGlbAndSession()
+    {
+        $rqst                   = new \Symfony\Component\HttpFoundation\Request;
+        $this->tCmnSuperGlobals = $rqst->createFromGlobals();
+        $sBridge                = new \Symfony\Component\HttpFoundation\Session\Storage\PhpBridgeSessionStorage();
+        $this->tCmnSession      = new \Symfony\Component\HttpFoundation\Session\Session($sBridge);
+        $this->tCmnSession->start();
     }
 
     /**
@@ -125,61 +138,24 @@ trait CommonLibLocale
 
     private function setNumberFormatFeatures($features)
     {
+        if (is_null($this->tCmnSession)) {
+            $this->initializeSprGlbAndSession();
+        }
         if (is_null($features)) {
             $features = [
-                'locale'            => $_SESSION['lang'],
+                'locale'            => $this->tCmnSuperGlobals->get('lang'),
                 'style'             => \NumberFormatter::DECIMAL,
                 'MinFractionDigits' => 0,
                 'MaxFractionDigits' => 0,
             ];
         }
         if (!isset($features['locale'])) {
-            $features['locale'] = $_SESSION['lang'];
+            $features['locale'] = $this->tCmnSuperGlobals->get('lang');
         }
         if (!isset($features['style'])) {
             $features['style'] = \NumberFormatter::DECIMAL;
         }
         return $features;
-    }
-
-    /**
-     * Create an upper right box with choices for languages
-     * (requires flag-icon.min.css to be loaded)
-     * (makes usage of custom class "upperRightBox" and id = "visibleOnHover", provided here as scss file)
-     *
-     * @param array $aAvailableLanguages
-     * @return string
-     */
-    protected function setUpperRightBoxLanguages($aAvailableLanguages)
-    {
-        $this->handleLanguageIntoSession();
-        return '<div class="upperRightBox">'
-                . '<div style="text-align:right;">'
-                . '<span class="flag-icon flag-icon-' . strtolower(substr($_SESSION['lang'], -2))
-                . '" style="margin-right:2px;">&nbsp;</span>'
-                . $aAvailableLanguages[$_SESSION['lang']]
-                . '</div><!-- default Language -->'
-                . $this->setVisibleOnHoverLanguages($aAvailableLanguages)
-                . '</div><!-- upperRightBox end -->';
-    }
-
-    private function setVisibleOnHoverLanguages($aAvailableLanguages)
-    {
-        $linkWithoutLanguage = '';
-        if (isset($_REQUEST)) {
-            $linkWithoutLanguage = $this->setArrayToStringForUrl('&amp;', $_REQUEST, ['lang']) . '&amp;';
-        }
-        $sReturn[] = '<div id="visibleOnHover">';
-        foreach ($aAvailableLanguages as $key => $value) {
-            if ($_SESSION['lang'] !== $key) {
-                $sReturn[] = '<a href="?' . $linkWithoutLanguage . 'lang=' . $key . '" style="display:block;">'
-                        . '<span class="flag-icon flag-icon-' . strtolower(substr($key, -2))
-                        . '" style="margin-right:2px;">&nbsp;</span>'
-                        . $value . '</a>';
-            }
-        }
-        $sReturn[] = '</div><!-- visibleOnHover end -->';
-        return implode('', $sReturn);
     }
 
     /**
