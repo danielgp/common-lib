@@ -36,6 +36,8 @@ namespace danielgp\common_lib;
 trait DomBasicComponentsByDanielGP
 {
 
+    use CommonLibLocale;
+
     private function buildAttributesForTag($features)
     {
         if (!is_array($features)) {
@@ -111,6 +113,54 @@ trait DomBasicComponentsByDanielGP
     }
 
     /**
+     * Sets the gzip footer for HTML
+     */
+    protected function setFooterGZiped()
+    {
+        if (extension_loaded('zlib')) {
+            return $this->setGZipedUnsafe('Footer');
+        }
+        return '';
+    }
+
+    private function setGZipedUnsafe($outputType)
+    {
+        $this->initializeSprGlbAndSession();
+        if (!is_null($this->tCmnRequest->server->get('HTTP_ACCEPT_ENCODING'))) {
+            return '';
+        }
+        if (strstr($this->tCmnRequest->server->get('HTTP_ACCEPT_ENCODING'), 'gzip')) {
+            switch ($outputType) {
+                case 'Footer':
+                    $gzipCntnt = ob_get_contents();
+                    ob_end_clean();
+                    $gzipSize  = strlen($gzipCntnt);
+                    $gzipCrc   = crc32($gzipCntnt);
+                    $gzipCntnt = gzcompress($gzipCntnt, 9);
+                    $gzipCntnt = substr($gzipCntnt, 0, strlen($gzipCntnt) - 4);
+                    echo "\x1f\x8b\x08\x00\x00\x00\x00\x00" . $gzipCntnt . pack('V', $gzipCrc) . pack('V', $gzipSize);
+                    break;
+                case 'Header':
+                    ob_start();
+                    ob_implicit_flush(0);
+                    header('Content-Encoding: gzip');
+                    break;
+            }
+        }
+    }
+
+    /**
+     * Sets the gzip header for HTML
+     */
+    protected function setHeaderGZiped()
+    {
+        if (extension_loaded('zlib')) {
+            return $this->setGZipedUnsafe('Header');
+        }
+        return '';
+    }
+
+    /**
      * Sets the no-cache header
      */
     protected function setHeaderNoCache($contentType = 'application/json')
@@ -146,5 +196,37 @@ trait DomBasicComponentsByDanielGP
     protected function setStringIntoTag($sString, $sTag, $features = null)
     {
         return '<' . $sTag . $this->buildAttributesForTag($features) . '>' . $sString . '</' . $sTag . '>';
+    }
+
+    protected function setViewModernLinkAdd($identifier, $ftrs = null)
+    {
+        $btnText     = '<i class="fa fa-plus-square">&nbsp;</i>' . '&nbsp;' . $this->lclMsgCmn('i18n_AddNewRecord');
+        $tagFeatures = [
+            'href'  => $this->setViewModernLinkAddUrl($identifier, $ftrs),
+            'style' => 'margin: 5px 0px 10px 0px; display: inline-block;',
+        ];
+        return $this->setStringIntoTag($btnText, 'a', $tagFeatures);
+    }
+
+    protected function setViewModernLinkAddInjectedArguments($ftrs = null)
+    {
+        $sArgmnts = '';
+        if (isset($ftrs['injectAddArguments'])) {
+            foreach ($ftrs['injectAddArguments'] as $key => $value) {
+                $sArgmnts .= '&amp;' . $key . '=' . $value;
+            }
+        }
+        return $sArgmnts;
+    }
+
+    protected function setViewModernLinkAddUrl($identifier, $ftrs = null)
+    {
+        $sArgmnts  = $this->setViewModernLinkAddInjectedArguments($ftrs);
+        $this->initializeSprGlbAndSession();
+        $addingUrl = $this->tCmnRequest->server->get('PHP_SELF') . '?view=add_' . $identifier . $sArgmnts;
+        if (!isset($ftrs['NoAjax'])) {
+            $addingUrl = 'javascript:loadAE(\'' . $addingUrl . '\');';
+        }
+        return $addingUrl;
     }
 }

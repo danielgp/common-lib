@@ -37,7 +37,6 @@ trait DomComponentsByDanielGP
 {
 
     use \danielgp\browser_agent_info\BrowserAgentInfosByDanielGP,
-        CommonLibLocale,
         DomBasicComponentsByDanielGP,
         DomDynamicSelectByDanielGP,
         DomComponentsByDanielGPwithCDN;
@@ -667,43 +666,6 @@ trait DomComponentsByDanielGP
     }
 
     /**
-     * Sets the gzip footer for HTML
-     */
-    protected function setFooterGZiped()
-    {
-        if (extension_loaded('zlib')) {
-            return $this->setGZipedUnsafe('Footer');
-        }
-        return '';
-    }
-
-    private function setGZipedUnsafe($outputType)
-    {
-        $rqst = new \Symfony\Component\HttpFoundation\Request;
-        if (!is_null($rqst->server->get('HTTP_ACCEPT_ENCODING'))) {
-            return '';
-        }
-        if (strstr($rqst->server->get('HTTP_ACCEPT_ENCODING'), 'gzip')) {
-            switch ($outputType) {
-                case 'Footer':
-                    $gzipCntnt = ob_get_contents();
-                    ob_end_clean();
-                    $gzipSize  = strlen($gzipCntnt);
-                    $gzipCrc   = crc32($gzipCntnt);
-                    $gzipCntnt = gzcompress($gzipCntnt, 9);
-                    $gzipCntnt = substr($gzipCntnt, 0, strlen($gzipCntnt) - 4);
-                    echo "\x1f\x8b\x08\x00\x00\x00\x00\x00" . $gzipCntnt . pack('V', $gzipCrc) . pack('V', $gzipSize);
-                    break;
-                case 'Header':
-                    ob_start();
-                    ob_implicit_flush(0);
-                    header('Content-Encoding: gzip');
-                    break;
-            }
-        }
-    }
-
-    /**
      * Outputs an HTML header
      *
      * @param array $headerFeatures
@@ -776,17 +738,6 @@ trait DomComponentsByDanielGP
             }
         }
         return implode('', $sReturn);
-    }
-
-    /**
-     * Sets the gzip header for HTML
-     */
-    protected function setHeaderGZiped()
-    {
-        if (extension_loaded('zlib')) {
-            return $this->setGZipedUnsafe('Header');
-        }
-        return '';
     }
 
     /**
@@ -990,37 +941,6 @@ trait DomComponentsByDanielGP
             }
         }
         return '<div id="visibleOnHover">' . implode('', $sReturn) . '</div><!-- visibleOnHover end -->';
-    }
-
-    protected function setViewModernLinkAdd($identifier, $ftrs = null)
-    {
-        $btnText = '<i class="fa fa-plus-square">&nbsp;</i>' . '&nbsp;' . $this->lclMsgCmn('i18n_AddNewRecord');
-        return $this->setStringIntoTag($btnText, 'a', [
-                    'href'  => $this->setViewModernLinkAddUrl($identifier, $ftrs),
-                    'style' => 'margin: 5px 0px 10px 0px; display: inline-block;',
-        ]);
-    }
-
-    protected function setViewModernLinkAddInjectedArguments($ftrs = null)
-    {
-        $sArgmnts = '';
-        if (isset($ftrs['injectAddArguments'])) {
-            foreach ($ftrs['injectAddArguments'] as $key => $value) {
-                $sArgmnts .= '&amp;' . $key . '=' . $value;
-            }
-        }
-        return $sArgmnts;
-    }
-
-    protected function setViewModernLinkAddUrl($identifier, $ftrs = null)
-    {
-        $sArgmnts  = $this->setViewModernLinkAddInjectedArguments($ftrs);
-        $rqst      = new \Symfony\Component\HttpFoundation\Request;
-        $addingUrl = $rqst->server->get('PHP_SELF') . '?view=add_' . $identifier . $sArgmnts;
-        if (!isset($ftrs['NoAjax'])) {
-            $addingUrl = 'javascript:loadAE(\'' . $addingUrl . '\');';
-        }
-        return $addingUrl;
     }
 
     protected function updateDivTitleName($rememberGroupVal, $groupCounter)

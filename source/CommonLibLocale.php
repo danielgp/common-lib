@@ -38,6 +38,7 @@ trait CommonLibLocale
 
     protected $commonLibFlags   = null;
     protected $tCmnLb           = null;
+    protected $tCmnRequest      = null;
     protected $tCmnSession      = null;
     protected $tCmnSuperGlobals = null;
 
@@ -94,13 +95,17 @@ trait CommonLibLocale
         $this->tCmnLb->loadTranslations($translations);
     }
 
-    private function initializeSprGlbAndSession()
+    protected function initializeSprGlbAndSession()
     {
-        $rqst                   = new \Symfony\Component\HttpFoundation\Request;
-        $this->tCmnSuperGlobals = $rqst->createFromGlobals();
-        $sBridge                = new \Symfony\Component\HttpFoundation\Session\Storage\PhpBridgeSessionStorage();
-        $this->tCmnSession      = new \Symfony\Component\HttpFoundation\Session\Session($sBridge);
-        $this->tCmnSession->start();
+        if (is_null($this->tCmnSuperGlobals)) {
+            $this->tCmnRequest      = new \Symfony\Component\HttpFoundation\Request;
+            $this->tCmnSuperGlobals = $this->tCmnRequest->createFromGlobals();
+        }
+        if (is_null($this->tCmnSession)) {
+            $sBridge           = new \Symfony\Component\HttpFoundation\Session\Storage\PhpBridgeSessionStorage();
+            $this->tCmnSession = new \Symfony\Component\HttpFoundation\Session\Session($sBridge);
+            $this->tCmnSession->start();
+        }
     }
 
     /**
