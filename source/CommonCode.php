@@ -72,16 +72,18 @@ trait CommonCode
     protected function getContentFromUrlThroughCurl($fullURL, $features = null)
     {
         if (!function_exists('curl_init')) {
-            return [
+            $aReturn = [
                 'info'     => $this->lclMsgCmn('i18n_Error_ExtensionNotLoaded'),
                 'response' => '',
             ];
+            return $this->setArrayToJson($aReturn);
         }
         if (!filter_var($fullURL, FILTER_VALIDATE_URL)) {
-            return [
+            $aReturn = [
                 'info'     => $this->lclMsgCmn('i18n_Error_GivenUrlIsNotValid'),
                 'response' => '',
             ];
+            return $this->setArrayToJson($aReturn);
         }
         $aReturn = $this->getContentFromUrlThroughCurlRawArray($fullURL, $features);
         return '{ ' . $this->packIntoJson($aReturn, 'info') . ', ' . $this->packIntoJson($aReturn, 'response') . ' }';
@@ -97,15 +99,11 @@ trait CommonCode
     protected function getContentFromUrlThroughCurlAsArrayIfJson($fullURL, $features = null)
     {
         $result = $this->setJsonToArray($this->getContentFromUrlThroughCurl($fullURL, $features));
-        if (isset($result['info'])) {
-            if (is_array($result['info'])) {
-                ksort($result['info']);
-            }
+        if (is_array($result['info'])) {
+            ksort($result['info']);
         }
-        if (isset($result['response'])) {
-            if (is_array($result['response'])) {
-                ksort($result['response']);
-            }
+        if (is_array($result['response'])) {
+            ksort($result['response']);
         }
         return $result;
     }
