@@ -36,35 +36,6 @@ namespace danielgp\common_lib;
 trait CommonBasic
 {
 
-    protected function getContentFromUrlThroughCurlRawArray($fullURL, $features = null)
-    {
-        $chanel = curl_init();
-        curl_setopt($chanel, CURLOPT_USERAGENT, $this->getUserAgentByCommonLib());
-        if ((strpos($fullURL, 'https') !== false) || (isset($features['forceSSLverification']))) {
-            curl_setopt($chanel, CURLOPT_SSL_VERIFYHOST, false);
-            curl_setopt($chanel, CURLOPT_SSL_VERIFYPEER, false);
-        }
-        curl_setopt($chanel, CURLOPT_URL, $fullURL);
-        curl_setopt($chanel, CURLOPT_HEADER, false);
-        curl_setopt($chanel, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($chanel, CURLOPT_FRESH_CONNECT, true); //avoid a cached response
-        curl_setopt($chanel, CURLOPT_FAILONERROR, true);
-        $rspJsonFromClient = curl_exec($chanel);
-        $aReturn           = [];
-        if (curl_errno($chanel)) {
-            $aReturn['info']     = $this->setArrayToJson([
-                '#'           => curl_errno($chanel),
-                'description' => curl_error($chanel)
-            ]);
-            $aReturn['response'] = '';
-        } else {
-            $aReturn['info']     = $this->setArrayToJson(curl_getinfo($chanel));
-            $aReturn['response'] = $rspJsonFromClient;
-        }
-        curl_close($chanel);
-        return $aReturn;
-    }
-
     /**
      * Moves files into another folder
      *

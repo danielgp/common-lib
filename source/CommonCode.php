@@ -62,6 +62,20 @@ trait CommonCode
         return $difference;
     }
 
+    private function buildArrayForCurlInterogation($chanel)
+    {
+        if (curl_errno($chanel)) {
+            return [
+                'info'     => $this->setArrayToJson(['#' => curl_errno($chanel), 'description' => curl_error($chanel)]),
+                'response' => '',
+            ];
+        }
+        return [
+            'info'     => $this->setArrayToJson(curl_getinfo($chanel)),
+            'response' => $rspJsonFromClient,
+        ];
+    }
+
     /**
      * Reads the content of a remote file through CURL extension
      *
@@ -106,6 +120,25 @@ trait CommonCode
             ksort($result['response']);
         }
         return $result;
+    }
+
+    protected function getContentFromUrlThroughCurlRawArray($fullURL, $features = null)
+    {
+        $chanel = curl_init();
+        curl_setopt($chanel, CURLOPT_USERAGENT, $this->getUserAgentByCommonLib());
+        if ((strpos($fullURL, 'https') !== false) || (isset($features['forceSSLverification']))) {
+            curl_setopt($chanel, CURLOPT_SSL_VERIFYHOST, false);
+            curl_setopt($chanel, CURLOPT_SSL_VERIFYPEER, false);
+        }
+        curl_setopt($chanel, CURLOPT_URL, $fullURL);
+        curl_setopt($chanel, CURLOPT_HEADER, false);
+        curl_setopt($chanel, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($chanel, CURLOPT_FRESH_CONNECT, true); //avoid a cached response
+        curl_setopt($chanel, CURLOPT_FAILONERROR, true);
+        $rspJsonFromClient = curl_exec($chanel);
+        $aReturn           = $this->buildArrayForCurlInterogation($chanel);
+        curl_close($chanel);
+        return $aReturn;
     }
 
     protected function getFeedbackMySQLAffectedRecords()
@@ -182,10 +215,7 @@ trait CommonCode
         }
         $aFiles   = null;
         $finder   = new \Symfony\Component\Finder\Finder();
-        $iterator = $finder
-                ->files()
-                ->sortByName()
-                ->in($pathAnalised);
+        $iterator = $finder->files()->sortByName()->in($pathAnalised);
         foreach ($iterator as $file) {
             $aFiles[$file->getRealPath()] = $this->getFileDetails($file);
         }
@@ -200,35 +230,35 @@ trait CommonCode
      */
     protected function getTimestamp($returnType = 'string')
     {
-        $crtTime = gettimeofday();
-        switch ($returnType) {
-            case 'array':
-                $sReturn = [
-                    'float'  => ($crtTime['sec'] + $crtTime['usec'] / pow(10, 6)),
-                    'string' => implode('', [
-                        '<span style="color:black!important;font-weight:bold;">[',
-                        date('Y-m-d H:i:s.', $crtTime['sec']),
-                        substr(round($crtTime['usec'], -3), 0, 3),
-                        ']</span> '
-                    ]),
-                ];
-                break;
-            case 'float':
-                $sReturn = ($crtTime['sec'] + $crtTime['usec'] / pow(10, 6));
-                break;
-            case 'string':
-                $sReturn = implode('', [
-                    '<span style="color:black!important;font-weight:bold;">[',
-                    date('Y-m-d H:i:s.', $crtTime['sec']),
-                    substr(round($crtTime['usec'], -3), 0, 3),
-                    ']</span> '
-                ]);
-                break;
-            default:
-                $sReturn = sprintf($this->lclMsgCmn('i18n_Error_UnknownReturnType'), $returnType);
-                break;
+        $crtTime          = gettimeofday();
+        $knownReturnTypes = ['array', 'float', 'string'];
+        if (in_array($returnType, $knownReturnTypes)) {
+            return call_user_func([$this, 'getTimestamp' . ucfirst($returnType)], $crtTime);
         }
-        return $sReturn;
+        return sprintf($this->lclMsgCmn('i18n_Error_UnknownReturnType'), $returnType);
+    }
+
+    private function getTimestampArray($crtTime)
+    {
+        return [
+            'float'  => $this->getTimestampFloat($crtTime),
+            'string' => $this->getTimestampString($crtTime),
+        ];
+    }
+
+    private function getTimestampFloat($crtTime)
+    {
+        return ($crtTime['sec'] + $crtTime['usec'] / pow(10, 6));
+    }
+
+    private function getTimestampString($crtTime)
+    {
+        return implode('', [
+            '<span style="color:black!important;font-weight:bold;">[',
+            date('Y-m-d H:i:s.', $crtTime['sec']),
+            substr(round($crtTime['usec'], -3), 0, 3),
+            ']</span> '
+        ]);
     }
 
     /**
