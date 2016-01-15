@@ -60,25 +60,17 @@ trait MySQLiByDanielGPqueries
         if (is_array($filterValue)) {
             return 'IN ("' . implode('", "', $filterValue) . '")';
         }
-        switch ($filterValue) {
-            case 'CONNECTION_ID()':
-            case 'CURDATE()':
-            case 'CURRENT_USER':
-            case 'CURRENT_USER()':
-            case 'CURRENT_DATETIME':
-            case 'DATABASE()':
-            case 'NOW()':
-            case 'USER()':
-                return '= ' . $filterValue;
-            // intentionally left blank
-            case 'IS NULL':
-            case 'IS NOT NULL':
-                return $filterValue;
-            // intentionally left blank
-            case 'NOT NULL':
-            case 'NULL':
-                return 'IS ' . $filterValue;
-            // intentionally left blank
+        $kFields = [
+            'CONNECTION_ID()|CURDATE()|CURRENT_USER|CURRENT_USER()|CURRENT_DATETIME|DATABASE()|NOW()|USER()',
+            'IS NULL|IS NOT NULL',
+            'NOT NULL|NULL',
+        ];
+        if (in_array($filterValue, explode('|', $kFields[0]))) {
+            return '= ' . $filterValue;
+        } elseif (in_array($filterValue, explode('|', $kFields[1]))) {
+            return $filterValue;
+        } elseif (in_array($filterValue, explode('|', $kFields[2]))) {
+            return 'IS ' . $filterValue;
         }
         return '= "' . $filterValue . '"';
     }
@@ -86,7 +78,7 @@ trait MySQLiByDanielGPqueries
     /**
      * Internal function to concatenate filters
      *
-     * @param type $filters
+     * @param array $filters
      * @return type
      */
     private function sGlueFiltersIntoWhereArrayFilter($filters)
@@ -110,14 +102,10 @@ trait MySQLiByDanielGPqueries
                         . $this->sGlueFilterValueIntoWhereString($value);
             }
         }
-        $finalFilter = '';
         if (count($filters) > 0) {
-            $finalFilter = implode(' ', [
-                        'WHERE',
-                        $this->sGlueFiltersIntoWhereArrayFilter($filters),
-                    ]) . ' ';
+            return 'WHERE ' . $this->sGlueFiltersIntoWhereArrayFilter($filters) . ' ';
         }
-        return $finalFilter;
+        return '';
     }
 
     /**
@@ -128,16 +116,13 @@ trait MySQLiByDanielGPqueries
      */
     protected function sQueryMySqlActiveDatabases($excludeSystemDbs = true)
     {
-        $filterChoice = '';
-        if ($excludeSystemDbs) {
-            $filterChoice = 'WHERE `SCHEMA_NAME` NOT IN ("information_schema", "mysql", "performance_schema", "sys") ';
-        }
+        $stdDbs = ['information_schema', 'mysql', 'performance_schema', 'sys'];
         return 'SELECT '
                 . '`SCHEMA_NAME` As `Db`, '
                 . '`DEFAULT_CHARACTER_SET_NAME` AS `DbCharset`, '
                 . '`DEFAULT_COLLATION_NAME` AS `DbCollation` '
                 . 'FROM `information_schema`.`SCHEMATA` '
-                . $filterChoice
+                . ($excludeSystemDbs ? 'WHERE `SCHEMA_NAME` NOT IN ("' . implode('", "', $stdDbs) . '") ' : '')
                 . 'GROUP BY `SCHEMA_NAME`;';
     }
 
@@ -149,16 +134,12 @@ trait MySQLiByDanielGPqueries
      */
     protected function sQueryMySqlActiveEngines($onlyActiveOnes = true)
     {
-        $finalFilter = '';
-        if ($onlyActiveOnes) {
-            $finalFilter = 'WHERE (`SUPPORT` IN ("DEFAULT", "YES")) ';
-        }
         return 'SELECT '
                 . '`ENGINE` AS `Engine`, '
                 . '`SUPPORT` AS `Support`, '
                 . '`COMMENT` AS `Comment` '
                 . 'FROM `information_schema`.`ENGINES` '
-                . $finalFilter
+                . ($onlyActiveOnes ? 'WHERE (`SUPPORT` IN ("DEFAULT", "YES")) ' : '')
                 . 'GROUP BY `ENGINE`;';
     }
 
@@ -195,17 +176,8 @@ trait MySQLiByDanielGPqueries
     protected function sQueryGenericSelectKeyValue($parameters)
     {
         $this->sCleanParameters($parameters);
-        return implode(' ', [
-            'SELECT',
-            $parameters[0],
-            ',',
-            $parameters[1],
-            'FROM',
-            $parameters[2],
-            'GROUP BY',
-            $parameters[1],
-            ';'
-        ]);
+        return 'SELECT' . $parameters[0] . ',' . $parameters[1] . 'FROM' . $parameters[2]
+                . 'GROUP BY' . $parameters[1] . ';';
     }
 
     /**
@@ -226,10 +198,6 @@ trait MySQLiByDanielGPqueries
      */
     protected function sQueryMySqlIndexes($filterArray = null)
     {
-        $xtraSorting = ', `C`.`ORDINAL_POSITION`, `KCU`.`CONSTRAINT_NAME`';
-        if (!is_null($filterArray) && is_array($filterArray) && in_array('COLUMN_NAME', array_keys($filterArray))) {
-            $xtraSorting = '';
-        }
         return 'SELECT `KCU`.`CONSTRAINT_SCHEMA` '
                 . ', `KCU`.`CONSTRAINT_NAME` '
                 . ', `KCU`.`TABLE_SCHEMA` '
@@ -254,7 +222,8 @@ trait MySQLiByDanielGPqueries
                     '`KCU`.`CONSTRAINT_NAME` = `RC`.`CONSTRAINT_NAME`',
                 ]) . ')) '
                 . $this->sManageDynamicFilters($filterArray, 'KCU')
-                . 'ORDER BY `KCU`.`TABLE_SCHEMA`, `KCU`.`TABLE_NAME`' . $xtraSorting . ';';
+                . 'ORDER BY `KCU`.`TABLE_SCHEMA`, `KCU`.`TABLE_NAME`'
+                . $this->xtraSoring($filterArray, 'COLUMN_NAME') . ';';
     }
 
     /**
@@ -267,20 +236,9 @@ trait MySQLiByDanielGPqueries
         return 'SELECT NOW();';
     }
 
-    protected function sQueryMySqlStatistics($filterArray = null)
+    protected function sQueryMySqlStatisticTSFSPE()
     {
-        return 'SELECT '
-                . '`S`.`SCHEMA_NAME`, '
-                . '(SELECT COUNT(*) AS `No. of records` FROM `information_schema`.`TABLES` `T` '
-                . 'WHERE (`T`.`TABLE_SCHEMA` = `S`.`SCHEMA_NAME`) AND (`T`.`TABLE_TYPE` = "BASE TABLE")) '
-                . 'AS `Tables`, '
-                . '(SELECT COUNT(*) AS `No. of records` FROM `information_schema`.`TABLES` `T` '
-                . 'WHERE (`T`.`TABLE_SCHEMA` = `S`.`SCHEMA_NAME`) AND (`T`.`TABLE_TYPE` = "VIEW")) '
-                . 'AS `Views`, '
-                . '(SELECT COUNT(*) AS `No. of records` FROM `information_schema`.`COLUMNS` `C` '
-                . 'WHERE (`C`.`TABLE_SCHEMA` = `S`.`SCHEMA_NAME`)) '
-                . 'AS `Columns`, '
-                . '(SELECT COUNT(*) AS `No. of records` FROM `information_schema`.`TRIGGERS` `T` '
+        return '(SELECT COUNT(*) AS `No. of records` FROM `information_schema`.`TRIGGERS` `T` '
                 . 'WHERE (`T`.`EVENT_OBJECT_SCHEMA` = `S`.`SCHEMA_NAME`)) '
                 . 'AS `Triggers`, '
                 . '(SELECT COUNT(*) AS `No. of records` FROM `information_schema`.`ROUTINES` `R` '
@@ -291,10 +249,31 @@ trait MySQLiByDanielGPqueries
                 . 'AS `Stored Procedure`, '
                 . '(SELECT COUNT(*) AS `No. of records` FROM `information_schema`.`EVENTS` `E` '
                 . 'WHERE (`E`.`EVENT_SCHEMA` = `S`.`SCHEMA_NAME`)) '
-                . 'AS `Events` '
+                . 'AS `Events` ';
+    }
+
+    protected function sQueryMySqlStatisticTVC()
+    {
+        return '(SELECT COUNT(*) AS `No. of records` FROM `information_schema`.`TABLES` `T` '
+                . 'WHERE (`T`.`TABLE_SCHEMA` = `S`.`SCHEMA_NAME`) AND (`T`.`TABLE_TYPE` = "BASE TABLE")) '
+                . 'AS `Tables`, '
+                . '(SELECT COUNT(*) AS `No. of records` FROM `information_schema`.`TABLES` `T` '
+                . 'WHERE (`T`.`TABLE_SCHEMA` = `S`.`SCHEMA_NAME`) AND (`T`.`TABLE_TYPE` = "VIEW")) '
+                . 'AS `Views`, '
+                . '(SELECT COUNT(*) AS `No. of records` FROM `information_schema`.`COLUMNS` `C` '
+                . 'WHERE (`C`.`TABLE_SCHEMA` = `S`.`SCHEMA_NAME`)) '
+                . 'AS `Columns`, ';
+    }
+
+    protected function sQueryMySqlStatistics($filterArray = null)
+    {
+        return 'SELECT '
+                . '`S`.`SCHEMA_NAME`, '
+                . $this->sQueryMySqlStatisticTVC()
+                . $this->sQueryMySqlStatisticTSFSPE()
                 . 'FROM `information_schema`.`SCHEMATA` `S` '
                 . 'WHERE (`S`.`SCHEMA_NAME` NOT IN ("information_schema", "mysql", "performance_schema", "sys")) '
-                . str_replace('WHERE', 'AND', $this->sManageDynamicFilters($filterArray, 'S'))
+                . str_replace('WHERE|AND', $this->sManageDynamicFilters($filterArray, 'S'))
                 . 'ORDER BY `S`.`SCHEMA_NAME`;';
     }
 
@@ -306,26 +285,20 @@ trait MySQLiByDanielGPqueries
      */
     protected function sQueryMySqlTables($filterArray = null)
     {
-        $xtraSorting = 'ORDER BY `TABLE_SCHEMA`, `TABLE_NAME`';
-        if (!is_null($filterArray) && is_array($filterArray)) {
-            if (in_array('TABLE_SCHEMA', array_keys($filterArray))) {
-                $xtraSorting = 'ORDER BY `TABLE_NAME`';
-            }
-        }
-        return 'SELECT `TABLE_SCHEMA` '
-                . ', `TABLE_NAME` '
-                . ', `TABLE_TYPE` '
-                . ', `ENGINE` '
-                . ', `VERSION` '
-                . ', `ROW_FORMAT` '
-                . ', `AUTO_INCREMENT` '
-                . ', `TABLE_COLLATION` '
-                . ', `CREATE_TIME` '
-                . ', `CREATE_OPTIONS` '
-                . ', `TABLE_COMMENT` '
+        return 'SELECT `T`.`TABLE_SCHEMA` '
+                . ', `T`.`TABLE_NAME` '
+                . ', `T`.`TABLE_TYPE` '
+                . ', `T`.`ENGINE` '
+                . ', `T`.`VERSION` '
+                . ', `T`.`ROW_FORMAT` '
+                . ', `T`.`AUTO_INCREMENT` '
+                . ', `T`.`TABLE_COLLATION` '
+                . ', `T`.`CREATE_TIME` '
+                . ', `T`.`CREATE_OPTIONS` '
+                . ', `T`.`TABLE_COMMENT` '
                 . 'FROM `information_schema`.`TABLES` `T` '
                 . $this->sManageDynamicFilters($filterArray, 'T')
-                . $xtraSorting
+                . $this->xtraSoring($filterArray, 'TABLE_SCHEMA')
                 . ';';
     }
 
@@ -349,5 +322,23 @@ trait MySQLiByDanielGPqueries
         return 'DELETE '
                 . 'FROM `' . $parameters[0] . '` '
                 . 'WHERE `' . $parameters[1] . '` = "' . $parameters[2] . '";';
+    }
+
+    private function xtraSoring($filterArray, $filterValueToDecide)
+    {
+        $defaults = [
+            'COLUMN_NAME'  => [
+                ', `C`.`ORDINAL_POSITION`, `KCU`.`CONSTRAINT_NAME`',
+                '',
+            ],
+            'TABLE_SCHEMA' => [
+                'ORDER BY `T`.`TABLE_SCHEMA`, `T`.`TABLE_NAME`',
+                'ORDER BY `T`.`TABLE_NAME`',
+            ],
+        ];
+        if (!is_null($filterArray) && is_array($filterArray) && array_key_exists($filterValueToDecide, $filterArray)) {
+            return $defaults[$filterValueToDecide][1];
+        }
+        return $defaults[$filterValueToDecide][0];
     }
 }
