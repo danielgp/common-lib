@@ -163,40 +163,7 @@ trait CommonCode
         if (!file_exists($fileGiven)) {
             return ['error' => sprintf($this->lclMsgCmn('i18n_Error_GivenFileDoesNotExist'), $fileGiven)];
         }
-        $info = new \SplFileInfo($fileGiven);
-        return [
-            'File Extension'         => $info->getExtension(),
-            'File Group'             => $info->getGroup(),
-            'File Inode'             => $info->getInode(),
-            'File Link Target'       => ($info->isLink() ? $info->getLinkTarget() : '-'),
-            'File is Dir'            => $info->isDir(),
-            'File is Executable'     => $info->isExecutable(),
-            'File is File'           => $info->isFile(),
-            'File is Link'           => $info->isLink(),
-            'File is Readable'       => $info->isReadable(),
-            'File is Writable'       => $info->isWritable(),
-            'File Name'              => $info->getBasename('.' . $info->getExtension()),
-            'File Name w. Extension' => $info->getFilename(),
-            'File Owner'             => $info->getOwner(),
-            'File Path'              => $info->getPath(),
-            'File Permissions'       => $this->explainPerms($info->getPerms()),
-            'Name'                   => $info->getRealPath(),
-            'Size'                   => $info->getSize(),
-            'Sha1'                   => sha1_file($fileGiven),
-            'Timestamp Accessed'     => [
-                'PHP number' => $info->getATime(),
-                'SQL format' => date('Y-m-d H:i:s', $info->getATime()),
-            ],
-            'Timestamp Changed'      => [
-                'PHP number' => $info->getCTime(),
-                'SQL format' => date('Y-m-d H:i:s', $info->getCTime()),
-            ],
-            'Timestamp Modified'     => [
-                'PHP number' => $info->getMTime(),
-                'SQL format' => date('Y-m-d H:i:s', $info->getMTime()),
-            ],
-            'Type'                   => $info->getType(),
-        ];
+        return $this->getFileDetailsRaw($fileGiven);
     }
 
     /**
@@ -213,9 +180,9 @@ trait CommonCode
         } elseif (!is_dir($pathAnalised)) {
             return ['error' => $this->lclMsgCmn('i18n_Error_GivenPathIsNotFolder')];
         }
-        $aFiles   = null;
         $finder   = new \Symfony\Component\Finder\Finder();
         $iterator = $finder->files()->sortByName()->in($pathAnalised);
+        $aFiles   = null;
         foreach ($iterator as $file) {
             $aFiles[$file->getRealPath()] = $this->getFileDetails($file);
         }

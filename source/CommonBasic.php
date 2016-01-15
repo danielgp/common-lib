@@ -37,6 +37,59 @@ trait CommonBasic
 {
 
     /**
+     * Returns the details about Communicator (current) file
+     * w/o any kind of verification of file existance
+     *
+     * @param string $fileGiven
+     * @return array
+     */
+    protected function getFileDetailsRaw($fileGiven)
+    {
+        $info              = new \SplFileInfo($fileGiven);
+        $aFileBasicDetails = [
+            'File Extension'         => $info->getExtension(),
+            'File Group'             => $info->getGroup(),
+            'File Inode'             => $info->getInode(),
+            'File Link Target'       => ($info->isLink() ? $info->getLinkTarget() : '-'),
+            'File Name'              => $info->getBasename('.' . $info->getExtension()),
+            'File Name w. Extension' => $info->getFilename(),
+            'File Owner'             => $info->getOwner(),
+            'File Path'              => $info->getPath(),
+            'Name'                   => $info->getRealPath(),
+            'Type'                   => $info->getType(),
+        ];
+        $aDetails          = array_merge($aFileBasicDetails, $this->getFileDetailsRawStatistic($info, $fileGiven));
+        ksort($aDetails);
+        return $aDetails;
+    }
+
+    protected function getFileDetailsRawStatistic(\SplFileInfo $info, $fileGiven)
+    {
+        return [
+            'File is Dir'        => $info->isDir(),
+            'File is Executable' => $info->isExecutable(),
+            'File is File'       => $info->isFile(),
+            'File is Link'       => $info->isLink(),
+            'File is Readable'   => $info->isReadable(),
+            'File is Writable'   => $info->isWritable(),
+            'File Permissions'   => $this->explainPerms($info->getPerms()),
+            'Size'               => $info->getSize(),
+            'Sha1'               => sha1_file($fileGiven),
+            'Timestamp Accessed' => $this->getFileTimes($info->getATime()),
+            'Timestamp Changed'  => $this->getFileTimes($info->getCTime()),
+            'Timestamp Modified' => $this->getFileTimes($info->getMTime()),
+        ];
+    }
+
+    private function getFileTimes($timeAsPhpNumber)
+    {
+        return [
+            'PHP number' => $timeAsPhpNumber,
+            'SQL format' => date('Y-m-d H:i:s', $timeAsPhpNumber),
+        ];
+    }
+
+    /**
      * Moves files into another folder
      *
      * @param type $sourcePath
