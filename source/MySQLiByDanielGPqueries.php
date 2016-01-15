@@ -127,11 +127,11 @@ trait MySQLiByDanielGPqueries
      */
     protected function sQueryMySqlActiveDatabases($excludeSystemDbs = true)
     {
-        $sDBs = 'WHERE `SCHEMA_NAME` NOT IN ("'
+        $sDBs = 'WHERE '
+                . '`SCHEMA_NAME` NOT IN ("'
                 . implode('", "', ['information_schema', 'mysql', 'performance_schema', 'sys']) . '") ';
         return 'SELECT '
-                . '`SCHEMA_NAME` As `Db`, '
-                . '`DEFAULT_CHARACTER_SET_NAME` AS `DbCharset`, '
+                . '`SCHEMA_NAME` As `Db`, `DEFAULT_CHARACTER_SET_NAME` AS `DbCharset`, '
                 . '`DEFAULT_COLLATION_NAME` AS `DbCollation` '
                 . 'FROM `information_schema`.`SCHEMATA` '
                 . ($excludeSystemDbs ? $sDBs : '')
@@ -157,7 +157,8 @@ trait MySQLiByDanielGPqueries
 
     protected function sQueryMySqlColumns($filterArray = null)
     {
-        return 'SELECT ' . $this->sQueryMySqlColumnsColumns() . ' '
+        return 'SELECT '
+                . $this->sQueryMySqlColumnsColumns() . ' '
                 . 'FROM `information_schema`.`COLUMNS` `C` '
                 . 'LEFT JOIN `information_schema`.`KEY_COLUMN_USAGE` `KCU` ON ((' . implode(') AND (', [
                     '`C`.`TABLE_SCHEMA` = `KCU`.`TABLE_SCHEMA`',
@@ -209,7 +210,8 @@ trait MySQLiByDanielGPqueries
      */
     protected function sQueryMySqlIndexes($filterArray = null)
     {
-        return 'SELECT ' . $this->sQueryMySqlIndexesColumns() . ' '
+        return 'SELECT '
+                . $this->sQueryMySqlIndexesColumns() . ' '
                 . 'FROM `information_schema`.`KEY_COLUMN_USAGE` `KCU` '
                 . 'INNER JOIN `information_schema`.`COLUMNS` `C` ON ((' . implode(') AND (', [
                     '`C`.`TABLE_SCHEMA` = `KCU`.`TABLE_SCHEMA`',
