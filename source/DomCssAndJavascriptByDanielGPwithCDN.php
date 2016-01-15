@@ -36,6 +36,13 @@ namespace danielgp\common_lib;
 trait DomCssAndJavascriptByDanielGPwithCDN
 {
 
+    private $sCloundFlareUrl = '//cdnjs.cloudflare.com/ajax/libs/';
+
+    private function getCmpltVers($sFileName, $rootFileName)
+    {
+        return str_replace([$rootFileName, '.min.js'], '', pathinfo($sFileName)['basename']);
+    }
+
     private function knownCloudFlareJavascript($jsFileName)
     {
         $justFile = pathinfo($jsFileName)['basename'];
@@ -57,6 +64,11 @@ trait DomCssAndJavascriptByDanielGPwithCDN
         }
     }
 
+    private function sanitizeString($sFileName)
+    {
+        return filter_var($sFileName, FILTER_SANITIZE_STRING);
+    }
+
     /**
      * Manages all known CSS that can be handled through CDNs
      *
@@ -70,7 +82,7 @@ trait DomCssAndJavascriptByDanielGPwithCDN
             $patternFound = $this->setCssFileCDNforFontAwesome($cssFileName);
         }
         if (is_null($patternFound)) {
-            $patternFound = [false, filter_var($cssFileName, FILTER_SANITIZE_STRING)];
+            $patternFound = [false, $this->sanitizeString($cssFileName)];
         }
         return $patternFound;
     }
@@ -84,19 +96,16 @@ trait DomCssAndJavascriptByDanielGPwithCDN
      */
     private function setCssFileCDNforFontAwesome($cssFileName)
     {
-        $patternFound = [
+        return [
             true,
-            implode('', [
-                '//cdnjs.cloudflare.com/ajax/libs/font-awesome/',
-                str_replace(['font-awesome-', '.min.css'], '', pathinfo($cssFileName)['basename']),
-                '/css/font-awesome.min.css',
-            ])
+            $this->sCloundFlareUrl . 'font-awesome/' . $this->getCmpltVers($cssFileName, 'font-awesome-')
+            . '/css/font-awesome.min.css',
         ];
-        return $patternFound;
     }
 
     /**
      * Manages all known Javascript that can be handled through CDNs
+     * (if within local network makes no sense to use CDNs)
      *
      * @param string $jsFileName
      * @return array
@@ -104,23 +113,31 @@ trait DomCssAndJavascriptByDanielGPwithCDN
     protected function setJavascriptFileCDN($jsFileName)
     {
         $onlyFileName = pathinfo($jsFileName)['basename'];
-        // if within local network makes no sense to use CDNs
         $patternFound = null;
-        if (strpos($onlyFileName, 'jquery-') !== false) {
-            $patternFound = $this->setJavascriptFileCDNjQuery($jsFileName);
-        } elseif (strpos($onlyFileName, 'jquery.placeholder.min.js') !== false) {
+        if (in_array($onlyFileName, ['jquery.placeholder.min.js', 'jquery.easing.1.3.min.js'])) {
             $patternFound = $this->setJavascriptFileCDNjQueryLibs($jsFileName);
-        } elseif (strpos($onlyFileName, 'jquery.easing.1.3.min.js') !== false) {
-            $patternFound = $this->setJavascriptFileCDNjQueryLibs($jsFileName);
-        } elseif (strpos($onlyFileName, 'highcharts-') !== false) {
-            $patternFound = $this->setJavascriptFileCDNforHighCharts($jsFileName);
-        } elseif (strpos($onlyFileName, 'exporting-') !== false) {
-            $patternFound = $this->setJavascriptFileCDNforHighChartsExporting($jsFileName);
+        } elseif (strpos($onlyFileName, '-') !== false) {
+            $patternFound = $this->setJavascriptFileCDNbyPattern($jsFileName);
         }
         if (is_null($patternFound)) {
-            $patternFound = [false, filter_var($jsFileName, FILTER_SANITIZE_STRING), ''];
+            $patternFound = [false, $this->sanitizeString($jsFileName), ''];
         }
         return $patternFound;
+    }
+
+    private function setJavascriptFileCDNbyPattern($jsFileName)
+    {
+        $sFileParts = explode('-', $jsFileName);
+        $knownFNs   = [
+            'jquery'     => 'setJavascriptFileCDNjQuery',
+            'highcharts' => 'setJavascriptFileCDNforHighCharts',
+            'exporting'  => 'setJavascriptFileCDNforHighChartsExporting',
+        ];
+        $rootFN     = pathinfo($sFileParts[0])['basename'];
+        if (array_key_exists($rootFN, $knownFNs)) {
+            return call_user_func([$this, $knownFNs[$rootFN]], pathinfo($jsFileName)['basename']);
+        }
+        return null;
     }
 
     /**
@@ -160,15 +177,13 @@ trait DomCssAndJavascriptByDanielGPwithCDN
      */
     private function setJavascriptFileCDNforHighChartsMain($jsFileName, $libName)
     {
-        $jsFN            = filter_var($jsFileName, FILTER_SANITIZE_STRING);
-        $jsVersionlessFN = str_replace([$libName . '-', '.js'], '', pathinfo($jsFileName)['basename']);
-        if ($libName === 'exporting') {
-            $jsVersionlessFN .= '/modules';
-        }
+        $jsFN            = $this->sanitizeString($jsFileName);
+        $jsVersionlessFN = str_replace([$libName . '-', '.js'], '', pathinfo($jsFileName)['basename'])
+                . ($libName === 'exporting' ? '/modules' : '');
         if (strpos($jsFileName, $libName) !== false) {
             return [
                 true,
-                '//cdnjs.cloudflare.com/ajax/libs/highcharts/' . $jsVersionlessFN . '/' . $libName . '.js',
+                $this->sCloundFlareUrl . 'highcharts/' . $jsVersionlessFN . '/' . $libName . '.js',
                 '<script>!window.Highcharts && document.write(\'<script src="' . $jsFN . '">\x3C/script>\')</script>',
             ];
         }
@@ -185,25 +200,17 @@ trait DomCssAndJavascriptByDanielGPwithCDN
      */
     private function setJavascriptFileCDNjQuery($jsFileName)
     {
-        $patternFound       = null;
         $jQueryPosition     = strpos($jsFileName, 'jquery-');
         $jQueryMajorVersion = substr($jsFileName, 7, 1);
         if (($jQueryPosition !== false) && is_numeric($jQueryMajorVersion) && (substr($jsFileName, -7) == '.min.js')) {
-            $patternFound = [
+            return [
                 true,
-                implode('', [
-                    '//cdnjs.cloudflare.com/ajax/libs/jquery/',
-                    str_replace(['jquery-', '.min.js'], '', pathinfo($jsFileName)['basename']),
-                    '/jquery.min.js',
-                ]),
-                implode('', [
-                    '<script>window.jQuery || document.write(\'<script src="',
-                    filter_var($jsFileName, FILTER_SANITIZE_STRING),
-                    '">\x3C/script>\')</script>'
-                ])
+                $this->sCloundFlareUrl . 'jquery/' . $this->getCmpltVers($jsFileName, 'jquery-') . '/jquery.min.js',
+                '<script>window.jQuery || document.write(\'<script src="' . $this->sanitizeString($jsFileName)
+                . '">\x3C/script>\')</script>',
             ];
         }
-        return $patternFound;
+        return null;
     }
 
     /**
@@ -216,23 +223,16 @@ trait DomCssAndJavascriptByDanielGPwithCDN
      */
     private function setJavascriptFileCDNjQueryLibs($jsFileName)
     {
-        $patternFound = null;
-        $eArray       = $this->knownCloudFlareJavascript(filter_var($jsFileName, FILTER_SANITIZE_STRING));
+        $sFN    = $this->sanitizeString($jsFileName);
+        $eArray = $this->knownCloudFlareJavascript($sFN);
         if (!is_null($eArray['version'])) {
-            $patternFound = [
+            return [
                 true,
-                implode('', [
-                    '//cdnjs.cloudflare.com/ajax/libs/',
-                    $eArray['version'],
-                    $eArray['justFile'],
-                ]),
-                implode('', [
-                    '<script>' . $eArray['eVerify'] . ' || document.write(\'<script src="',
-                    filter_var($jsFileName, FILTER_SANITIZE_STRING),
-                    '">\x3C/script>\')</script>'
-                ])
+                $this->sCloundFlareUrl . $eArray['version'] . $eArray['justFile'],
+                '<script>' . $eArray['eVerify'] . ' || document.write(\'<script src="' . $sFN
+                . '">\x3C/script>\')</script>',
             ];
         }
-        return $patternFound;
+        return null;
     }
 }
