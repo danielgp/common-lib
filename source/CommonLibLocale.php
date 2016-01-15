@@ -86,7 +86,7 @@ trait CommonLibLocale
     {
         $this->handleLanguageIntoSession();
         $localizationFile = $this->getCommonLocaleFolder() . '/locale/'
-                . $this->tCmnSuperGlobals->get('lang') . '/LC_MESSAGES/'
+                . $this->tCmnSession->get('lang') . '/LC_MESSAGES/'
                 . $this->commonLibFlags['localization_domain']
                 . '.mo';
         $extrClass        = new \Gettext\Extractors\Mo();
@@ -116,7 +116,7 @@ trait CommonLibLocale
      */
     protected function lclMsgCmn($localizedStringCode)
     {
-        if (is_null($this->commonLibFlags)) {
+        if (is_null($this->tCmnLb)) {
             $this->settingsCommonLib();
             $this->handleLocalizationCommon();
         }
@@ -125,7 +125,7 @@ trait CommonLibLocale
 
     protected function lclMsgCmnNumber($singularString, $pluralString, $numberToEvaluate)
     {
-        if (is_null($this->commonLibFlags)) {
+        if (is_null($this->tCmnLb)) {
             $this->settingsCommonLib();
             $this->handleLocalizationCommon();
         }
