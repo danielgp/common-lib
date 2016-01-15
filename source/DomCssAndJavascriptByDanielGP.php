@@ -55,7 +55,7 @@ trait DomCssAndJavascriptByDanielGP
         } else {
             $knownAttributes = ['media'];
             foreach ($knownAttributes as $value) {
-                if (in_array($value, array_keys($optionalFlags))) {
+                if (array_key_exists($value, $optionalFlags)) {
                     $attr[$value] = $optionalFlags[$value];
                 }
             }
