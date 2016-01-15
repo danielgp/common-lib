@@ -125,35 +125,32 @@ trait DomBasicComponentsByDanielGP
         if ($sTitle == 'light') {
             return $sMsg;
         }
-        $legend = $this->setStringIntoTag($sTitle, 'legend', ['style' => $this->setFeedbackStyleTitle($sType)]);
+        $legend = $this->setStringIntoTag($sTitle, 'legend', ['style' => $this->setFeedbackStyle($sType)]);
         return implode('', [
             ($skipBr ? '' : '<br/>'),
-            $this->setStringIntoTag($legend . $sMsg, 'fieldset', ['style' => $this->setFeedbackStyleMessage($sType)]),
+            $this->setStringIntoTag($legend . $sMsg, 'fieldset', ['style' => $this->setFeedbackStyle($sType)]),
         ]);
     }
 
-    private function setFeedbackStyleTitle($sType)
+    private function setFeedbackStyle($sType)
     {
-        $formatTitle         = 'margin-top:-5px;margin-right:20px;padding:5px;';
-        $styleByTypeForTitle = [
-            'alert' => 'border:medium solid orange;background-color:orange;color:navy;',
-            'check' => 'border:medium solid green;background-color:green;color:white;',
-            'error' => 'border:medium solid red;background-color:red;color:white;',
-            'info'  => 'border:medium solid black;background-color:black;color:white;font-weight:bold;',
+        $styleKnown = [
+            'alert' => $this->setFeedbackStyleArray('orange', 'navy'),
+            'check' => $this->setFeedbackStyleArray('green', 'white'),
+            'error' => $this->setFeedbackStyleArray('red', 'yellow'),
+            'info'  => $this->setFeedbackStyleArray('black', 'white'),
         ];
-        return $formatTitle . $styleByTypeForTitle[$sType];
+        return $styleKnown[$sType];
     }
 
-    private function setFeedbackStyleMessage($sType)
+    private function setFeedbackStyleArray($color1, $color2)
     {
-        $formatMessage  = 'display:inline;padding-right:5px;padding-bottom:5px;';
-        $styleByTypeMsg = [
-            'alert' => 'background-color:navy;color:orange;border:medium solid orange;',
-            'check' => 'background-color:yellow;color:green;border:medium solid green;',
-            'error' => 'background-color:yellow;color:red;border:medium solid red;',
-            'info'  => 'background-color: white; color: black;border:medium solid black;',
+        return [
+            'Title' => 'margin-top:-5px;margin-right:20px;padding:5px;background-color:' . $color1
+            . ';color:' . $color2 . 'border:medium solid ' . $color1 . ';',
+            'Msg'   => 'display:inline;padding-right:5px;padding-bottom:5px;background-color:' . $color2
+            . ';color:' . $color1 . ';border:medium solid ' . $color1 . ';',
         ];
-        return $formatMessage . $styleByTypeMsg[$sType];
     }
 
     /**
@@ -173,17 +170,22 @@ trait DomBasicComponentsByDanielGP
         if (!is_null($this->tCmnRequest->server->get('HTTP_ACCEPT_ENCODING'))) {
             return '';
         } elseif (strstr($this->tCmnRequest->server->get('HTTP_ACCEPT_ENCODING'), 'gzip')) {
-            if ($outputType === 'Footer') {
-                $gzipCntntOriginal = ob_get_contents();
-                ob_end_clean();
-                $gzipCntnt         = gzcompress($gzipCntntOriginal, 9);
-                echo "\x1f\x8b\x08\x00\x00\x00\x00\x00" . substr($gzipCntnt, 0, strlen($gzipCntnt) - 4)
-                . pack('V', crc32($gzipCntntOriginal)) . pack('V', strlen($gzipCntntOriginal));
-            } elseif ($outputType === 'Header') {
-                ob_start();
-                ob_implicit_flush(0);
-                header('Content-Encoding: gzip');
-            }
+            $this->setGZipedUnsafeWithGzipEnabled($outputType);
+        }
+    }
+
+    private function setGZipedUnsafeWithGzipEnabled($outputType)
+    {
+        if ($outputType === 'Footer') {
+            $gzipCntntOriginal = ob_get_contents();
+            ob_end_clean();
+            $gzipCntnt         = gzcompress($gzipCntntOriginal, 9);
+            echo "\x1f\x8b\x08\x00\x00\x00\x00\x00" . substr($gzipCntnt, 0, strlen($gzipCntnt) - 4)
+            . pack('V', crc32($gzipCntntOriginal)) . pack('V', strlen($gzipCntntOriginal));
+        } elseif ($outputType === 'Header') {
+            ob_start();
+            ob_implicit_flush(0);
+            header('Content-Encoding: gzip');
         }
     }
 

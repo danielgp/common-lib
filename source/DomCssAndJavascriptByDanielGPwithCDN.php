@@ -133,23 +133,7 @@ trait DomCssAndJavascriptByDanielGPwithCDN
      */
     private function setJavascriptFileCDNforHighCharts($jsFileName)
     {
-        $patternFound = null;
-        if (strpos($jsFileName, 'highcharts') !== false) {
-            $patternFound = [
-                true,
-                implode('', [
-                    '//cdnjs.cloudflare.com/ajax/libs/highcharts/',
-                    str_replace(['highcharts-', '.js'], '', pathinfo($jsFileName)['basename']),
-                    '/highcharts.js',
-                ]),
-                implode('', [
-                    '<script>!window.Highcharts && document.write(\'<script src="',
-                    filter_var($jsFileName, FILTER_SANITIZE_STRING),
-                    '">\x3C/script>\')</script>'
-                ])
-            ];
-        }
-        return $patternFound;
+        return $this->setJavascriptFileCDNforHighChartsMain($jsFileName, 'highcharts');
     }
 
     /**
@@ -162,24 +146,33 @@ trait DomCssAndJavascriptByDanielGPwithCDN
      */
     private function setJavascriptFileCDNforHighChartsExporting($jsFileName)
     {
-        $patternFound   = null;
-        $jQueryPosition = strpos($jsFileName, 'exporting');
-        if ($jQueryPosition !== false) {
-            $patternFound = [
+        return $this->setJavascriptFileCDNforHighChartsMain($jsFileName, 'exporting');
+    }
+
+    /**
+     * Returns an array with CDN call of a known Javascript library
+     * and fall-back line that points to local cache of it
+     * specific for HighCharts
+     *
+     * @param string $jsFileName
+     * @param string $libName
+     * @return array
+     */
+    private function setJavascriptFileCDNforHighChartsMain($jsFileName, $libName)
+    {
+        $jsFN            = filter_var($jsFileName, FILTER_SANITIZE_STRING);
+        $jsVersionlessFN = str_replace([$libName . '-', '.js'], '', pathinfo($jsFileName)['basename']);
+        if ($libName === 'exporting') {
+            $jsVersionlessFN .= '/modules';
+        }
+        if (strpos($jsFileName, $libName) !== false) {
+            return [
                 true,
-                implode('', [
-                    '//cdnjs.cloudflare.com/ajax/libs/highcharts/',
-                    str_replace(['exporting-', '.js'], '', pathinfo($jsFileName)['basename']),
-                    '/modules/exporting.js',
-                ]),
-                implode('', [
-                    '<script>!window.Highcharts.post && document.write(\'<script src="',
-                    filter_var($jsFileName, FILTER_SANITIZE_STRING),
-                    '">\x3C/script>\')</script>'
-                ])
+                '//cdnjs.cloudflare.com/ajax/libs/highcharts/' . $jsVersionlessFN . '/' . $libName . '.js',
+                '<script>!window.Highcharts && document.write(\'<script src="' . $jsFN . '">\x3C/script>\')</script>',
             ];
         }
-        return $patternFound;
+        return null;
     }
 
     /**
