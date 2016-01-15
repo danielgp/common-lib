@@ -62,7 +62,7 @@ trait CommonCode
         return $difference;
     }
 
-    private function buildArrayForCurlInterogation($chanel)
+    private function buildArrayForCurlInterogation($chanel, $rspJsonFromClient)
     {
         if (curl_errno($chanel)) {
             return [
@@ -136,7 +136,7 @@ trait CommonCode
         curl_setopt($chanel, CURLOPT_FRESH_CONNECT, true); //avoid a cached response
         curl_setopt($chanel, CURLOPT_FAILONERROR, true);
         $rspJsonFromClient = curl_exec($chanel);
-        $aReturn           = $this->buildArrayForCurlInterogation($chanel);
+        $aReturn           = $this->buildArrayForCurlInterogation($chanel, $rspJsonFromClient);
         curl_close($chanel);
         return $aReturn;
     }
