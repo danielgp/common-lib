@@ -60,6 +60,11 @@ trait MySQLiByDanielGPqueries
         if (is_array($filterValue)) {
             return 'IN ("' . implode('", "', $filterValue) . '")';
         }
+        return $this->sGlueFilterValueIntoWhereStringFinal($filterValue);
+    }
+
+    private function sGlueFilterValueIntoWhereStringFinal($filterValue)
+    {
         $kFields = [
             'CONNECTION_ID()|CURDATE()|CURRENT_USER|CURRENT_USER()|CURRENT_DATETIME|DATABASE()|NOW()|USER()',
             'IS NULL|IS NOT NULL',
@@ -102,8 +107,14 @@ trait MySQLiByDanielGPqueries
                         . $this->sGlueFilterValueIntoWhereString($value);
             }
         }
+        return $this->sManageDynamicFiltersFinal($filters);
+    }
+
+    private function sManageDynamicFiltersFinal($filters)
+    {
         if (count($filters) > 0) {
-            return 'WHERE ' . $this->sGlueFiltersIntoWhereArrayFilter($filters) . ' ';
+            $sReturn = ['WHERE', $this->sGlueFiltersIntoWhereArrayFilter($filters)];
+            return implode(' ', $sReturn) . ' ';
         }
         return '';
     }
@@ -116,13 +127,14 @@ trait MySQLiByDanielGPqueries
      */
     protected function sQueryMySqlActiveDatabases($excludeSystemDbs = true)
     {
-        $stdDbs = ['information_schema', 'mysql', 'performance_schema', 'sys'];
+        $sDBs = 'WHERE `SCHEMA_NAME` NOT IN ("'
+                . implode('", "', ['information_schema', 'mysql', 'performance_schema', 'sys']) . '") ';
         return 'SELECT '
                 . '`SCHEMA_NAME` As `Db`, '
                 . '`DEFAULT_CHARACTER_SET_NAME` AS `DbCharset`, '
                 . '`DEFAULT_COLLATION_NAME` AS `DbCollation` '
                 . 'FROM `information_schema`.`SCHEMATA` '
-                . ($excludeSystemDbs ? 'WHERE `SCHEMA_NAME` NOT IN ("' . implode('", "', $stdDbs) . '") ' : '')
+                . ($excludeSystemDbs ? $sDBs : '')
                 . 'GROUP BY `SCHEMA_NAME`;';
     }
 
@@ -145,23 +157,7 @@ trait MySQLiByDanielGPqueries
 
     protected function sQueryMySqlColumns($filterArray = null)
     {
-        return 'SELECT `C`.`TABLE_SCHEMA` '
-                . ', `C`.`TABLE_NAME` '
-                . ', `C`.`COLUMN_NAME` '
-                . ', `C`.`ORDINAL_POSITION` '
-                . ', `C`.`COLUMN_DEFAULT` '
-                . ', `C`.`IS_NULLABLE` '
-                . ', `C`.`DATA_TYPE` '
-                . ', `C`.`CHARACTER_MAXIMUM_LENGTH` '
-                . ', `C`.`NUMERIC_PRECISION` '
-                . ', `C`.`NUMERIC_SCALE` '
-                . ', `C`.`DATETIME_PRECISION` '
-                . ', `C`.`CHARACTER_SET_NAME` '
-                . ', `C`.`COLLATION_NAME` '
-                . ', `C`.`COLUMN_TYPE` '
-                . ', `C`.`COLUMN_KEY` '
-                . ', `C`.`COLUMN_COMMENT` '
-                . ', `C`.`EXTRA` '
+        return 'SELECT ' . $this->sQueryMySqlColumnsColumns() . ' '
                 . 'FROM `information_schema`.`COLUMNS` `C` '
                 . 'LEFT JOIN `information_schema`.`KEY_COLUMN_USAGE` `KCU` ON ((' . implode(') AND (', [
                     '`C`.`TABLE_SCHEMA` = `KCU`.`TABLE_SCHEMA`',
@@ -173,11 +169,26 @@ trait MySQLiByDanielGPqueries
                 . 'ORDER BY `C`.`TABLE_SCHEMA`, `C`.`TABLE_NAME`, `C`.`ORDINAL_POSITION`;';
     }
 
+    protected function sQueryMySqlColumnsColumns()
+    {
+        return '`C`.`TABLE_SCHEMA`, `C`.`TABLE_NAME`, `C`.`COLUMN_NAME`, `C`.`ORDINAL_POSITION` '
+                . ', `C`.`COLUMN_DEFAULT`, `C`.`IS_NULLABLE`, `C`.`DATA_TYPE`, `C`.`CHARACTER_MAXIMUM_LENGTH` '
+                . ', `C`.`NUMERIC_PRECISION`, `C`.`NUMERIC_SCALE`, `C`.`DATETIME_PRECISION` '
+                . ', `C`.`CHARACTER_SET_NAME`, `C`.`COLLATION_NAME`, `C`.`COLUMN_TYPE` '
+                . ', `C`.`COLUMN_KEY`, `C`.`COLUMN_COMMENT`, `C`.`EXTRA`';
+    }
+
     protected function sQueryGenericSelectKeyValue($parameters)
     {
         $this->sCleanParameters($parameters);
-        return 'SELECT' . $parameters[0] . ',' . $parameters[1] . 'FROM' . $parameters[2]
-                . 'GROUP BY' . $parameters[1] . ';';
+        return implode(' ', [
+            'SELECT',
+            $parameters[0] . ',' . $parameters[1],
+            'FROM',
+            $parameters[2],
+            'GROUP BY',
+            $parameters[1] . ';'
+        ]);
     }
 
     /**
@@ -198,19 +209,7 @@ trait MySQLiByDanielGPqueries
      */
     protected function sQueryMySqlIndexes($filterArray = null)
     {
-        return 'SELECT `KCU`.`CONSTRAINT_SCHEMA` '
-                . ', `KCU`.`CONSTRAINT_NAME` '
-                . ', `KCU`.`TABLE_SCHEMA` '
-                . ', `KCU`.`TABLE_NAME` '
-                . ', `KCU`.`COLUMN_NAME` '
-                . ', `C`.`ORDINAL_POSITION` AS `COLUMN_POSITION` '
-                . ', `KCU`.`ORDINAL_POSITION` '
-                . ', `KCU`.`POSITION_IN_UNIQUE_CONSTRAINT` '
-                . ', `KCU`.`REFERENCED_TABLE_SCHEMA` '
-                . ', `KCU`.`REFERENCED_TABLE_NAME` '
-                . ', `KCU`.`REFERENCED_COLUMN_NAME` '
-                . ', `RC`.`UPDATE_RULE` '
-                . ', `RC`.`DELETE_RULE` '
+        return 'SELECT ' . $this->sQueryMySqlIndexesColumns() . ' '
                 . 'FROM `information_schema`.`KEY_COLUMN_USAGE` `KCU` '
                 . 'INNER JOIN `information_schema`.`COLUMNS` `C` ON ((' . implode(') AND (', [
                     '`C`.`TABLE_SCHEMA` = `KCU`.`TABLE_SCHEMA`',
@@ -224,6 +223,15 @@ trait MySQLiByDanielGPqueries
                 . $this->sManageDynamicFilters($filterArray, 'KCU')
                 . 'ORDER BY `KCU`.`TABLE_SCHEMA`, `KCU`.`TABLE_NAME`'
                 . $this->xtraSoring($filterArray, 'COLUMN_NAME') . ';';
+    }
+
+    protected function sQueryMySqlIndexesColumns()
+    {
+        return '`KCU`.`CONSTRAINT_SCHEMA`, `KCU`.`CONSTRAINT_NAME`, `KCU`.`TABLE_SCHEMA`, `KCU`.`TABLE_NAME`, '
+                . '`KCU`.`COLUMN_NAME`, `C`.`ORDINAL_POSITION` AS `COLUMN_POSITION`, `KCU`.`ORDINAL_POSITION`, '
+                . '`KCU`.`POSITION_IN_UNIQUE_CONSTRAINT`, `KCU`.`REFERENCED_TABLE_SCHEMA`, '
+                . '`KCU`.`REFERENCED_TABLE_NAME`, `KCU`.`REFERENCED_COLUMN_NAME`, '
+                . '`RC`.`UPDATE_RULE`, `RC`.`DELETE_RULE`';
     }
 
     /**
