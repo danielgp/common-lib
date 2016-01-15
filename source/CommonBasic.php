@@ -36,6 +36,8 @@ namespace danielgp\common_lib;
 trait CommonBasic
 {
 
+    use CommonPermissions;
+
     /**
      * Returns the details about Communicator (current) file
      * w/o any kind of verification of file existance

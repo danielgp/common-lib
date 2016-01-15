@@ -37,7 +37,6 @@ trait CommonCode
 {
 
     use CommonBasic,
-        CommonPermissions,
         DomComponentsByDanielGP,
         MySQLiByDanielGPqueries,
         MySQLiByDanielGP;
