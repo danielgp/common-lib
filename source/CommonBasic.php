@@ -149,8 +149,8 @@ trait CommonBasic
 
     protected function retrieveFilesOlderThanGivenRule($inputArray)
     {
-        $proceedWithRetrieving = $this->removeFilesDecision($inputArray);
-        if ($proceedWithRetrieving) {
+        $proceedRetrieving = $this->removeFilesDecision($inputArray);
+        if ($proceedRetrieving) {
             $finder   = new \Symfony\Component\Finder\Finder();
             $iterator = $finder->files()->ignoreUnreadableDirs(true)->followLinks()->in($inputArray['path']);
             $aFiles   = null;
@@ -204,9 +204,8 @@ trait CommonBasic
         $jsonError = $this->setJsonErrorInPlainEnglish();
         if (is_null($jsonError)) {
             return $rtrn;
-        } else {
-            return $jsonError;
         }
+        return $jsonError;
     }
 
     /**
