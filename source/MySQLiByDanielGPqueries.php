@@ -147,9 +147,7 @@ trait MySQLiByDanielGPqueries
     protected function sQueryMySqlActiveEngines($onlyActiveOnes = true)
     {
         return 'SELECT '
-                . '`ENGINE` AS `Engine`, '
-                . '`SUPPORT` AS `Support`, '
-                . '`COMMENT` AS `Comment` '
+                . '`ENGINE` AS `Engine`, `SUPPORT` AS `Support`, `COMMENT` AS `Comment` '
                 . 'FROM `information_schema`.`ENGINES` '
                 . ($onlyActiveOnes ? 'WHERE (`SUPPORT` IN ("DEFAULT", "YES")) ' : '')
                 . 'GROUP BY `ENGINE`;';
@@ -248,38 +246,26 @@ trait MySQLiByDanielGPqueries
         return 'SELECT NOW();';
     }
 
-    protected function sQueryMySqlStatisticTSFSPE()
+    private function sQueryMySqlStatisticPattern($tblName, $lnkDbCol, $adtnlCol = null, $adtnlFltr = null)
     {
-        return '(SELECT COUNT(*) AS `No. of records` FROM `information_schema`.`TRIGGERS` `T` '
-                . 'WHERE (`T`.`EVENT_OBJECT_SCHEMA` = `S`.`SCHEMA_NAME`)) AS `Triggers`, '
-                . '(SELECT COUNT(*) AS `No. of records` FROM `information_schema`.`ROUTINES` `R` '
-                . 'WHERE (`R`.`ROUTINE_SCHEMA` = `S`.`SCHEMA_NAME`) AND (`R`.`ROUTINE_TYPE` = "Function")) '
-                . 'AS `Stored Functions`, '
-                . '(SELECT COUNT(*) AS `No. of records` FROM `information_schema`.`ROUTINES` `R` '
-                . 'WHERE (`R`.`ROUTINE_SCHEMA` = `S`.`SCHEMA_NAME`) AND (`R`.`ROUTINE_TYPE` = "Procedure")) '
-                . 'AS `Stored Procedure`, '
-                . '(SELECT COUNT(*) AS `No. of records` FROM `information_schema`.`EVENTS` `E` '
-                . 'WHERE (`E`.`EVENT_SCHEMA` = `S`.`SCHEMA_NAME`)) AS `Events` ';
-    }
-
-    protected function sQueryMySqlStatisticTVC()
-    {
-        return '(SELECT COUNT(*) AS `No. of records` FROM `information_schema`.`TABLES` `T` '
-                . 'WHERE (`T`.`TABLE_SCHEMA` = `S`.`SCHEMA_NAME`) AND (`T`.`TABLE_TYPE` = "BASE TABLE")) '
-                . 'AS `Tables`, '
-                . '(SELECT COUNT(*) AS `No. of records` FROM `information_schema`.`TABLES` `T` '
-                . 'WHERE (`T`.`TABLE_SCHEMA` = `S`.`SCHEMA_NAME`) AND (`T`.`TABLE_TYPE` = "VIEW")) '
-                . 'AS `Views`, '
-                . '(SELECT COUNT(*) AS `No. of records` FROM `information_schema`.`COLUMNS` `C` '
-                . 'WHERE (`C`.`TABLE_SCHEMA` = `S`.`SCHEMA_NAME`)) AS `Columns`, ';
+        $tblAls = substr($tblName, 0, 1);
+        return '(SELECT COUNT(*) AS `No. of records` FROM `information_schema`.`' . $tblName . '` `' . $tblAls . '` '
+                . 'WHERE (`' . $tblAls . '`.`' . $lnkDbCol . '` = `S`.`SCHEMA_NAME`)'
+                . (!is_null($adtnlCol) ? ' AND (`' . $tblAls . '`.`' . $adtnlCol . '` = "' . $adtnlFltr . '")' : '')
+                . ') AS `' . ucwords(strtolower((is_null($adtnlCol) ? $tblName : $adtnlFltr))) . '`';
     }
 
     protected function sQueryMySqlStatistics($filterArray = null)
     {
         return 'SELECT '
                 . '`S`.`SCHEMA_NAME`, '
-                . $this->sQueryMySqlStatisticTVC()
-                . $this->sQueryMySqlStatisticTSFSPE()
+                . $this->sQueryMySqlStatisticPattern('TABLES', 'TABLE_SCHEMA', 'TABLE_TYPE', 'BASE TABLE') . ', '
+                . $this->sQueryMySqlStatisticPattern('TABLES', 'TABLE_SCHEMA', 'TABLE_TYPE', 'VIEW') . ', '
+                . $this->sQueryMySqlStatisticPattern('COLUMNS', 'TABLE_SCHEMA') . ', '
+                . $this->sQueryMySqlStatisticPattern('TRIGGERS', 'EVENT_OBJECT_SCHEMA') . ', '
+                . $this->sQueryMySqlStatisticPattern('ROUTINES', 'ROUTINE_SCHEMA', 'ROUTINE_TYPE', 'Function') . ', '
+                . $this->sQueryMySqlStatisticPattern('ROUTINES', 'ROUTINE_SCHEMA', 'ROUTINE_TYPE', 'Procedure') . ', '
+                . $this->sQueryMySqlStatisticPattern('EVENTS', 'EVENT_SCHEMA') . ' '
                 . 'FROM `information_schema`.`SCHEMATA` `S` '
                 . 'WHERE (`S`.`SCHEMA_NAME` NOT IN ("information_schema", "mysql", "performance_schema", "sys")) '
                 . str_replace('WHERE|AND', $this->sManageDynamicFilters($filterArray, 'S'))
