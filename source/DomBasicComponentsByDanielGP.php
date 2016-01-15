@@ -134,7 +134,7 @@ trait DomBasicComponentsByDanielGP
 
     private function setFeedbackStyleTitle($sType)
     {
-        $formatTitle = 'margin-top:-5px;margin-right:20px;padding:5px;';
+        $formatTitle         = 'margin-top:-5px;margin-right:20px;padding:5px;';
         $styleByTypeForTitle = [
             'alert' => 'border:medium solid orange;background-color:orange;color:navy;',
             'check' => 'border:medium solid green;background-color:green;color:white;',
@@ -146,8 +146,8 @@ trait DomBasicComponentsByDanielGP
 
     private function setFeedbackStyleMessage($sType)
     {
-        $formatMessage = 'display:inline;padding-right:5px;padding-bottom:5px;';
-        $styleByTypeMsg   = [
+        $formatMessage  = 'display:inline;padding-right:5px;padding-bottom:5px;';
+        $styleByTypeMsg = [
             'alert' => 'background-color:navy;color:orange;border:medium solid orange;',
             'check' => 'background-color:yellow;color:green;border:medium solid green;',
             'error' => 'background-color:yellow;color:red;border:medium solid red;',
@@ -173,19 +173,16 @@ trait DomBasicComponentsByDanielGP
         if (!is_null($this->tCmnRequest->server->get('HTTP_ACCEPT_ENCODING'))) {
             return '';
         } elseif (strstr($this->tCmnRequest->server->get('HTTP_ACCEPT_ENCODING'), 'gzip')) {
-            switch ($outputType) {
-                case 'Footer':
-                    $gzipCntntOriginal = ob_get_contents();
-                    ob_end_clean();
-                    $gzipCntnt         = gzcompress($gzipCntntOriginal, 9);
-                    echo "\x1f\x8b\x08\x00\x00\x00\x00\x00" . substr($gzipCntnt, 0, strlen($gzipCntnt) - 4)
-                    . pack('V', crc32($gzipCntntOriginal)) . pack('V', strlen($gzipCntntOriginal));
-                    break;
-                case 'Header':
-                    ob_start();
-                    ob_implicit_flush(0);
-                    header('Content-Encoding: gzip');
-                    break;
+            if ($outputType === 'Footer') {
+                $gzipCntntOriginal = ob_get_contents();
+                ob_end_clean();
+                $gzipCntnt         = gzcompress($gzipCntntOriginal, 9);
+                echo "\x1f\x8b\x08\x00\x00\x00\x00\x00" . substr($gzipCntnt, 0, strlen($gzipCntnt) - 4)
+                . pack('V', crc32($gzipCntntOriginal)) . pack('V', strlen($gzipCntntOriginal));
+            } elseif ($outputType === 'Header') {
+                ob_start();
+                ob_implicit_flush(0);
+                header('Content-Encoding: gzip');
             }
         }
     }
