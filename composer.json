@@ -37,6 +37,7 @@
             "source/DomDynamicSelectByDanielGP.php",
             "source/DomComponentsByDanielGP.php",
             "source/MySQLiAdvancedOutput.php",
+            "source/MySQLiByDanielGPqueriesBasic.php",
             "source/MySQLiByDanielGPqueries.php",
             "source/MySQLiMultiple.php",
             "source/MySQLiByDanielGP.php"
