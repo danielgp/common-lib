@@ -256,7 +256,6 @@ trait CommonCode
      * @param string $urlToSendTo
      * @param array $params
      * @throws \Exception
-     * @throws \UnexpectedValueException
      */
     protected function sendBackgroundEncodedFormElementsByPost($urlToSendTo, $params = [])
     {
@@ -268,16 +267,15 @@ trait CommonCode
             $postingString = $this->setArrayToStringForUrl('&', $params);
             $pUrlParts     = parse_url($postingUrl);
             $postingPort   = (isset($pUrlParts['port']) ? $pUrlParts['port'] : 80);
-            $flPointer     = fsockopen($pUrlParts['host'], $postingPort, $errNo, $errorMessage, 30);
+            $flPointer     = fsockopen($pUrlParts['host'], $postingPort, $erN, $erM, 30);
             if ($flPointer === false) {
-                throw new \UnexpectedValueException($this->lclMsgCmn('i18n_Error_FailedToConnect') . ': '
-                . $errNo . ' (' . $errorMessage . ')');
+                throw new \Exception($this->lclMsgCmn('i18n_Error_FailedToConnect') . ': ' . $erN . ' (' . $erM . ')');
             }
             fwrite($flPointer, $this->sendBackgroundPrepareData($pUrlParts, $postingString));
             fclose($flPointer);
             return '';
         }
-        throw new \UnexpectedValueException($this->lclMsgCmn('i18n_Error_GivenParameterIsNotAnArray'));
+        throw new \Exception($this->lclMsgCmn('i18n_Error_GivenParameterIsNotAnArray'));
     }
 
     protected function sendBackgroundPrepareData($pUrlParts, $postingString)
@@ -286,7 +284,7 @@ trait CommonCode
         $out   = [];
         $out[] = 'POST ' . $pUrlParts['path'] . ' ' . $this->tCmnSuperGlobals->server->get['SERVER_PROTOCOL'];
         $out[] = 'Host: ' . $pUrlParts['host'];
-        if (is_null($this->tCmnSuperGlobals->server->get('HTTP_USER_AGENT'))) {
+        if (!is_null($this->tCmnSuperGlobals->server->get('HTTP_USER_AGENT'))) {
             $out[] = 'User-Agent: ' . $this->tCmnSuperGlobals->server->get('HTTP_USER_AGENT');
         }
         $out[] = 'Content-Type: application/x-www-form-urlencoded';
