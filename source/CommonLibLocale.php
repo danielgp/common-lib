@@ -55,6 +55,31 @@ trait CommonLibLocale
         return implode(DIRECTORY_SEPARATOR, $localePath);
     }
 
+    private function getTimestampArray($crtTime)
+    {
+        return ['float' => $this->getTimestampFloat($crtTime), 'string' => $this->getTimestampString($crtTime)];
+    }
+
+    private function getTimestampFloat($crtTime)
+    {
+        return ($crtTime['sec'] + $crtTime['usec'] / pow(10, 6));
+    }
+
+    protected function getTimestampRaw($returnType)
+    {
+        return call_user_func([$this, 'getTimestamp' . ucfirst($returnType)], gettimeofday());
+    }
+
+    private function getTimestampString($crtTime)
+    {
+        return implode('', [
+            '<span style="color:black!important;font-weight:bold;">[',
+            date('Y-m-d H:i:s.', $crtTime['sec']),
+            substr(round($crtTime['usec'], -3), 0, 3),
+            ']</span> '
+        ]);
+    }
+
     /**
      * Stores given language or default one into global session variable
      * (In order to avoid potential language injections from other applications session will revert

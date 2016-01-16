@@ -165,32 +165,10 @@ trait CommonCode
      */
     protected function getTimestamp($returnType = 'string')
     {
-        $crtTime          = gettimeofday();
-        $knownReturnTypes = ['array', 'float', 'string'];
-        if (in_array($returnType, $knownReturnTypes)) {
-            return call_user_func([$this, 'getTimestamp' . ucfirst($returnType)], $crtTime);
+        if (in_array($returnType, ['array', 'float', 'string'])) {
+            return $this->getTimestampRaw($returnType);
         }
         return sprintf($this->lclMsgCmn('i18n_Error_UnknownReturnType'), $returnType);
-    }
-
-    private function getTimestampArray($crtTime)
-    {
-        return ['float' => $this->getTimestampFloat($crtTime), 'string' => $this->getTimestampString($crtTime)];
-    }
-
-    private function getTimestampFloat($crtTime)
-    {
-        return ($crtTime['sec'] + $crtTime['usec'] / pow(10, 6));
-    }
-
-    private function getTimestampString($crtTime)
-    {
-        return implode('', [
-            '<span style="color:black!important;font-weight:bold;">[',
-            date('Y-m-d H:i:s.', $crtTime['sec']),
-            substr(round($crtTime['usec'], -3), 0, 3),
-            ']</span> '
-        ]);
     }
 
     /**
@@ -282,8 +260,7 @@ trait CommonCode
         $jsonError = $this->setJsonErrorInPlainEnglish();
         if (is_null($jsonError)) {
             return $sReturn;
-        } else {
-            return ['error' => $jsonError];
         }
+        return ['error' => $jsonError];
     }
 }
