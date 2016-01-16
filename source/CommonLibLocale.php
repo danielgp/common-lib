@@ -132,6 +132,30 @@ trait CommonLibLocale
         return $this->tCmnLb->ngettext($singularString, $pluralString, $numberToEvaluate);
     }
 
+    /**
+     * Returns proper result from a mathematical division in order to avoid
+     * Zero division erorr or Infinite results
+     *
+     * @param float $fAbove
+     * @param float $fBelow
+     * @param mixed $mArguments
+     * @return decimal
+     */
+    protected function setDividedResult($fAbove, $fBelow, $mArguments = 0)
+    {
+        if (($fAbove == 0) || ($fBelow == 0)) { // prevent infinite result AND division by 0
+            return 0;
+        }
+        if (is_array($mArguments)) {
+            $frMinMax = [
+                'MinFractionDigits' => $mArguments[1],
+                'MaxFractionDigits' => $mArguments[1],
+            ];
+            return $this->setNumberFormat(($fAbove / $fBelow), $frMinMax);
+        }
+        return $this->setNumberFormat(round(($fAbove / $fBelow), $mArguments));
+    }
+
     protected function setNumberFormat($content, $features = null)
     {
         $features = $this->setNumberFormatFeatures($features);

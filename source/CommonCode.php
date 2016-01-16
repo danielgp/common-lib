@@ -69,10 +69,7 @@ trait CommonCode
                 'response' => '',
             ];
         }
-        return [
-            'info'     => $this->setArrayToJson(curl_getinfo($chanel)),
-            'response' => $rspJsonFromClient,
-        ];
+        return ['info' => $this->setArrayToJson(curl_getinfo($chanel)), 'response' => $rspJsonFromClient];
     }
 
     /**
@@ -85,17 +82,11 @@ trait CommonCode
     protected function getContentFromUrlThroughCurl($fullURL, $features = null)
     {
         if (!function_exists('curl_init')) {
-            $aReturn = [
-                'info'     => $this->lclMsgCmn('i18n_Error_ExtensionNotLoaded'),
-                'response' => '',
-            ];
+            $aReturn = ['info' => $this->lclMsgCmn('i18n_Error_ExtensionNotLoaded'), 'response' => ''];
             return $this->setArrayToJson($aReturn);
         }
         if (!filter_var($fullURL, FILTER_VALIDATE_URL)) {
-            $aReturn = [
-                'info'     => $this->lclMsgCmn('i18n_Error_GivenUrlIsNotValid'),
-                'response' => '',
-            ];
+            $aReturn = ['info' => $this->lclMsgCmn('i18n_Error_GivenUrlIsNotValid'), 'response' => ''];
             return $this->setArrayToJson($aReturn);
         }
         $aReturn = $this->getContentFromUrlThroughCurlRawArray($fullURL, $features);
@@ -143,12 +134,10 @@ trait CommonCode
     protected function getFeedbackMySQLAffectedRecords()
     {
         if (is_null($this->mySQLconnection)) {
-            $message = 'No MySQL';
-        } else {
-            $afRows  = $this->mySQLconnection->affected_rows;
-            $message = sprintf($this->lclMsgCmnNumber('i18n_Record', 'i18n_Records', $afRows), $afRows);
+            return '<div>No MySQL connection detected</div>';
         }
-        return '<div>' . $message . '</div>';
+        $afRows = $this->mySQLconnection->affected_rows;
+        return '<div>' . sprintf($this->lclMsgCmnNumber('i18n_Record', 'i18n_Records', $afRows), $afRows) . '</div>';
     }
 
     /**
@@ -206,10 +195,7 @@ trait CommonCode
 
     private function getTimestampArray($crtTime)
     {
-        return [
-            'float'  => $this->getTimestampFloat($crtTime),
-            'string' => $this->getTimestampString($crtTime),
-        ];
+        return ['float' => $this->getTimestampFloat($crtTime), 'string' => $this->getTimestampString($crtTime)];
     }
 
     private function getTimestampFloat($crtTime)
@@ -293,37 +279,12 @@ trait CommonCode
         $out   = [];
         $out[] = 'POST ' . $pUrlParts['path'] . ' ' . $this->tCmnSuperGlobals->server->get['SERVER_PROTOCOL'];
         $out[] = 'Host: ' . $pUrlParts['host'];
-        if (!is_null($this->tCmnSuperGlobals->server->get('HTTP_USER_AGENT'))) {
-            $out[] = 'User-Agent: ' . $this->tCmnSuperGlobals->server->get('HTTP_USER_AGENT');
-        }
+        $out[] = 'User-Agent: ' . $this->getUserAgentByCommonLib();
         $out[] = 'Content-Type: application/x-www-form-urlencoded';
         $out[] = 'Content-Length: ' . strlen($postingString);
         $out[] = 'Connection: Close' . "\r\n";
         $out[] = $postingString;
         return implode("\r\n", $out);
-    }
-
-    /**
-     * Returns proper result from a mathematical division in order to avoid Zero division erorr or Infinite results
-     *
-     * @param float $fAbove
-     * @param float $fBelow
-     * @param mixed $mArguments
-     * @return decimal
-     */
-    protected function setDividedResult($fAbove, $fBelow, $mArguments = 0)
-    {
-        if (($fAbove == 0) || ($fBelow == 0)) { // prevent infinite result AND division by 0
-            return 0;
-        }
-        if (is_array($mArguments)) {
-            $frMinMax = [
-                'MinFractionDigits' => $mArguments[1],
-                'MaxFractionDigits' => $mArguments[1],
-            ];
-            return $this->setNumberFormat(($fAbove / $fBelow), $frMinMax);
-        }
-        return $this->setNumberFormat(round(($fAbove / $fBelow), $mArguments));
     }
 
     /**
