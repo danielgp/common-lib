@@ -260,30 +260,24 @@ trait CommonCode
      */
     protected function sendBackgroundEncodedFormElementsByPost($urlToSendTo, $params = [])
     {
-        try {
-            $postingUrl = filter_var($urlToSendTo, FILTER_VALIDATE_URL);
-            if ($postingUrl === false) {
-                throw new \Exception($exc);
-            } else {
-                if (is_array($params)) {
-                    $postingString = $this->setArrayToStringForUrl('&', $params);
-                    $pUrlParts     = parse_url($postingUrl);
-                    $postingPort   = (isset($pUrlParts['port']) ? $pUrlParts['port'] : 80);
-                    $flPointer     = fsockopen($pUrlParts['host'], $postingPort, $errNo, $errorMessage, 30);
-                    if ($flPointer === false) {
-                        throw new \UnexpectedValueException($this->lclMsgCmn('i18n_Error_FailedToConnect') . ': '
-                        . $errNo . ' (' . $errorMessage . ')');
-                    } else {
-                        fwrite($flPointer, $this->sendBackgroundPrepareData($pUrlParts, $postingString));
-                        fclose($flPointer);
-                    }
-                } else {
-                    throw new \UnexpectedValueException($this->lclMsgCmn('i18n_Error_GivenParameterIsNotAnArray'));
-                }
-            }
-        } catch (\Exception $exc) {
-            echo '<pre style="color:#f00">' . $exc->getTraceAsString() . '</pre>';
+        $postingUrl = filter_var($urlToSendTo, FILTER_VALIDATE_URL);
+        if ($postingUrl === false) {
+            throw new \Exception('Invalid URL in ' . __FUNCTION__);
         }
+        if (is_array($params)) {
+            $postingString = $this->setArrayToStringForUrl('&', $params);
+            $pUrlParts     = parse_url($postingUrl);
+            $postingPort   = (isset($pUrlParts['port']) ? $pUrlParts['port'] : 80);
+            $flPointer     = fsockopen($pUrlParts['host'], $postingPort, $errNo, $errorMessage, 30);
+            if ($flPointer === false) {
+                throw new \UnexpectedValueException($this->lclMsgCmn('i18n_Error_FailedToConnect') . ': '
+                . $errNo . ' (' . $errorMessage . ')');
+            }
+            fwrite($flPointer, $this->sendBackgroundPrepareData($pUrlParts, $postingString));
+            fclose($flPointer);
+            return '';
+        }
+        throw new \UnexpectedValueException($this->lclMsgCmn('i18n_Error_GivenParameterIsNotAnArray'));
     }
 
     protected function sendBackgroundPrepareData($pUrlParts, $postingString)
