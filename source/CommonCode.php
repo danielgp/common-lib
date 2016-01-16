@@ -264,21 +264,30 @@ trait CommonCode
             throw new \Exception('Invalid URL in ' . __FUNCTION__);
         }
         if (is_array($params)) {
-            $postingString = $this->setArrayToStringForUrl('&', $params);
-            $pUrlParts     = parse_url($postingUrl);
-            $postingPort   = (isset($pUrlParts['port']) ? $pUrlParts['port'] : 80);
-            $flPointer     = fsockopen($pUrlParts['host'], $postingPort, $erN, $erM, 30);
-            if ($flPointer === false) {
-                throw new \Exception($this->lclMsgCmn('i18n_Error_FailedToConnect') . ': ' . $erN . ' (' . $erM . ')');
-            }
-            fwrite($flPointer, $this->sendBackgroundPrepareData($pUrlParts, $postingString));
-            fclose($flPointer);
+            $cntFailErrMsg = $this->lclMsgCmn('i18n_Error_FailedToConnect');
+            $this->sendBackgroundPostData($postingUrl, $params, $cntFailErrMsg);
             return '';
         }
         throw new \Exception($this->lclMsgCmn('i18n_Error_GivenParameterIsNotAnArray'));
     }
 
-    protected function sendBackgroundPrepareData($pUrlParts, $postingString)
+    private function sendBackgroundPostData($postingUrl, $params, $cntFailErrMsg)
+    {
+        $postingString = $this->setArrayToStringForUrl('&', $params);
+        $pUrlParts     = parse_url($postingUrl);
+        $postingPort   = 80;
+        if (isset($pUrlParts['port'])) {
+            $postingPort = $pUrlParts['port'];
+        }
+        $flPointer = fsockopen($pUrlParts['host'], $postingPort, $erN, $erM, 30);
+        if ($flPointer === false) {
+            throw new \Exception($cntFailErrMsg . ': ' . $erN . ' (' . $erM . ')');
+        }
+        fwrite($flPointer, $this->sendBackgroundPrepareData($pUrlParts, $postingString));
+        fclose($flPointer);
+    }
+
+    private function sendBackgroundPrepareData($pUrlParts, $postingString)
     {
         $this->initializeSprGlbAndSession();
         $out   = [];
