@@ -744,7 +744,7 @@ trait DomComponentsByDanielGP
         $this->handleLanguageIntoSession();
         return '<div class="upperRightBox">'
                 . '<div style="text-align:right;">'
-                . '<span class="flag-icon flag-icon-' . strtolower(substr($this->tCmnSuperGlobals->get('lang'), -2))
+                . '<span class="flag-icon flag-icon-' . strtolower(substr($this->tCmnSession->get('lang'), -2))
                 . '" style="margin-right:2px;">&nbsp;</span>'
                 . $aAvailableLanguages[$this->tCmnSession->get('lang')]
                 . '</div><!-- default Language -->'
