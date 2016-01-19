@@ -91,12 +91,8 @@ trait CommonLibLocale
     {
         $this->settingsCommonLib();
         $this->initializeSprGlbAndSession();
-        if (is_null($this->tCmnSuperGlobals->get('lang'))) {
-            if (!is_null($this->tCmnSession->get('lang'))) {
-                $this->tCmnSession->set('lang', filter_var($this->tCmnSession->get('lang'), FILTER_SANITIZE_STRING));
-            } elseif (is_null($this->tCmnSession->get('lang'))) {
-                $this->tCmnSession->set('lang', $this->commonLibFlags['default_language']);
-            }
+        if (is_null($this->tCmnSuperGlobals->get('lang')) && is_null($this->tCmnSession->get('lang'))) {
+            $this->tCmnSession->set('lang', $this->commonLibFlags['default_language']);
         } elseif (!is_null($this->tCmnSuperGlobals->get('lang'))) {
             $this->tCmnSession->set('lang', filter_var($this->tCmnSuperGlobals->get('lang'), FILTER_SANITIZE_STRING));
         }
