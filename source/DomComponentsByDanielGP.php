@@ -89,7 +89,10 @@ trait DomComponentsByDanielGP
      */
     protected function setArrayToStringForUrl($sSeparator, $aElements, $aExceptedElements = [''])
     {
-        $outArray   = $this->normalizeArrayForUrl($aElements);
+        $outArray = $this->normalizeArrayForUrl($aElements);
+        if (count($outArray) < 1) {
+            return '';
+        }
         $xptArray   = $this->normalizeArrayForUrl($aExceptedElements);
         $finalArray = array_diff_key($outArray, $xptArray);
         return http_build_query($finalArray, '', $sSeparator);
@@ -755,17 +758,16 @@ trait DomComponentsByDanielGP
     private function setUpperRightVisibleOnHoverLanguages($aAvailableLanguages)
     {
         $linkWithoutLanguage = '';
-        if (isset($this->tCmnSuperGlobals->request)) {
-            $linkWithoutLanguage = $this->setArrayToStringForUrl('&amp;', $this->tCmnSuperGlobals->request, ['lang'])
-                    . '&amp;';
+        $alR                 = $this->tCmnSuperGlobals->request->all();
+        if (count($alR) > 0) {
+            $linkWithoutLanguage = $this->setArrayToStringForUrl('&amp;', $alR, ['lang']) . '&amp;';
         }
         $sReturn = [];
         foreach ($aAvailableLanguages as $key => $value) {
             if ($this->tCmnSession->get('lang') !== $key) {
                 $sReturn[] = '<a href="?' . $linkWithoutLanguage . 'lang=' . $key . '" style="display:block;">'
                         . '<span class="flag-icon flag-icon-' . strtolower(substr($key, -2))
-                        . '" style="margin-right:2px;">&nbsp;</span>'
-                        . $value . '</a>';
+                        . '" style="margin-right:2px;">&nbsp;</span>' . $value . '</a>';
             }
         }
         return '<div id="visibleOnHover">' . implode('', $sReturn) . '</div><!-- visibleOnHover end -->';
