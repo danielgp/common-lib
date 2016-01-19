@@ -170,18 +170,17 @@ trait CommonBasic
     protected function retrieveFilesOlderThanGivenRule($inputArray)
     {
         $proceedRetrieving = $this->removeFilesDecision($inputArray);
+        $aFiles            = null;
         if ($proceedRetrieving) {
             $finder   = new \Symfony\Component\Finder\Finder();
             $iterator = $finder->files()->ignoreUnreadableDirs(true)->followLinks()->in($inputArray['path']);
-            $aFiles   = null;
             foreach ($iterator as $file) {
                 if ($file->getATime() < strtotime($inputArray['dateRule'])) {
                     $aFiles[] = $file->getRealPath();
                 }
             }
-            return $aFiles;
         }
-        return null;
+        return $aFiles;
     }
 
     /**
