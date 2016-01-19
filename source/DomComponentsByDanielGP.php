@@ -36,7 +36,8 @@ namespace danielgp\common_lib;
 trait DomComponentsByDanielGP
 {
 
-    use DomCssAndJavascriptByDanielGP,
+    use CommonBasic,
+        DomCssAndJavascriptByDanielGP,
         DomDynamicSelectByDanielGP;
 
     private function normalizeArrayForUrl($featArray)
@@ -57,7 +58,7 @@ trait DomComponentsByDanielGP
      *
      * @version 20080618
      * @param array $aElements
-     * @param string/array $sDefaultValue
+     * @param mixed $sDefaultValue
      * @param string $selectName
      * @param array $featArray
      * @return string
@@ -101,9 +102,9 @@ trait DomComponentsByDanielGP
     /**
      * Returns a table from an query
      *
-     * @param array $gArray
-     * @param array $features
-     * @param boolean $bKeepFullPage
+     * @param array $aElements
+     * @param array $ftrs
+     * @param boolean $bKpFlPge
      * @return string
      */
     protected function setArrayToTable($aElements, $ftrs = null, $bKpFlPge = true)

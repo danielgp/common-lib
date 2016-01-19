@@ -36,8 +36,7 @@ namespace danielgp\common_lib;
 trait CommonCode
 {
 
-    use CommonBasic,
-        DomComponentsByDanielGP,
+    use DomComponentsByDanielGP,
         MySQLiByDanielGPqueries,
         MySQLiByDanielGP;
 
