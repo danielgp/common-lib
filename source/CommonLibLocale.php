@@ -92,13 +92,15 @@ trait CommonLibLocale
         $this->settingsCommonLib();
         $this->initializeSprGlbAndSession();
         if (is_null($this->tCmnSuperGlobals->get('lang'))) {
-            $this->tCmnSession->set('lang', $this->commonLibFlags['default_language']);
+            if (!is_null($this->tCmnSession->get('lang'))) {
+                $this->tCmnSession->set('lang', filter_var($this->tCmnSession->get('lang'), FILTER_SANITIZE_STRING));
+            } elseif (is_null($this->tCmnSession->get('lang'))) {
+                $this->tCmnSession->set('lang', $this->commonLibFlags['default_language']);
+            }
         } elseif (!is_null($this->tCmnSuperGlobals->get('lang'))) {
             $this->tCmnSession->set('lang', filter_var($this->tCmnSuperGlobals->get('lang'), FILTER_SANITIZE_STRING));
         }
-        if (!array_key_exists($this->tCmnSession->get('lang'), $this->commonLibFlags['available_languages'])) {
-            $this->tCmnSession->set('lang', $this->commonLibFlags['default_language']);
-        }
+        $this->normalizeLocalizationIntoSession();
     }
 
     /**
@@ -155,6 +157,13 @@ trait CommonLibLocale
             $this->handleLocalizationCommon();
         }
         return $this->tCmnLb->ngettext($singularString, $pluralString, $numberToEvaluate);
+    }
+
+    private function normalizeLocalizationIntoSession()
+    {
+        if (!array_key_exists($this->tCmnSession->get('lang'), $this->commonLibFlags['available_languages'])) {
+            $this->tCmnSession->set('lang', $this->commonLibFlags['default_language']);
+        }
     }
 
     /**
