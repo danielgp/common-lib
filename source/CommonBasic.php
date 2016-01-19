@@ -159,12 +159,12 @@ trait CommonBasic
     protected function removeFilesOlderThanGivenRule($inputArray)
     {
         $aFiles = $this->retrieveFilesOlderThanGivenRule($inputArray);
-        if (is_null($aFiles)) {
-            return $aFiles;
+        if (!is_null($aFiles)) {
+            $filesystem = new \Symfony\Component\Filesystem\Filesystem();
+            $filesystem->remove($aFiles);
+            return $this->setArrayToJson($aFiles);
         }
-        $filesystem = new \Symfony\Component\Filesystem\Filesystem();
-        $filesystem->remove($aFiles);
-        return $this->setArrayToJson($aFiles);
+        return $aFiles;
     }
 
     protected function retrieveFilesOlderThanGivenRule($inputArray)
