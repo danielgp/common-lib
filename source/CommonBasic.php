@@ -136,16 +136,14 @@ trait CommonBasic
 
     protected function removeFilesDecision($inputArray)
     {
-        $proceedWithDeletion = false;
         if (is_array($inputArray)) {
             if (!isset($inputArray['path'])) {
                 return '`path` has not been provided';
             } elseif (!isset($inputArray['dateRule'])) {
                 return '`dateRule` has not been provided';
             }
-            $proceedWithDeletion = true;
         }
-        return $proceedWithDeletion;
+        return false;
     }
 
     /**
@@ -170,17 +168,18 @@ trait CommonBasic
     protected function retrieveFilesOlderThanGivenRule($inputArray)
     {
         $proceedRetrieving = $this->removeFilesDecision($inputArray);
-        $aFiles            = null;
         if ($proceedRetrieving) {
             $finder   = new \Symfony\Component\Finder\Finder();
             $iterator = $finder->files()->ignoreUnreadableDirs(true)->followLinks()->in($inputArray['path']);
+            $aFiles   = null;
             foreach ($iterator as $file) {
                 if ($file->getATime() < strtotime($inputArray['dateRule'])) {
                     $aFiles[] = $file->getRealPath();
                 }
             }
+            return $aFiles;
         }
-        return $aFiles;
+        return null;
     }
 
     /**
