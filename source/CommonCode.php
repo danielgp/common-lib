@@ -36,7 +36,7 @@ namespace danielgp\common_lib;
 trait CommonCode
 {
 
-    use DomComponentsByDanielGP,
+    use MySQLiAdvancedOutput,
         MySQLiByDanielGP;
 
     private function buildArrayForCurlInterogation($chanel, $rspJsonFromClient)

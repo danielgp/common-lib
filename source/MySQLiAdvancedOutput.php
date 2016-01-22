@@ -36,6 +36,8 @@ namespace danielgp\common_lib;
 trait MySQLiAdvancedOutput
 {
 
+    use DomComponentsByDanielGP;
+
     protected $advCache = null;
 
     private function getFieldCompletionType($details)
@@ -232,7 +234,7 @@ trait MySQLiAdvancedOutput
             $input = $this->setArrayToSelect($slct['Options'], $slct['Value'], $value['COLUMN_NAME'], $inAdtnl);
             unset($foreignKeysArray);
         } else {
-            $fldNos      = $this->setFieldNumbers($value);
+            $fldNos  = $this->setFieldNumbers($value);
             $inAdtnl = [
                 'type'      => ($value['COLUMN_NAME'] == 'password' ? 'password' : 'text'),
                 'name'      => $value['COLUMN_NAME'],
