@@ -171,7 +171,7 @@ trait CommonBasic
         if ($proceedRetrieving) {
             $finder   = new \Symfony\Component\Finder\Finder();
             $iterator = $finder->files()->ignoreUnreadableDirs(true)->followLinks()->in($inputArray['path']);
-            $aFiles   = null;
+            $aFiles   = [];
             foreach ($iterator as $file) {
                 if ($file->getATime() < strtotime($inputArray['dateRule'])) {
                     $aFiles[] = $file->getRealPath();
