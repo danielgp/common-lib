@@ -40,6 +40,21 @@ trait MySQLiAdvancedOutput
 
     protected $advCache = null;
 
+    /**
+     *
+     * @param type $tblSrc
+     */
+    private function establishDatabaseAndTable($tblSrc)
+    {
+        if (strpos($tblSrc, '.') === false) { // in case the DB is ommited get the default one
+            if (!defined('MYSQL_DATABASE')) {
+                define('MYSQL_DATABASE', 'information_schema');
+            }
+            return [$tblSrc, MYSQL_DATABASE];
+        }
+        return explode('.', str_replace('`', '', $tblSrc));
+    }
+
     private function getFieldCompletionType($details)
     {
         if ($details['IS_NULLABLE'] == 'YES') {
@@ -380,25 +395,32 @@ trait MySQLiAdvancedOutput
      */
     private function getFieldValue($details)
     {
-        $sReturn = '';
-        if (isset($_REQUEST[$details['COLUMN_NAME']])) {
-            if (($details['IS_NULLABLE'] == 'YES') && ($_REQUEST[$details['COLUMN_NAME']] == '')) {
-                $sReturn = 'NULL';
-            } else {
-                $sReturn = $_REQUEST[$details['COLUMN_NAME']];
+        $this->initializeSprGlbAndSession();
+        $rqCN = $this->tCmnRequest->request->get($details['COLUMN_NAME']);
+        if (!is_null($rqCN)) {
+            if (($details['IS_NULLABLE'] == 'YES') && ($rqCN == '')) {
+                return 'NULL';
             }
-        } else {
-            if (is_null($details['COLUMN_DEFAULT'])) {
-                if ($details['IS_NULLABLE'] == 'YES') {
-                    $sReturn = 'NULL';
-                } else {
-                    $sReturn = '';
-                }
-            } else {
-                $sReturn = $details['COLUMN_DEFAULT'];
-            }
+            return $rqCN;
         }
-        return $sReturn;
+        return $this->getFieldValueWithoutUserInput($details);
+    }
+
+    /**
+     * Handles field value ignoring any input from the user
+     *
+     * @param array $details
+     * @return string
+     */
+    private function getFieldValueWithoutUserInput($details)
+    {
+        if (is_null($details['COLUMN_DEFAULT'])) {
+            if ($details['IS_NULLABLE'] == 'YES') {
+                return 'NULL';
+            }
+            return '';
+        }
+        return $details['COLUMN_DEFAULT'];
     }
 
     /**
@@ -448,9 +470,7 @@ trait MySQLiAdvancedOutput
 
     private function getLabel($details)
     {
-        return $this->setStringIntoTag($this->getFieldNameForDisplay($details), 'span', [
-                    'class' => 'fake_label'
-        ]);
+        return $this->setStringIntoTag($this->getFieldNameForDisplay($details), 'span', ['class' => 'fake_label']);
     }
 
     /**
@@ -535,6 +555,11 @@ trait MySQLiAdvancedOutput
             $iar = ['include_null'];
         }
         return $iar;
+    }
+
+    private function handleFeaturesSingle($fieldName, $features)
+    {
+
     }
 
     /**
@@ -748,12 +773,7 @@ trait MySQLiAdvancedOutput
      */
     private function setTableCache($tblSrc)
     {
-        if (strpos($tblSrc, '.') === false) { // in case the DB is ommited get the default one
-            $dat[1] = $tblSrc;
-            $dat[0] = MYSQL_DATABASE;
-        } else {
-            $dat = explode('.', str_replace('`', '', $tblSrc));
-        }
+        $dat = $this->establishDatabaseAndTable($tblSrc);
         if (!isset($this->advCache['tableStructureCache'][$dat[0]][$dat[1]])) {
             switch ($dat[1]) {
                 case 'user_rights':
@@ -771,17 +791,16 @@ trait MySQLiAdvancedOutput
         }
     }
 
-    private function setTableForeginKeyCache($dtbase, $tblName)
+    private function setTableForeginKeyCache($dbName, $tblName)
     {
-        $frgnKeys = $this->getMySQLlistIndexes([
-            'TABLE_SCHEMA'          => $dtbase,
+        $frgnKs = $this->getMySQLlistIndexes([
+            'TABLE_SCHEMA'          => $dbName,
             'TABLE_NAME'            => $tblName,
             'REFERENCED_TABLE_NAME' => 'NOT NULL',
         ]);
-        if (!is_null($frgnKeys)) {
-            $this->advCache['tableFKs'][$dtbase][$tblName] = $frgnKeys;
-            $colWithFK                                     = array_column($frgnKeys, 'COLUMN_NAME', 'CONSTRAINT_NAME');
-            $this->advCache['FKcol'][$dtbase][$tblName]    = $colWithFK;
+        if (!is_null($frgnKs)) {
+            $this->advCache['tableFKs'][$dbName][$tblName] = $frgnKs;
+            $this->advCache['FKcol'][$dbName][$tblName]    = array_column($frgnKs, 'COLUMN_NAME', 'CONSTRAINT_NAME');
         }
     }
 
