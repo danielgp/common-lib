@@ -37,7 +37,6 @@ trait CommonCode
 {
 
     use DomComponentsByDanielGP,
-        MySQLiByDanielGPqueries,
         MySQLiByDanielGP;
 
     private function buildArrayForCurlInterogation($chanel, $rspJsonFromClient)
