@@ -41,12 +41,14 @@ trait MySQLiAdvancedOutput
     protected $advCache = null;
 
     /**
+     * Establish Database and Table intended to work with
+     * (in case the DB is ommited get the default one)
      *
-     * @param type $tblSrc
+     * @param string $tblSrc
      */
     private function establishDatabaseAndTable($tblSrc)
     {
-        if (strpos($tblSrc, '.') === false) { // in case the DB is ommited get the default one
+        if (strpos($tblSrc, '.') === false) {
             if (!defined('MYSQL_DATABASE')) {
                 define('MYSQL_DATABASE', 'information_schema');
             }
@@ -96,17 +98,17 @@ trait MySQLiAdvancedOutput
      * @param string $tblSrc
      * @param string $fldType
      * @param array $val
-     * @param string $iar
+     * @param array $iar
      * @return string
      */
-    private function getFieldOutputEnumSet($tblSrc, $fldType, $val, $iar = null)
+    private function getFieldOutputEnumSet($tblSrc, $fldType, $val, $iar = [])
     {
         $adnlThings = $this->establishDefaultEnumSet($fldType);
-        if (isset($iar['readonly'])) {
-            return $this->getFieldOutputEnumSetReadOnly($tblSrc, $fldType, $val, $iar, $adnlThings);
+        if (array_key_exists('readonly', $val)) {
+            return $this->getFieldOutputEnumSetReadOnly($val, $adnlThings);
         }
         $inAdtnl = $adnlThings['additional'];
-        if (!is_null($iar)) {
+        if ($iar !== []) {
             $inAdtnl = array_merge($inAdtnl, $iar);
         }
         $vlSlct    = explode(',', $this->getFieldValue($val));
@@ -114,7 +116,7 @@ trait MySQLiAdvancedOutput
         return $this->setArrayToSelect($slctOptns, $vlSlct, $val['COLUMN_NAME'] . $adnlThings['suffix'], $inAdtnl);
     }
 
-    private function getFieldOutputEnumSetReadOnly($tblSrc, $fldType, $val, $iar, $adnlThings)
+    private function getFieldOutputEnumSetReadOnly($val, $adnlThings)
     {
         $inputFeatures = [
             'name'     => $val['COLUMN_NAME'] . $adnlThings['suffix'],
@@ -133,67 +135,62 @@ trait MySQLiAdvancedOutput
      * @param string $tblSrc
      * @param array $value
      * @param array $features
-     * @param string $iar
+     * @param array $iar
      * @return string
      */
-    private function getFieldOutputNumeric($tblSrc, $value, $iar = null)
+    private function getFieldOutputNumeric($tblSrc, $value, $iar = [])
     {
-        $input = null;
         if ($value['EXTRA'] == 'auto_increment') {
             if ($this->getFieldValue($value) == '') {
-                $input = $this->setStringIntoTag('auto-numar', 'span', [
-                    'id'    => $value['COLUMN_NAME'],
-                    'style' => 'font-style:italic;',
+                return $this->setStringIntoTag('auto-numar', 'span', [
+                            'id'    => $value['COLUMN_NAME'],
+                            'style' => 'font-style:italic;',
                 ]);
-            } else {
-                $inAdtnl = [
-                    'type'  => 'hidden',
-                    'name'  => $value['COLUMN_NAME'],
-                    'id'    => $value['COLUMN_NAME'],
-                    'value' => $this->getFieldValue($value),
-                ];
-                if (!is_null($iar)) {
-                    $inAdtnl = array_merge($inAdtnl, $iar);
-                }
-                $input = $this->setStringIntoTag($this->getFieldValue($value), 'b')
-                        . $this->setStringIntoShortTag('input', $inAdtnl);
             }
-        } else {
-            $database = $this->advCache['workingDatabase'];
-            $fkArray  = $this->getForeignKeysToArray($database, $tblSrc, $value['COLUMN_NAME']);
-            if (is_null($fkArray)) {
-                $fldNos  = $this->setFieldNumbers($value);
-                $inAdtnl = [
-                    'type'      => 'text',
-                    'name'      => $value['COLUMN_NAME'],
-                    'id'        => $value['COLUMN_NAME'],
-                    'value'     => $this->getFieldValue($value),
-                    'size'      => min(50, $fldNos['l']),
-                    'maxlength' => min(50, $fldNos['l'])
-                ];
-                if (isset($iar)) {
-                    $inAdtnl = array_merge($inAdtnl, $iar);
-                }
-                $input = $this->setStringIntoShortTag('input', $inAdtnl);
-            } else {
-                $query         = $this->sQueryGenericSelectKeyValue([
-                    $fkArray[$value['COLUMN_NAME']][1],
-                    $fkArray[$value['COLUMN_NAME']][2],
-                    $fkArray[$value['COLUMN_NAME']][0]
-                ]);
-                $selectOptions = $this->setMySQLquery2Server($query, 'array_key_value')['result'];
-                $selectValue   = $this->getFieldValue($value);
-                $inAdtnl       = ['size' => 1];
-                if ($value['IS_NULLABLE'] == 'YES') {
-                    $inAdtnl = array_merge($inAdtnl, ['include_null']);
-                }
-                if (isset($iar)) {
-                    $inAdtnl = array_merge($inAdtnl, $iar);
-                }
-                $input = $this->setArrayToSelect($selectOptions, $selectValue, $value['COLUMN_NAME'], $inAdtnl);
+            $inAdtnl = [
+                'type'  => 'hidden',
+                'name'  => $value['COLUMN_NAME'],
+                'id'    => $value['COLUMN_NAME'],
+                'value' => $this->getFieldValue($value),
+            ];
+            if ($iar !== []) {
+                $inAdtnl = array_merge($inAdtnl, $iar);
             }
+            return $this->setStringIntoTag($this->getFieldValue($value), 'b')
+                    . $this->setStringIntoShortTag('input', $inAdtnl);
         }
-        return $input;
+        $database = $this->advCache['workingDatabase'];
+        $fkArray  = $this->getForeignKeysToArray($database, $tblSrc, $value['COLUMN_NAME']);
+        if (is_null($fkArray)) {
+            $fldNos  = $this->setFieldNumbers($value);
+            $inAdtnl = [
+                'type'      => 'text',
+                'name'      => $value['COLUMN_NAME'],
+                'id'        => $value['COLUMN_NAME'],
+                'value'     => $this->getFieldValue($value),
+                'size'      => min(50, $fldNos['l']),
+                'maxlength' => min(50, $fldNos['l'])
+            ];
+            if ($iar !== []) {
+                $inAdtnl = array_merge($inAdtnl, $iar);
+            }
+            return $this->setStringIntoShortTag('input', $inAdtnl);
+        }
+        $query         = $this->sQueryGenericSelectKeyValue([
+            $fkArray[$value['COLUMN_NAME']][1],
+            $fkArray[$value['COLUMN_NAME']][2],
+            $fkArray[$value['COLUMN_NAME']][0]
+        ]);
+        $selectOptions = $this->setMySQLquery2Server($query, 'array_key_value')['result'];
+        $selectValue   = $this->getFieldValue($value);
+        $inAdtnl       = ['size' => 1];
+        if ($value['IS_NULLABLE'] == 'YES') {
+            $inAdtnl = array_merge($inAdtnl, ['include_null']);
+        }
+        if ($iar !== []) {
+            $inAdtnl = array_merge($inAdtnl, $iar);
+        }
+        return $this->setArrayToSelect($selectOptions, $selectValue, $value['COLUMN_NAME'], $inAdtnl);
     }
 
     /**
@@ -203,15 +200,14 @@ trait MySQLiAdvancedOutput
      * @param string $fieldType
      * @param array $value
      * @param array $features
-     * @param string $iar
+     * @param array $iar
      * @return string
      */
-    private function getFieldOutputText($tbl, $fieldType, $value, $iar = null)
+    private function getFieldOutputText($tbl, $fieldType, $value, $iar = [])
     {
         if (!in_array($fieldType, ['char', 'tinytext', 'varchar'])) {
             return '';
         }
-        $input    = null;
         $database = $this->advCache['workingDatabase'];
         if (strpos($tbl, '`.`')) {
             $database = substr($tbl, 0, strpos($tbl, '`.`'));
@@ -232,31 +228,28 @@ trait MySQLiAdvancedOutput
             if ($value['IS_NULLABLE'] == 'YES') {
                 $inAdtnl = array_merge($inAdtnl, ['include_null']);
             }
-            if (!is_null($iar)) {
+            if ($iar !== []) {
                 $inAdtnl = array_merge($inAdtnl, $iar);
             }
-            $slct  = [
+            $slct = [
                 'Options' => $this->setQuery2Server($query, 'array_key_value'),
                 'Value'   => $this->getFieldValue($value),
             ];
-            $input = $this->setArrayToSelect($slct['Options'], $slct['Value'], $value['COLUMN_NAME'], $inAdtnl);
-            unset($foreignKeysArray);
-        } else {
-            $fldNos  = $this->setFieldNumbers($value);
-            $inAdtnl = [
-                'type'      => ($value['COLUMN_NAME'] == 'password' ? 'password' : 'text'),
-                'name'      => $value['COLUMN_NAME'],
-                'id'        => $value['COLUMN_NAME'],
-                'size'      => min(30, $fldNos['l']),
-                'maxlength' => min(255, $fldNos['l']),
-                'value'     => $this->getFieldValue($value),
-            ];
-            if (!is_null($iar)) {
-                $inAdtnl = array_merge($inAdtnl, $iar);
-            }
-            $input = $this->setStringIntoShortTag('input', $inAdtnl);
+            return $this->setArrayToSelect($slct['Options'], $slct['Value'], $value['COLUMN_NAME'], $inAdtnl);
         }
-        return $input;
+        $fldNos  = $this->setFieldNumbers($value);
+        $inAdtnl = [
+            'type'      => ($value['COLUMN_NAME'] == 'password' ? 'password' : 'text'),
+            'name'      => $value['COLUMN_NAME'],
+            'id'        => $value['COLUMN_NAME'],
+            'size'      => min(30, $fldNos['l']),
+            'maxlength' => min(255, $fldNos['l']),
+            'value'     => $this->getFieldValue($value),
+        ];
+        if ($iar !== []) {
+            $inAdtnl = array_merge($inAdtnl, $iar);
+        }
+        return $this->setStringIntoShortTag('input', $inAdtnl);
     }
 
     /**
@@ -266,93 +259,72 @@ trait MySQLiAdvancedOutput
      * @param string $fieldType
      * @param array $value
      * @param array $features
-     * @param string $iar
+     * @param array $iar
      * @return string
      */
-    private function getFieldOutputTextLarge($fieldType, $value, $iar = null)
+    private function getFieldOutputTextLarge($fieldType, $value, $iar = [])
     {
         if (!in_array($fieldType, ['blob', 'text'])) {
-            $sReturn = '';
-        } else {
-            $inAdtnl = [
-                'name' => $value['COLUMN_NAME'],
-                'id'   => $value['COLUMN_NAME'],
-                'rows' => 4,
-                'cols' => 55,
-            ];
-            if (isset($iar)) {
-                $inAdtnl = array_merge($inAdtnl, $iar);
-            }
-            $sReturn = $this->setStringIntoTag($this->getFieldValue($value), 'textarea', $inAdtnl);
+            return '';
         }
-        return $sReturn;
+        $inAdtnl = [
+            'name' => $value['COLUMN_NAME'],
+            'id'   => $value['COLUMN_NAME'],
+            'rows' => 4,
+            'cols' => 55,
+        ];
+        if ($iar !== []) {
+            $inAdtnl = array_merge($inAdtnl, $iar);
+        }
+        return $this->setStringIntoTag($this->getFieldValue($value), 'textarea', $inAdtnl);
     }
 
     /**
      * Returns a Time field 2 use in a form
      *
-     * @param string $table_source
-     * @param string $fieldType
      * @param array $value
-     * @param array $features
-     * @param string $iar
+     * @param array $iar
      * @return string
      */
-    private function getFieldOutputTime($fieldType, $value, $iar = null)
+    private function getFieldOutputTime($value, $iar = [])
     {
-        $input = null;
-        switch ($fieldType) {
-            case 'time':
-                $inAdtnl = [
-                    'type'      => 'text',
-                    'size'      => 9,
-                    'maxlength' => 9,
-                    'name'      => $value['COLUMN_NAME'],
-                    'id'        => $value['COLUMN_NAME'],
-                    'value'     => $this->getFieldValue($value),
-                ];
-                if (isset($iar)) {
-                    $inAdtnl = array_merge($inAdtnl, $iar);
-                }
-                $input = $this->setStringIntoShortTag('input', $inAdtnl);
-                break;
+        $inAdtnl = [
+            'type'      => 'text',
+            'size'      => 9,
+            'maxlength' => 9,
+            'name'      => $value['COLUMN_NAME'],
+            'id'        => $value['COLUMN_NAME'],
+            'value'     => $this->getFieldValue($value),
+        ];
+        if ($iar !== []) {
+            $inAdtnl = array_merge($inAdtnl, $iar);
         }
-        return $input;
+        return $this->setStringIntoShortTag('input', $inAdtnl);
     }
 
     /**
      * Returns a Timestamp field 2 use in a form
      *
-     * @param string $table_source
-     * @param string $fieldType
      * @param array $value
-     * @param array $features
-     * @param string $iar
+     * @param array $iar
      * @return string
      */
-    private function getFieldOutputTimestamp($fieldType, $value, $iar = null)
+    private function getFieldOutputTimestamp($value, $iar = [])
     {
-        $input = null;
-        switch ($fieldType) {
-            case 'timestamp':
-            // intentioanlly left open
-            case 'datetime':
-                $inAdtnl = [
-                    'type'      => 'text',
-                    'size'      => 19,
-                    'maxlength' => 19,
-                    'name'      => $value['COLUMN_NAME'],
-                    'id'        => $value['COLUMN_NAME'],
-                    'value'     => $this->getFieldValue($value),
-                ];
-                if (isset($iar)) {
-                    $inAdtnl = array_merge($inAdtnl, $iar);
-                }
-                $input = $this->setStringIntoShortTag('input', $inAdtnl);
-                if (!isset($iar['readonly'])) {
-                    $input .= $this->setCalendarControlWithTime($value['COLUMN_NAME']);
-                }
-                break;
+        $inAdtnl = [
+            'type'      => 'text',
+            'size'      => 19,
+            'maxlength' => 19,
+            'name'      => $value['COLUMN_NAME'],
+            'id'        => $value['COLUMN_NAME'],
+            'value'     => $this->getFieldValue($value),
+        ];
+        if ($iar !== []) {
+            $inAdtnl = array_merge($inAdtnl, $iar);
+        }
+        $input = $this->setStringIntoShortTag('input', $inAdtnl);
+        if (!array_key_exists('readonly', $iar)) {
+            $input .= $this->setCalendarControlWithTime($value['COLUMN_NAME']);
         }
         return $input;
     }
@@ -361,7 +333,7 @@ trait MySQLiAdvancedOutput
      * Returns a Year field 2 use in a form
      *
      * @param array $details
-     * @param string $iar
+     * @param array $iar
      * @return string
      */
     private function getFieldOutputYear($details, $iar)
@@ -369,15 +341,11 @@ trait MySQLiAdvancedOutput
         for ($c = 1901; $c <= 2155; $c++) {
             $listOfValues[$c] = $c;
         }
-        if (is_null($iar)) {
-            $slDflt  = $this->getFieldValue($details);
-            $sReturn = $this->setArrayToSelect($listOfValues, $slDflt, $details['COLUMN_NAME'], [
-                'size' => 1
-            ]);
-        } else {
-            $sReturn = $this->getFieldOutputText('varchar', $details, $iar);
+        if ($iar == []) {
+            $slDflt = $this->getFieldValue($details);
+            return $this->setArrayToSelect($listOfValues, $slDflt, $details['COLUMN_NAME'], ['size' => 1]);
         }
-        return $sReturn;
+        return $this->getFieldOutputText('varchar', $details, $iar);
     }
 
     /**
@@ -407,7 +375,7 @@ trait MySQLiAdvancedOutput
      */
     private function getFieldValueWithoutUserInput($details)
     {
-        if (is_null($details['COLUMN_DEFAULT'])) {
+        if ($details['COLUMN_DEFAULT'] === null) {
             if ($details['IS_NULLABLE'] == 'YES') {
                 return 'NULL';
             }
@@ -530,22 +498,31 @@ trait MySQLiAdvancedOutput
      */
     private function handleFeatures($fieldName, $features)
     {
-        $iar = null;
-        if (isset($features['readonly']) && in_array($fieldName, $features['readonly'])) {
-            $iar = ['readonly' => 'readonly', 'class' => 'input_readonly'];
-        }
-        if (isset($features['disabled']) && in_array($fieldName, $features['disabled'])) {
-            $iar = ['disabled' => 'disabled'];
-        }
+        $rOly  = $this->handleFeaturesSingle($fieldName, $features, 'readonly');
+        $rDbld = $this->handleFeaturesSingle($fieldName, $features, 'disabled');
+        $rNl   = [];
         if (isset($features['include_null']) && in_array($fieldName, $features['include_null'])) {
-            $iar = ['include_null'];
+            $rNl = ['include_null'];
         }
-        return $iar;
+        return array_merge([], $rOly, $rDbld, $rNl);
     }
 
-    private function handleFeaturesSingle($fieldName, $features)
+    private function handleFeaturesSingle($fieldName, $features, $featureKey)
     {
-
+        $fMap    = [
+            'readonly' => ['readonly', 'class', 'input_readonly'],
+            'disabled' => ['disabled']
+        ];
+        $aReturn = [];
+        if (array_key_exists($featureKey, $features)) {
+            if (array_key_exists($fieldName, $features[$featureKey])) {
+                $aReturn[$featureKey][$fMap[$featureKey][0]] = $fMap[$featureKey][0];
+                if (count($fMap[$featureKey]) > 1) {
+                    $aReturn[$featureKey][$fMap[$featureKey][1]] = $fMap[$featureKey][2];
+                }
+            }
+        }
+        return $aReturn;
     }
 
     /**
@@ -668,14 +645,13 @@ trait MySQLiAdvancedOutput
                     }
                 }
                 $sReturn['label'] = $this->setStringIntoTag($fieldLabel, 'label', $aLabel);
+                $result           = $this->setNeededFieldByType($tableSource, $details, $features);
                 if ($details['COLUMN_NAME'] == 'ChoiceId') {
                     $result = $this->setStringIntoShortTag('input', [
                         'type'  => 'text',
                         'name'  => $details['COLUMN_NAME'],
                         'value' => $_REQUEST[$details['COLUMN_NAME']]
                     ]);
-                } else {
-                    $result = $this->setNeededFieldByType($tableSource, $details, $features);
                 }
                 $sReturn['input'] = $result;
                 break;
@@ -694,12 +670,12 @@ trait MySQLiAdvancedOutput
     /**
      * Analyse the field type and returns the proper lines 2 use in forms
      *
-     * @param string $tbl_src
+     * @param string $tblName
      * @param array $details
      * @param array $features
-     * @return string/array
+     * @return string|array
      */
-    private function setNeededFieldByType($tbl_src, $details, $features)
+    private function setNeededFieldByType($tblName, $details, $features)
     {
         $sReturn = null;
         if (isset($features['special']) && isset($features['special'][$details['COLUMN_NAME']])) {
@@ -719,30 +695,30 @@ trait MySQLiAdvancedOutput
                 case 'double':
                 case 'decimal':
                 case 'numeric':
-                    $sReturn = $this->getFieldOutputNumeric($tbl_src, $details, $iar);
+                    $sReturn = $this->getFieldOutputNumeric($tblName, $details, $iar);
                     break;
                 case 'char':
                 case 'tinytext':
                 case 'varchar':
-                    $sReturn = $this->getFieldOutputText($tbl_src, $details['DATA_TYPE'], $details, $iar);
+                    $sReturn = $this->getFieldOutputText($tblName, $details['DATA_TYPE'], $details, $iar);
                     break;
                 case 'date':
                     $sReturn = $this->getFieldOutputDate($details['DATA_TYPE'], $details, $iar);
                     break;
                 case 'datetime':
                 case 'timestamp':
-                    $sReturn = $this->getFieldOutputTimestamp($details['DATA_TYPE'], $details, $iar);
+                    $sReturn = $this->getFieldOutputTimestamp($details, $iar);
                     break;
                 case 'enum':
                 case 'set':
-                    $sReturn = $this->getFieldOutputEnumSet($tbl_src, $details['DATA_TYPE'], $details, $iar);
+                    $sReturn = $this->getFieldOutputEnumSet($tblName, $details['DATA_TYPE'], $details, $iar);
                     break;
                 case 'text':
                 case 'blob':
                     $sReturn = $this->getFieldOutputTextLarge($details['DATA_TYPE'], $details, $iar);
                     break;
                 case 'time':
-                    $sReturn = $this->getFieldOutputTime($details['DATA_TYPE'], $details, $iar);
+                    $sReturn = $this->getFieldOutputTime($details, $iar);
                     break;
                 case 'year':
                     $sReturn = $this->getFieldOutputYear($details, $iar);
@@ -790,43 +766,46 @@ trait MySQLiAdvancedOutput
         }
     }
 
-    /**
-     * Automatic handler for Record deletion
-     *
-     * @param string $tbl
-     * @param string $identifier
-     * @return string
-     */
-    protected function setViewModernDelete($tbl, $identifier)
+    private function setViewDeleteFeedbacks()
     {
-        $sReturn = [];
-        $tMsg    = [
+        return [
             'Confirmation' => $this->lclMsgCmn('i18n_Action_Confirmation'),
             'Failed'       => $this->lclMsgCmn('i18n_ActionDelete_Failed'),
             'Impossible'   => $this->lclMsgCmn('i18n_ActionDelete_Impossible'),
             'Success'      => $this->lclMsgCmn('i18n_ActionDelete_Success'),
         ];
-        if ($tbl == '') {
-            $sReturn[] = $this->setFeedbackModern('error', $tMsg['Confirmation'], $tMsg['Impossible']);
-        } else {
-            $query = $this->sQueryToDeleteSingleIdentifier([
-                $tbl,
-                $identifier,
-                $_REQUEST[$identifier]
-            ]);
-            $this->setMySQLquery2Server($query);
-            if ($this->mySQLconnection->affected_rows != 0) {
-                $sReturn[] = $this->setFeedbackModern('check', $tMsg['Confirmation'], $tMsg['Success']);
-            } else {
-                $sReturn[] = $this->setFeedbackModern('error', $tMsg['Confirmation'], $tMsg['Failed']);
-                $sReturn[] = '(' . $this->mySQLconnection->error . ')';
-            }
-        }
+    }
+
+    private function setViewDeletePackedFinal($sReturn)
+    {
         $finalJavascript = $this->setJavascriptContent(implode('', [
             '$("#DeleteFeedback").fadeOut(4000, function() {',
             '$(this).remove();',
             '});',
         ]));
-        return '<div id="DeleteFeedback">' . implode('', $sReturn) . '</div>' . $finalJavascript;
+        return '<div id="DeleteFeedback">' . $sReturn . '</div>' . $finalJavascript;
+    }
+
+    /**
+     * Automatic handler for Record deletion
+     *
+     * @param string $tbl
+     * @param string $idn
+     * @return string
+     */
+    protected function setViewModernDelete($tbl, $idn)
+    {
+        $tMsg = $this->setViewDeleteFeedbacks();
+        if ($tbl == '') {
+            $sReturn = $this->setFeedbackModern('error', $tMsg['Confirmation'], $tMsg['Impossible']);
+        } else {
+            $this->setMySQLquery2Server($this->sQueryToDeleteSingleIdentifier([$tbl, $idn, $_REQUEST[$idn]]));
+            $sReturn = $this->setFeedbackModern('error', $tMsg['Confirmation'], $tMsg['Failed'])
+                    . '(' . $this->mySQLconnection->error . ')';
+            if ($this->mySQLconnection->affected_rows > 0) {
+                $sReturn = $this->setFeedbackModern('check', $tMsg['Confirmation'], $tMsg['Success']);
+            }
+        }
+        return $this->setViewDeletePackedFinal($sReturn);
     }
 }
