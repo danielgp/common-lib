@@ -280,6 +280,22 @@ trait MySQLiAdvancedOutput
         return $this->setStringIntoTag($this->getFieldValue($value), 'textarea', $inAdtnl);
     }
 
+    private function getFieldOutputTT($value, $szN, $iar = [])
+    {
+        $inAdtnl = [
+            'id'        => $value['COLUMN_NAME'],
+            'maxlength' => $szN,
+            'name'      => $value['COLUMN_NAME'],
+            'size'      => $szN,
+            'type'      => 'text',
+            'value'     => $this->getFieldValue($value),
+        ];
+        if ($iar !== []) {
+            $inAdtnl = array_merge($inAdtnl, $iar);
+        }
+        return $this->setStringIntoShortTag('input', $inAdtnl);
+    }
+
     /**
      * Returns a Time field 2 use in a form
      *
@@ -289,18 +305,7 @@ trait MySQLiAdvancedOutput
      */
     private function getFieldOutputTime($value, $iar = [])
     {
-        $inAdtnl = [
-            'type'      => 'text',
-            'size'      => 9,
-            'maxlength' => 9,
-            'name'      => $value['COLUMN_NAME'],
-            'id'        => $value['COLUMN_NAME'],
-            'value'     => $this->getFieldValue($value),
-        ];
-        if ($iar !== []) {
-            $inAdtnl = array_merge($inAdtnl, $iar);
-        }
-        return $this->setStringIntoShortTag('input', $inAdtnl);
+        return $this->getFieldOutputTT($value, 8, $iar);
     }
 
     /**
@@ -312,18 +317,7 @@ trait MySQLiAdvancedOutput
      */
     private function getFieldOutputTimestamp($value, $iar = [])
     {
-        $inAdtnl = [
-            'type'      => 'text',
-            'size'      => 19,
-            'maxlength' => 19,
-            'name'      => $value['COLUMN_NAME'],
-            'id'        => $value['COLUMN_NAME'],
-            'value'     => $this->getFieldValue($value),
-        ];
-        if ($iar !== []) {
-            $inAdtnl = array_merge($inAdtnl, $iar);
-        }
-        $input = $this->setStringIntoShortTag('input', $inAdtnl);
+        $input = $this->getFieldOutputTT($value, 19, $iar);
         if (!array_key_exists('readonly', $iar)) {
             $input .= $this->setCalendarControlWithTime($value['COLUMN_NAME']);
         }
