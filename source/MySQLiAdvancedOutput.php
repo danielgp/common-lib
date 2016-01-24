@@ -50,13 +50,19 @@ trait MySQLiAdvancedOutput
     {
         if (strpos($tblSrc, '.') === false) {
             if (!defined('MYSQL_DATABASE')) {
-                define('MYSQL_DATABASE', 'information_schema');
+                define('MYSQL_DATABASE', $this->getMySqlCurrentDatabase());
             }
             return [$tblSrc, MYSQL_DATABASE];
         }
         return explode('.', str_replace('`', '', $tblSrc));
     }
 
+    /**
+     * Establishes the defaults for ENUM or SET field
+     *
+     * @param string $fldType
+     * @return array
+     */
     private function establishDefaultEnumSet($fldType)
     {
         $dfltArray = [
@@ -66,6 +72,12 @@ trait MySQLiAdvancedOutput
         return $dfltArray[$fldType];
     }
 
+    /**
+     * Adjust table name with proper sufix and prefix
+     *
+     * @param string $refTbl
+     * @return string
+     */
     private function fixTableSource($refTbl)
     {
         $outS = [];
@@ -83,6 +95,12 @@ trait MySQLiAdvancedOutput
         return implode('', $outS);
     }
 
+    /**
+     * Creates a mask to differentiate between Mandatory and Optional fields
+     *
+     * @param array $details
+     * @return string
+     */
     private function getFieldCompletionType($details)
     {
         $inputFeatures = ['display' => '***', 'ftrs' => ['title' => 'Mandatory', 'class' => 'inputMandatory']];
@@ -160,6 +178,13 @@ trait MySQLiAdvancedOutput
         return $this->setArrayToSelect($slctOptns, $vlSlct, $val['COLUMN_NAME'] . $adnlThings['suffix'], $inAdtnl);
     }
 
+    /**
+     * Creats an input for ENUM or SET if marked Read-Only
+     *
+     * @param array $val
+     * @param array $adnlThings
+     * @return string
+     */
     private function getFieldOutputEnumSetReadOnly($val, $adnlThings)
     {
         $inputFeatures = [
@@ -194,6 +219,13 @@ trait MySQLiAdvancedOutput
         return $this->getFieldOutputNumericNonFK($fkArray, $value, $iar);
     }
 
+    /**
+     * Handles creation of Auto Increment numeric field type output
+     *
+     * @param array $value
+     * @param array $iar
+     * @return string
+     */
     private function getFieldOutputNumericAI($value, $iar = [])
     {
         if ($this->getFieldValue($value) == '') {
@@ -212,6 +244,14 @@ trait MySQLiAdvancedOutput
         return '<b>' . $this->getFieldValue($value) . '</b>' . $this->setStringIntoShortTag('input', $inAdtnl);
     }
 
+    /**
+     * Builds field output type for numeric types if not FK
+     *
+     * @param array $fkArray
+     * @param array $value
+     * @param array $iar
+     * @return string
+     */
     private function getFieldOutputNumericNonFK($fkArray, $value, $iar = [])
     {
         $query         = $this->sQueryGenericSelectKeyValue([
@@ -246,12 +286,20 @@ trait MySQLiAdvancedOutput
             return '';
         }
         $foreignKeysArray = $this->getFieldOutputTextPrerequisites($tbl, $value);
-        if (is_null($foreignKeysArray)) {
+        if (!is_null($foreignKeysArray)) {
             return $this->getFieldOutputTextFK($foreignKeysArray, $value, $iar);
         }
         return $this->getFieldOutputTextNonFK($value, $iar);
     }
 
+    /**
+     * Prepares the output of text fields defined w. FKs
+     *
+     * @param type $foreignKeysArray
+     * @param type $value
+     * @param type $iar
+     * @return type
+     */
     private function getFieldOutputTextFK($foreignKeysArray, $value, $iar)
     {
         $query   = $this->sQueryGenericSelectKeyValue([
@@ -259,6 +307,7 @@ trait MySQLiAdvancedOutput
             $foreignKeysArray[$value['COLUMN_NAME']][2],
             $foreignKeysArray[$value['COLUMN_NAME']][0]
         ]);
+        echo '<hr/>' . $query . '<hr/>';
         $inAdtnl = ['size' => 1];
         if ($value['IS_NULLABLE'] == 'YES') {
             $inAdtnl = array_merge($inAdtnl, ['include_null']);
@@ -298,6 +347,13 @@ trait MySQLiAdvancedOutput
         return $this->setStringIntoTag($this->getFieldValue($value), 'textarea', $inAdtnl);
     }
 
+    /**
+     * Prepares the output of text fields w/o FKs
+     *
+     * @param array $value
+     * @param array $iar
+     * @return string
+     */
     private function getFieldOutputTextNonFK($value, $iar)
     {
         $fldNos  = $this->setFieldNumbers($value);
@@ -305,8 +361,8 @@ trait MySQLiAdvancedOutput
             'type'      => ($value['COLUMN_NAME'] == 'password' ? 'password' : 'text'),
             'name'      => $value['COLUMN_NAME'],
             'id'        => $value['COLUMN_NAME'],
-            'size'      => min(30, $fldNos['l']),
-            'maxlength' => min(255, $fldNos['l']),
+            'size'      => min(30, $fldNos['M']),
+            'maxlength' => min(255, $fldNos['M']),
             'value'     => $this->getFieldValue($value),
         ];
         if ($iar !== []) {
@@ -315,6 +371,13 @@ trait MySQLiAdvancedOutput
         return $this->setStringIntoShortTag('input', $inAdtnl);
     }
 
+    /**
+     * Prepares the text output fields
+     *
+     * @param string $tbl
+     * @param array $value
+     * @return null|array
+     */
     private function getFieldOutputTextPrerequisites($tbl, $value)
     {
         $foreignKeysArray = null;
@@ -328,6 +391,14 @@ trait MySQLiAdvancedOutput
         return $foreignKeysArray;
     }
 
+    /**
+     * Builds output as text input type
+     *
+     * @param array $value
+     * @param byte $szN
+     * @param array $iar
+     * @return string
+     */
     private function getFieldOutputTT($value, $szN, $iar = [])
     {
         $inAdtnl = [
@@ -366,7 +437,7 @@ trait MySQLiAdvancedOutput
     private function getFieldOutputTimestamp($dtl, $iar = [])
     {
         if (($dtl['COLUMN_DEFAULT'] == 'CURRENT_TIMESTAMP') || ($dtl['EXTRA'] == 'on update CURRENT_TIMESTAMP')) {
-            return $this->getTimestamping($dtl);
+            return $this->getTimestamping($dtl)['input'];
         }
         $input = $this->getFieldOutputTT($dtl, 19, $iar);
         if (!array_key_exists('readonly', $iar)) {
@@ -431,6 +502,12 @@ trait MySQLiAdvancedOutput
         return $details['COLUMN_DEFAULT'];
     }
 
+    /**
+     * prepares the query to detect FKs
+     *
+     * @param array $value
+     * @return string
+     */
     private function getForeignKeysQuery($value)
     {
         $flt = [
@@ -469,9 +546,15 @@ trait MySQLiAdvancedOutput
         return $array2return;
     }
 
+    /**
+     * Build label html tag
+     *
+     * @param array $details
+     * @return string
+     */
     private function getLabel($details)
     {
-        return $this->setStringIntoTag($this->getFieldNameForDisplay($details), 'span', ['class' => 'fake_label']);
+        return '<span class="fake_label">' . $this->getFieldNameForDisplay($details) . '</span>';
     }
 
     /**
@@ -519,6 +602,13 @@ trait MySQLiAdvancedOutput
         return ['label' => $this->getLabel($dtl), 'input' => $inM];
     }
 
+    /**
+     * Glues Database and Table into 1 single string
+     *
+     * @param string $dbName
+     * @param string $tbName
+     * @return string
+     */
     private function glueDbTb($dbName, $tbName)
     {
         return '`' . $dbName . '`.`' . $tbName . '`';
@@ -542,6 +632,14 @@ trait MySQLiAdvancedOutput
         return array_merge([], $rOly, $rDbld, $rNl);
     }
 
+    /**
+     * Handles the features
+     *
+     * @param string $fieldName
+     * @param array $features
+     * @param string $featureKey
+     * @return array
+     */
     private function handleFeaturesSingle($fieldName, $features, $featureKey)
     {
         $fMap    = [
@@ -560,6 +658,15 @@ trait MySQLiAdvancedOutput
         return $aReturn;
     }
 
+    /**
+     * Builds field output w. special column name
+     *
+     * @param string $tableSource
+     * @param array $dtl
+     * @param array $features
+     * @param string $fieldLabel
+     * @return array
+     */
     private function setField($tableSource, $dtl, $features, $fieldLabel)
     {
         if ($dtl['COLUMN_NAME'] == 'host') {
@@ -573,6 +680,14 @@ trait MySQLiAdvancedOutput
         return ['label' => $this->setFieldLabel($dtl, $features, $fieldLabel), 'input' => $result];
     }
 
+    /**
+     * Builds field output w. another special column name
+     *
+     * @param string $tableSource
+     * @param array $dtl
+     * @param array $features
+     * @return string
+     */
     private function setFieldInput($tableSource, $dtl, $features)
     {
         if ($dtl['COLUMN_NAME'] == 'ChoiceId') {
@@ -582,6 +697,14 @@ trait MySQLiAdvancedOutput
         return $this->setNeededFieldByType($tableSource, $dtl, $features);
     }
 
+    /**
+     * Prepares the label for inputs
+     *
+     * @param array $details
+     * @param array $features
+     * @param string $fieldLabel
+     * @return string
+     */
     private function setFieldLabel($details, $features, $fieldLabel)
     {
         $aLabel = ['for' => $details['COLUMN_NAME'], 'id' => $details['COLUMN_NAME'] . '_label'];
@@ -593,7 +716,14 @@ trait MySQLiAdvancedOutput
         return $this->setStringIntoTag($fieldLabel, 'label', $aLabel);
     }
 
-    private function setFormButtons($feat, $hiddenInfo)
+    /**
+     * Form default buttons
+     *
+     * @param array $feat
+     * @param array $hiddenInfo
+     * @return string
+     */
+    private function setFormButtons($feat, $hiddenInfo = [])
     {
         $btn   = [];
         $btn[] = '<input type="submit" id="submit" style="margin-left:220px;" value="'
@@ -601,7 +731,7 @@ trait MySQLiAdvancedOutput
         if (isset($feat['insertAndUpdate'])) {
             $btn[] = '<input type="hidden" id="insertAndUpdate" name="insertAndUpdate" value="insertAndUpdate" />';
         }
-        if (is_array($hiddenInfo)) {
+        if ($hiddenInfo != []) {
             foreach ($hiddenInfo as $key => $value) {
                 $btn[] = '<input type="hidden" id="' . $key . '" name="' . $key . '" value="' . $value . '" />';
             }
@@ -609,12 +739,23 @@ trait MySQLiAdvancedOutput
         return '<div>' . implode('', $btn) . '</div>';
     }
 
+    /**
+     * Builds javascript to avoid multiple form submission
+     *
+     * @param string $frmId
+     * @return string
+     */
     private function setFormJavascriptFinal($frmId)
     {
         $cnt = implode('', [
             '$(document).ready(function(){',
             '$("form#' . $frmId . '").submit(function(){',
-            '$("input").attr("readonly", true);',
+            '$("form#' . $frmId . ' input[type=checkbox]").attr("readonly", true);',
+            '$("form#' . $frmId . ' input[type=password]").attr("readonly", true);',
+            '$("form#' . $frmId . ' input[type=radio]").attr("readonly", true);',
+            '$("form#' . $frmId . ' input[type=text]").attr("readonly", true);',
+            '$("form#' . $frmId . ' textarea").attr("readonly", true);',
+            '$("form#' . $frmId . ' select").attr("readonly", true);',
             '$("input[type=submit]").attr("disabled", "disabled");',
             '$("input[type=submit]").attr("value", "' . $this->lclMsgCmn('i18n_Form_ButtonSaving') . '");',
             '});',
@@ -632,13 +773,13 @@ trait MySQLiAdvancedOutput
      *
      * @return string Form to add/modify detail for a single row within a table
      */
-    protected function setFormGenericSingleRecord($tblSrc, $feat, $hdnInf = '')
+    protected function setFormGenericSingleRecord($tblSrc, $feat, $hdnInf = [])
     {
         echo $this->setStringIntoTag('', 'div', ['id' => 'loading']);
+        $this->setTableCache($tblSrc);
         if (strpos($tblSrc, '.') !== false) {
             $tblSrc = explode('.', str_replace('`', '', $tblSrc))[1];
         }
-        $this->setTableCache($tblSrc);
         $sReturn = [];
         if (count($this->advCache['tableStructureCache'][$this->advCache['workingDatabase']][$tblSrc]) != 0) {
             foreach ($this->advCache['tableStructureCache'][$this->advCache['workingDatabase']][$tblSrc] as $value) {
@@ -706,15 +847,13 @@ trait MySQLiAdvancedOutput
 
     private function setNeededFieldFinal($tableSource, $details, $features, $fieldLabel)
     {
-        $sReturn     = $this->setField($tableSource, $details, $features, $fieldLabel);
-        $finalReturn = $sReturn['label'] . $this->setStringIntoTag($sReturn['input'], 'span', ['class' => 'labell']);
-        $wrkDb       = $this->advCache['workingDatabase'];
-        if (isset($this->advCache['tableFKs'][$wrkDb][$tableSource])) {
-            if (in_array($details['COLUMN_NAME'], $this->advCache['FKcol'][$wrkDb][$tableSource])) {
-                $finalReturn .= $this->setFieldNumbers($details);
-            }
-        }
-        return '<div>' . $finalReturn . '</div>';
+        $sReturn = $this->setField($tableSource, $details, $features, $fieldLabel);
+        $lmts    = $this->setFieldNumbers($details);
+        return '<div>' . $sReturn['label']
+                . $this->setStringIntoTag($sReturn['input'], 'span', ['class' => 'labell'])
+                . '<span style="font-size:x-small;font-style:italic;">&nbsp;(max. '
+                . $lmts['M'] . (isset($lmts['d']) ? ' w. ' . $lmts['d'] . ' decimals' : '') . ')</span>'
+                . '</div>';
     }
 
     private function setNeededFieldSingleType($tblName, $dtls, $iar)
@@ -746,7 +885,7 @@ trait MySQLiAdvancedOutput
      */
     private function setTableCache($tblSrc)
     {
-        $dat = $this->establishDatabaseAndTable($this->fixTableSource($tblSrc));
+        $dat = $this->establishDatabaseAndTable($tblSrc);
         if (!isset($this->advCache['tableStructureCache'][$dat[0]][$dat[1]])) {
             $this->advCache['workingDatabase'] = $dat[0];
             if ($dat[1] == 'user_rights') {
