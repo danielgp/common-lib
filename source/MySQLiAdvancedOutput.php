@@ -721,7 +721,7 @@ trait MySQLiAdvancedOutput
         } elseif ($dtls['DATA_TYPE'] == 'year') {
             return $this->getFieldOutputYear($tblName, $dtls, $iar);
         } elseif (in_array($dtls['DATA_TYPE'], ['datetime', 'timestamp'])) {
-            $sReturn = $this->getFieldOutputTimestamp($dtls, $iar);
+            return $this->getFieldOutputTimestamp($dtls, $iar);
         }
     }
 
