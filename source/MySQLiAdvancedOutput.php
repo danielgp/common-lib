@@ -557,6 +557,36 @@ trait MySQLiAdvancedOutput
         return $aReturn;
     }
 
+    private function setFormButtons($feat)
+    {
+        $btn   = [];
+        $btn[] = '<input type="submit" id="submit" style="margin-left:220px;" value="'
+                . $this->lclMsgCmn('i18n_Form_ButtonSave') . '" />';
+        if (isset($feat['insertAndUpdate'])) {
+            $btn[] = '<input type="hidden" id="insertAndUpdate" name="insertAndUpdate" value="insertAndUpdate" />';
+        }
+        if (is_array($hiddenInfo)) {
+            foreach ($hiddenInfo as $key => $value) {
+                $btn[] = '<input type="hidden" id="' . $key . '" name="' . $key . '" value="' . $value . '" />';
+            }
+        }
+        return '<div>' . implode('', $btn) . '</div>';
+    }
+
+    private function setFormJavascriptFinal($frmId)
+    {
+        $cnt = implode('', [
+            '$(document).ready(function(){',
+            '$("form#' . $frmId . '").submit(function(){',
+            '$("input").attr("readonly", true);',
+            '$("input[type=submit]").attr("disabled", "disabled");',
+            '$("input[type=submit]").attr("value", "' . $this->lclMsgCmn('i18n_Form_ButtonSaving') . '");',
+            '});',
+            '});',
+        ]);
+        return $this->setJavascriptContent($cnt);
+    }
+
     /**
      * Returns a generic form based on a given table
      *
@@ -568,9 +598,7 @@ trait MySQLiAdvancedOutput
      */
     protected function setFormGenericSingleRecord($tblSrc, $feat, $hiddenInfo = '')
     {
-        echo $this->setStringIntoTag('', 'div', [
-            'id' => 'loading'
-        ]); // Ajax container
+        echo $this->setStringIntoTag('', 'div', ['id' => 'loading']);
         if (strpos($tblSrc, '.') !== false) {
             $tblSrc = explode('.', str_replace('`', '', $tblSrc))[1];
         }
@@ -581,50 +609,9 @@ trait MySQLiAdvancedOutput
                 $sReturn[] = $this->setNeededField($tblSrc, $value, $feat);
             }
         }
-        $btn                  = [];
-        $btn[]                = $this->setStringIntoShortTag('input', [
-            'type'  => 'submit',
-            'id'    => 'submit',
-            'style' => 'margin-left:220px;',
-            'value' => $this->lclMsgCmn('i18n_Form_ButtonSave'),
-        ]);
-        $adtnlScriptAfterForm = $this->setJavascriptContent(implode('', [
-            '$(document).ready(function(){',
-            '$("form#' . $feat['id'] . '").submit(function(){',
-            '$("input").attr("readonly", true);',
-            '$("input[type=submit]").attr("disabled", "disabled");',
-            '$("input[type=submit]").attr("value", "' . $this->lclMsgCmn('i18n_Form_ButtonSaving') . '");',
-            '});',
-            '});',
-        ]));
-        if (isset($feat['insertAndUpdate'])) {
-            $btn[] = $this->setStringIntoShortTag('input', [
-                'type'  => 'hidden',
-                'id'    => 'insertAndUpdate',
-                'name'  => 'insertAndUpdate',
-                'value' => 'insertAndUpdate'
-            ]);
-        }
-        $sReturn[] = $this->setStringIntoTag(implode('', $btn), 'div');
-        if (isset($hiddenInfo)) {
-            if (is_array($hiddenInfo)) {
-                foreach ($hiddenInfo as $key => $value) {
-                    $hiddenInput = $this->setStringIntoShortTag('input', [
-                        'type'  => 'hidden',
-                        'name'  => $key,
-                        'id'    => $key,
-                        'value' => $value,
-                    ]);
-                    $sReturn[]   = $this->setStringIntoTag($hiddenInput, 'div');
-                }
-            }
-        }
-        return $this->setStringIntoTag(implode('', $sReturn), 'form', [
-                    'id'     => $feat['id'],
-                    'action' => $feat['action'],
-                    'method' => $feat['method']
-                ])
-                . $adtnlScriptAfterForm;
+        $frmFtrs = ['id' => $feat['id'], 'action' => $feat['action'], 'method' => $feat['method']];
+        return $this->setStringIntoTag(implode('', $sReturn) . $this->setFormButtons($feat), 'form', $frmFtrs)
+                . $this->setFormJavascriptFinal($feat['id']);
     }
 
     protected function setTableLocaleFields($localizationStrings)
