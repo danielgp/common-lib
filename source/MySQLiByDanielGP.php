@@ -285,21 +285,20 @@ trait MySQLiByDanielGP
     }
 
     /**
-     * Reads data from table into $_REQUEST
+     * Reads data from table into REQUEST super global
      *
      * @param string $tableName
      * @param array $filtersArray
      */
     protected function getRowDataFromTable($tableName, $filtersArray)
     {
-        $query   = $this->sQueryRowsFromTable([
-            $tableName,
-            $this->setArrayToFilterValues($filtersArray),
-        ]);
+        $query   = $this->sQueryRowsFromTable([$tableName, $this->setArrayToFilterValues($filtersArray)]);
         $rawData = $this->setMySQLquery2Server($query, 'array_pairs_key_value')['result'];
         if (!is_null($rawData)) {
+            $this->initializeSprGlbAndSession();
             foreach ($rawData as $key => $value) {
-                $_REQUEST[$key] = str_replace(['\\\\"', '\\"', "\\\\'", "\\'"], ['"', '"', "'", "'"], $value);
+                $vToSet = str_replace(['\\\\"', '\\"', "\\\\'", "\\'"], ['"', '"', "'", "'"], $value);
+                $this->tCmnRequest->request->get($key, $vToSet);
             }
         }
     }
