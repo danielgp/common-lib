@@ -559,7 +559,6 @@ trait MySQLiAdvancedOutput
 
     private function setField($tableSource, $dtl, $features, $fieldLabel)
     {
-        $sReturn = [];
         if (in_array($dtl['DATA_TYPE'], ['datetime', 'timestamp'])) {
             if (($dtl['COLUMN_DEFAULT'] == 'CURRENT_TIMESTAMP') || ($dtl['EXTRA'] == 'on update CURRENT_TIMESTAMP')) {
                 return $this->getTimestamping($dtl);
