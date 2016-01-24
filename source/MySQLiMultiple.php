@@ -57,6 +57,11 @@ trait MySQLiMultiple
         }
     }
 
+    protected function getMySqlCurrentDatabase()
+    {
+        return $this->mySQLconnection->query('SELECT DATABASE();')[0];
+    }
+
     /**
      * Detects what kind of variable has been transmited
      * to return the identifier needed by MySQL statement preparing
