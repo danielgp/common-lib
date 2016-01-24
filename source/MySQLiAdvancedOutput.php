@@ -724,6 +724,7 @@ trait MySQLiAdvancedOutput
             ]);
         }
         $iar      = $this->handleFeatures($details['COLUMN_NAME'], $features);
+        $sReturn  = '';
         $numTypes = ['bigint', 'int', 'mediumint', 'smallint', 'tinyint', 'float', 'double', 'decimal', 'numeric'];
         if (in_array($details['DATA_TYPE'], $numTypes)) {
             $sReturn = $this->getFieldOutputNumeric($tblName, $details, $iar);
