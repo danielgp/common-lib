@@ -111,6 +111,34 @@ trait MySQLiAdvancedOutput
     }
 
     /**
+     * Returns a Date field 2 use in a form
+     *
+     * @param string $fldType
+     * @param array $value
+     * @return array
+     */
+    private function getFieldOutputDate($fldType, $value)
+    {
+        $defaultValue = $this->getFieldValue($value);
+        if (is_null($defaultValue)) {
+            $defaultValue = date('Y-m-d');
+        }
+        $inA = [
+            'type'      => 'text',
+            'name'      => $value['Field'],
+            'id'        => $value['Field'],
+            'value'     => $defaultValue,
+            'size'      => 10,
+            'maxlength' => 10,
+            'onfocus'   => implode('', [
+                'javascript:NewCssCal(\'' . $value['Field'],
+                '\',\'yyyyMMdd\',\'dropdown\',false,\'24\',false);',
+            ]),
+        ];
+        return $this->setStringIntoShortTag('input', $inA) . $this->setCalendarControl($value['Field']);
+    }
+
+    /**
      * Returns a Enum or Set field to use in form
      *
      * @param string $tblSrc
@@ -152,7 +180,6 @@ trait MySQLiAdvancedOutput
      *
      * @param string $tblSrc
      * @param array $value
-     * @param array $features
      * @param array $iar
      * @return string
      */
@@ -217,7 +244,6 @@ trait MySQLiAdvancedOutput
      * @param string $tbl
      * @param string $fieldType
      * @param array $value
-     * @param array $features
      * @param array $iar
      * @return string
      */
@@ -235,7 +261,7 @@ trait MySQLiAdvancedOutput
 
     private function getFieldOutputTextFK($foreignKeysArray, $value, $iar)
     {
-        $query   = $this->storedQuery('generic_select_key_value', [
+        $query   = $this->sQueryGenericSelectKeyValue([
             $foreignKeysArray[$value['COLUMN_NAME']][1],
             $foreignKeysArray[$value['COLUMN_NAME']][2],
             $foreignKeysArray[$value['COLUMN_NAME']][0]
@@ -248,7 +274,7 @@ trait MySQLiAdvancedOutput
             $inAdtnl = array_merge($inAdtnl, $iar);
         }
         $slct = [
-            'Options' => $this->setQuery2Server($query, 'array_key_value'),
+            'Options' => $this->setMySQLquery2Server($query, 'array_key_value'),
             'Value'   => $this->getFieldValue($value),
         ];
         return $this->setArrayToSelect($slct['Options'], $slct['Value'], $value['COLUMN_NAME'], $inAdtnl);
@@ -257,10 +283,8 @@ trait MySQLiAdvancedOutput
     /**
      * Returns a Text field 2 use in a form
      *
-     * @param string $table_source
      * @param string $fieldType
      * @param array $value
-     * @param array $features
      * @param array $iar
      * @return string
      */
@@ -362,16 +386,17 @@ trait MySQLiAdvancedOutput
      * @param array $iar
      * @return string
      */
-    private function getFieldOutputYear($details, $iar)
+    private function getFieldOutputYear($tblName, $details, $iar)
     {
-        for ($c = 1901; $c <= 2155; $c++) {
-            $listOfValues[$c] = $c;
+        $listOfValues = [];
+        for ($cntr = 1901; $cntr <= 2155; $cntr++) {
+            $listOfValues[$cntr] = $cntr;
         }
         if ($iar == []) {
             $slDflt = $this->getFieldValue($details);
             return $this->setArrayToSelect($listOfValues, $slDflt, $details['COLUMN_NAME'], ['size' => 1]);
         }
-        return $this->getFieldOutputText('varchar', $details, $iar);
+        return $this->getFieldOutputText($tblName, 'varchar', $details, $iar);
     }
 
     /**
@@ -425,7 +450,7 @@ trait MySQLiAdvancedOutput
      *
      * @param string $database
      * @param string $tblName
-     * @param string|array $onlyCols
+     * @param string|array $onlyCol
      * @return array
      */
     private function getForeignKeysToArray($database, $tblName, $onlyCol = '')
@@ -544,7 +569,7 @@ trait MySQLiAdvancedOutput
      *
      * @param string $tblSrc Table Source
      * @param array $feat
-     * @param string/array $hiddenInfo List of hidden fields
+     * @param string|array $hiddenInfo List of hidden fields
      *
      * @return string Form to add/modify detail for a single row within a table
      */
@@ -556,12 +581,14 @@ trait MySQLiAdvancedOutput
         if (strpos($tblSrc, '.') !== false) {
             $tblSrc = explode('.', str_replace('`', '', $tblSrc))[1];
         }
-        $this->setTableCache($tblSrc); // will populate $this->advCache['tableStructureCache'][$dt[0]][$dt[1]]
+        $this->setTableCache($tblSrc);
+        $sReturn = [];
         if (count($this->advCache['tableStructureCache'][$this->advCache['workingDatabase']][$tblSrc]) != 0) {
             foreach ($this->advCache['tableStructureCache'][$this->advCache['workingDatabase']][$tblSrc] as $value) {
                 $sReturn[] = $this->setNeededField($tblSrc, $value, $feat);
             }
         }
+        $btn                  = [];
         $btn[]                = $this->setStringIntoShortTag('input', [
             'type'  => 'submit',
             'id'    => 'submit',
@@ -631,6 +658,7 @@ trait MySQLiAdvancedOutput
         if ($fieldLabel == 'hidden') {
             return null;
         }
+        $sReturn = [];
         switch ($details['COLUMN_NAME']) {
             case 'host':
                 $sReturn['label'] = $this->setStringIntoTag('Numele calculatorului', 'label', [
@@ -670,12 +698,13 @@ trait MySQLiAdvancedOutput
                 $sReturn['input'] = $result;
                 break;
         }
+        $finalReturn   = [];
         $finalReturn[] = $sReturn['label'];
         $finalReturn[] = $this->setStringIntoTag($sReturn['input'], 'span', ['class' => 'labell']);
         $wrkDb         = $this->advCache['workingDatabase'];
         if (isset($this->tableFKsCache[$wrkDb][$tableSource])) {
             if (in_array($details['COLUMN_NAME'], $this->advCache['FKcol'][$wrkDb][$tableSource])) {
-                $finalReturn[] = $this->getFieldLength($details);
+                $finalReturn[] = $this->setFieldNumbers($details);
             }
         }
         return $this->setStringIntoTag(implode('', $finalReturn), 'div');
@@ -693,7 +722,7 @@ trait MySQLiAdvancedOutput
     {
         $sReturn = null;
         if (isset($features['special']) && isset($features['special'][$details['COLUMN_NAME']])) {
-            $slctOpt = $this->setQuery2Server($features['special'][$details['COLUMN_NAME']], 'array_key_value');
+            $slctOpt = $this->setMySQLquery2Server($features['special'][$details['COLUMN_NAME']], 'array_key_value');
             $sReturn = $this->setArrayToSelect($slctOpt, $this->getFieldValue($details), $details['COLUMN_NAME'], [
                 'size' => 1
             ]);
@@ -735,7 +764,7 @@ trait MySQLiAdvancedOutput
                     $sReturn = $this->getFieldOutputTime($details, $iar);
                     break;
                 case 'year':
-                    $sReturn = $this->getFieldOutputYear($details, $iar);
+                    $sReturn = $this->getFieldOutputYear($tblName, $details, $iar);
                     break;
             }
         }
