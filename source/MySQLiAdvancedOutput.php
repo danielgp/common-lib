@@ -359,18 +359,18 @@ trait MySQLiAdvancedOutput
     /**
      * Returns a Timestamp field 2 use in a form
      *
-     * @param array $value
+     * @param array $dtl
      * @param array $iar
      * @return string
      */
-    private function getFieldOutputTimestamp($value, $iar = [])
+    private function getFieldOutputTimestamp($dtl, $iar = [])
     {
         if (($dtl['COLUMN_DEFAULT'] == 'CURRENT_TIMESTAMP') || ($dtl['EXTRA'] == 'on update CURRENT_TIMESTAMP')) {
             return $this->getTimestamping($dtl);
         }
-        $input = $this->getFieldOutputTT($value, 19, $iar);
+        $input = $this->getFieldOutputTT($dtl, 19, $iar);
         if (!array_key_exists('readonly', $iar)) {
-            $input .= $this->setCalendarControlWithTime($value['COLUMN_NAME']);
+            $input .= $this->setCalendarControlWithTime($dtl['COLUMN_NAME']);
         }
         return $input;
     }
