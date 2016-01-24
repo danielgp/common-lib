@@ -220,37 +220,30 @@ trait MySQLiAdvancedOutput
             }
         }
         if (isset($foreignKeysArray)) {
-            $query   = $this->storedQuery('generic_select_key_value', [
-                $foreignKeysArray[$value['COLUMN_NAME']][1],
-                $foreignKeysArray[$value['COLUMN_NAME']][2],
-                $foreignKeysArray[$value['COLUMN_NAME']][0]
-            ]);
-            $inAdtnl = ['size' => 1];
-            if ($value['IS_NULLABLE'] == 'YES') {
-                $inAdtnl = array_merge($inAdtnl, ['include_null']);
-            }
-            if ($iar !== []) {
-                $inAdtnl = array_merge($inAdtnl, $iar);
-            }
-            $slct = [
-                'Options' => $this->setQuery2Server($query, 'array_key_value'),
-                'Value'   => $this->getFieldValue($value),
-            ];
-            return $this->setArrayToSelect($slct['Options'], $slct['Value'], $value['COLUMN_NAME'], $inAdtnl);
+            return $this->getFieldOutputTextFK($foreignKeysArray, $value, $iar);
         }
-        $fldNos  = $this->setFieldNumbers($value);
-        $inAdtnl = [
-            'type'      => ($value['COLUMN_NAME'] == 'password' ? 'password' : 'text'),
-            'name'      => $value['COLUMN_NAME'],
-            'id'        => $value['COLUMN_NAME'],
-            'size'      => min(30, $fldNos['l']),
-            'maxlength' => min(255, $fldNos['l']),
-            'value'     => $this->getFieldValue($value),
-        ];
+        return $this->getFieldOutputTextNonFK($value, $iar);
+    }
+
+    private function getFieldOutputTextFK($foreignKeysArray, $value, $iar)
+    {
+        $query   = $this->storedQuery('generic_select_key_value', [
+            $foreignKeysArray[$value['COLUMN_NAME']][1],
+            $foreignKeysArray[$value['COLUMN_NAME']][2],
+            $foreignKeysArray[$value['COLUMN_NAME']][0]
+        ]);
+        $inAdtnl = ['size' => 1];
+        if ($value['IS_NULLABLE'] == 'YES') {
+            $inAdtnl = array_merge($inAdtnl, ['include_null']);
+        }
         if ($iar !== []) {
             $inAdtnl = array_merge($inAdtnl, $iar);
         }
-        return $this->setStringIntoShortTag('input', $inAdtnl);
+        $slct = [
+            'Options' => $this->setQuery2Server($query, 'array_key_value'),
+            'Value'   => $this->getFieldValue($value),
+        ];
+        return $this->setArrayToSelect($slct['Options'], $slct['Value'], $value['COLUMN_NAME'], $inAdtnl);
     }
 
     /**
@@ -278,6 +271,23 @@ trait MySQLiAdvancedOutput
             $inAdtnl = array_merge($inAdtnl, $iar);
         }
         return $this->setStringIntoTag($this->getFieldValue($value), 'textarea', $inAdtnl);
+    }
+
+    private function getFieldOutputTextNonFK($value, $iar)
+    {
+        $fldNos  = $this->setFieldNumbers($value);
+        $inAdtnl = [
+            'type'      => ($value['COLUMN_NAME'] == 'password' ? 'password' : 'text'),
+            'name'      => $value['COLUMN_NAME'],
+            'id'        => $value['COLUMN_NAME'],
+            'size'      => min(30, $fldNos['l']),
+            'maxlength' => min(255, $fldNos['l']),
+            'value'     => $this->getFieldValue($value),
+        ];
+        if ($iar !== []) {
+            $inAdtnl = array_merge($inAdtnl, $iar);
+        }
+        return $this->setStringIntoShortTag('input', $inAdtnl);
     }
 
     private function getFieldOutputTT($value, $szN, $iar = [])
@@ -458,30 +468,23 @@ trait MySQLiAdvancedOutput
     /**
      * Returns a timestamp field value
      *
-     * @param $details
-     * @return unknown_type
+     * @param array $dtl
+     * @return array
      */
-    private function getTimestamping($details)
+    private function getTimestamping($dtl)
     {
-        $label = $this->getLabel($details);
-        if (in_array($this->getFieldValue($details), ['', 'CURRENT_TIMESTAMP', 'NULL'])) {
-            switch ($details['COLUMN_NAME']) {
-                case 'InsertDateTime':
-                    $input = $this->setStringIntoTag('data/timpul ad. informatiei', 'span', [
-                        'style' => 'font-style:italic;'
-                    ]);
-                    break;
-                case 'modification_datetime':
-                case 'ModificationDateTime':
-                    $input = $this->setStringIntoTag('data/timpul modificarii inf.', 'span', [
-                        'style' => 'font-style:italic;'
-                    ]);
-                    break;
+        $inM = $this->setStringIntoTag($this->getFieldValue($dtl), 'span');
+        if (in_array($this->getFieldValue($dtl), ['', 'CURRENT_TIMESTAMP', 'NULL'])) {
+            $mCN = [
+                'InsertDateTime'        => 'data/timpul ad. informatiei',
+                'ModificationDateTime'  => 'data/timpul modificarii inf.',
+                'modification_datetime' => 'data/timpul modificarii inf.',
+            ];
+            if (array_key_exists($dtl['COLUMN_NAME'], $mCN)) {
+                $inM = $this->setStringIntoTag($mCN[$dtl['COLUMN_NAME']], 'span', ['style' => 'font-style:italic;']);
             }
-        } else {
-            $input = $this->setStringIntoTag($this->getFieldValue($details), 'span');
         }
-        return ['label' => $label, 'input' => $input];
+        return ['label' => $this->getLabel($dtl), 'input' => $inM];
     }
 
     /**
