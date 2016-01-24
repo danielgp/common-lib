@@ -557,6 +557,15 @@ trait MySQLiByDanielGP
         return $filters;
     }
 
+    private function stFldLmts($colType, $loLmt, $upLmt, $szN, $szUS)
+    {
+        $aReturn = ['m' => $loLmt, 'M' => $upLmt, 'l' => $szN];
+        if (strpos($colType, 'unsigned') !== false) {
+            $aReturn = ['m' => 0, 'M' => ($upLmt - $loLmt), 'l' => $szUS];
+        }
+        return $aReturn;
+    }
+
     /**
      * Returns maximum length for a given MySQL field
      *
@@ -565,64 +574,31 @@ trait MySQLiByDanielGP
      */
     protected function setFieldNumbers($fieldDetails, $outputFormated = false)
     {
-        switch ($fieldDetails['DATA_TYPE']) {
-            case 'bigint':
-                if (strpos($fieldDetails['COLUMN_TYPE'], 'unsigned') !== false) {
-                    $aReturn = ['m' => 0, 'M' => 18446744072705500000, 'l' => 20];
-                } else {
-                    $aReturn = ['m' => -9223372036854770000, 'M' => 9223372036854770000, 'l' => 20];
-                }
-                break;
-            case 'char':
-            case 'varchar':
-            case 'tinytext':
-                $lgth    = str_replace([$fieldDetails['DATA_TYPE'], '(', ')'], '', $fieldDetails['COLUMN_TYPE']);
-                $aReturn = ['l' => $lgth];
-                break;
-            case 'decimal':
-            case 'numeric':
-                $aReturn = ['l' => $fieldDetails['NUMERIC_PRECISION'], 'd' => $fieldDetails['NUMERIC_SCALE']];
-                break;
-            case 'int':
-                if (strpos($fieldDetails['COLUMN_TYPE'], 'unsigned') !== false) {
-                    $aReturn = ['m' => 0, 'M' => 4294967295, 'l' => 10];
-                } else {
-                    $aReturn = ['m' => -2147483648, 'M' => 2147483647, 'l' => 11];
-                }
-                break;
-            case 'mediumint':
-                if (strpos($fieldDetails['COLUMN_TYPE'], 'unsigned') !== false) {
-                    $aReturn = ['m' => 0, 'M' => 16777215, 'l' => 8];
-                } else {
-                    $aReturn = ['m' => -8388608, 'M' => 8388607, 'l' => 8];
-                }
-                break;
-            case 'smallint':
-                if (strpos($fieldDetails['COLUMN_TYPE'], 'unsigned') !== false) {
-                    $aReturn = ['m' => 0, 'M' => 65535, 'l' => 5];
-                } else {
-                    $aReturn = ['m' => -32768, 'M' => 32767, 'l' => 6];
-                }
-                break;
-            case 'tinyint':
-                if (strpos($fieldDetails['COLUMN_TYPE'], 'unsigned') !== false) {
-                    $aReturn = ['m' => 0, 'M' => 255, 'l' => 3];
-                } else {
-                    $aReturn = ['m' => -128, 'M' => 127, 'l' => 4];
-                }
-                break;
-            default:
-                $aReturn = null;
-                break;
+        $sRtrn = null;
+        if ($fieldDetails['DATA_TYPE'] == 'bigint') {
+            $sRtrn = $this->stFldLmts($fieldDetails['COLUMN_TYPE'], -9223372036854775808, 9223372036854775807, 21, 20);
+        } elseif (in_array($fieldDetails['DATA_TYPE'], ['char', 'varchar', 'tinytext'])) {
+            $lgth  = str_replace([$fieldDetails['DATA_TYPE'], '(', ')'], '', $fieldDetails['COLUMN_TYPE']);
+            $sRtrn = ['l' => $lgth];
+        } elseif (in_array($fieldDetails['DATA_TYPE'], ['decimal', 'numeric'])) {
+            $sRtrn = ['l' => $fieldDetails['NUMERIC_PRECISION'], 'd' => $fieldDetails['NUMERIC_SCALE']];
+        } elseif ($fieldDetails['DATA_TYPE'] == 'int') {
+            $sRtrn = $this->stFldLmts($fieldDetails['COLUMN_TYPE'], -2147483648, 2147483647, 11, 10);
+        } elseif ($fieldDetails['DATA_TYPE'] == 'mediumint') {
+            $sRtrn = $this->stFldLmts($fieldDetails['COLUMN_TYPE'], -8388608, 8388607, 9, 8);
+        } elseif ($fieldDetails['DATA_TYPE'] == 'smallint') {
+            $sRtrn = $this->stFldLmts($fieldDetails['COLUMN_TYPE'], -32768, 32767, 6, 5);
+        } elseif ($fieldDetails['DATA_TYPE'] == 'tinyint') {
+            $sRtrn = $this->stFldLmts($fieldDetails['COLUMN_TYPE'], -128, 127, 4, 3);
         }
         if ($outputFormated) {
-            if (is_array($aReturn)) {
-                foreach ($aReturn as $key => $value) {
-                    $aReturn[$key] = $this->setNumberFormat($value);
+            if (is_array($sRtrn)) {
+                foreach ($sRtrn as $key => $value) {
+                    $sRtrn[$key] = $this->setNumberFormat($value);
                 }
             }
         }
-        return $aReturn;
+        return $sRtrn;
     }
 
     /**
