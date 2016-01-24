@@ -557,7 +557,7 @@ trait MySQLiAdvancedOutput
         return $aReturn;
     }
 
-    private function setFormButtons($feat)
+    private function setFormButtons($feat, $hiddenInfo)
     {
         $btn   = [];
         $btn[] = '<input type="submit" id="submit" style="margin-left:220px;" value="'
@@ -592,11 +592,11 @@ trait MySQLiAdvancedOutput
      *
      * @param string $tblSrc Table Source
      * @param array $feat
-     * @param string|array $hiddenInfo List of hidden fields
+     * @param string|array $hdnInf List of hidden fields
      *
      * @return string Form to add/modify detail for a single row within a table
      */
-    protected function setFormGenericSingleRecord($tblSrc, $feat, $hiddenInfo = '')
+    protected function setFormGenericSingleRecord($tblSrc, $feat, $hdnInf = '')
     {
         echo $this->setStringIntoTag('', 'div', ['id' => 'loading']);
         if (strpos($tblSrc, '.') !== false) {
@@ -610,7 +610,7 @@ trait MySQLiAdvancedOutput
             }
         }
         $frmFtrs = ['id' => $feat['id'], 'action' => $feat['action'], 'method' => $feat['method']];
-        return $this->setStringIntoTag(implode('', $sReturn) . $this->setFormButtons($feat), 'form', $frmFtrs)
+        return $this->setStringIntoTag(implode('', $sReturn) . $this->setFormButtons($feat, $hdnInf), 'form', $frmFtrs)
                 . $this->setFormJavascriptFinal($feat['id']);
     }
 
