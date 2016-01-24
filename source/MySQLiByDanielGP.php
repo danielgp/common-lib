@@ -36,7 +36,8 @@ namespace danielgp\common_lib;
 trait MySQLiByDanielGP
 {
 
-    use MySQLiMultiple,
+    use DomComponentsByDanielGP,
+        MySQLiMultiple,
         MySQLiByDanielGPqueries;
 
     /**
