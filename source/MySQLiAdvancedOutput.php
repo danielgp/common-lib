@@ -393,7 +393,7 @@ trait MySQLiAdvancedOutput
     }
 
     /**
-     * Returns given value for a field from $_REQUEST
+     * Returns given value for a field from REQUEST global variable
      *
      * @param array $details
      * @return string
@@ -614,11 +614,6 @@ trait MySQLiAdvancedOutput
                 . $this->setFormJavascriptFinal($feat['id']);
     }
 
-    protected function setTableLocaleFields($localizationStrings)
-    {
-        $this->advCache['tableStructureLocales'] = $localizationStrings;
-    }
-
     /**
      * Analyse the field and returns the proper line 2 use in forms
      *
@@ -648,7 +643,7 @@ trait MySQLiAdvancedOutput
                     'type'     => 'input',
                     'size'     => 15,
                     'readonly' => 'readonly',
-                    'value'    => gethostbyaddr($_SERVER['REMOTE_ADDR'])
+                    'value'    => gethostbyaddr($this->tCmnRequest->server->get('REMOTE_ADDR')),
                 ]);
                 break;
             case 'InsertDateTime':
@@ -672,7 +667,7 @@ trait MySQLiAdvancedOutput
                     $result = $this->setStringIntoShortTag('input', [
                         'type'  => 'text',
                         'name'  => $details['COLUMN_NAME'],
-                        'value' => $_REQUEST[$details['COLUMN_NAME']]
+                        'value' => $this->tCmnRequest->request->get($details['COLUMN_NAME']),
                     ]);
                 }
                 $sReturn['input'] = $result;
@@ -763,48 +758,5 @@ trait MySQLiAdvancedOutput
             $this->advCache['tableFKs'][$dbName][$tblName] = $frgnKs;
             $this->advCache['FKcol'][$dbName][$tblName]    = array_column($frgnKs, 'COLUMN_NAME', 'CONSTRAINT_NAME');
         }
-    }
-
-    private function setViewDeleteFeedbacks()
-    {
-        return [
-            'Confirmation' => $this->lclMsgCmn('i18n_Action_Confirmation'),
-            'Failed'       => $this->lclMsgCmn('i18n_ActionDelete_Failed'),
-            'Impossible'   => $this->lclMsgCmn('i18n_ActionDelete_Impossible'),
-            'Success'      => $this->lclMsgCmn('i18n_ActionDelete_Success'),
-        ];
-    }
-
-    private function setViewDeletePackedFinal($sReturn)
-    {
-        $finalJavascript = $this->setJavascriptContent(implode('', [
-            '$("#DeleteFeedback").fadeOut(4000, function() {',
-            '$(this).remove();',
-            '});',
-        ]));
-        return '<div id="DeleteFeedback">' . $sReturn . '</div>' . $finalJavascript;
-    }
-
-    /**
-     * Automatic handler for Record deletion
-     *
-     * @param string $tbl
-     * @param string $idn
-     * @return string
-     */
-    protected function setViewModernDelete($tbl, $idn)
-    {
-        $tMsg = $this->setViewDeleteFeedbacks();
-        if ($tbl == '') {
-            $sReturn = $this->setFeedbackModern('error', $tMsg['Confirmation'], $tMsg['Impossible']);
-        } else {
-            $this->setMySQLquery2Server($this->sQueryToDeleteSingleIdentifier([$tbl, $idn, $_REQUEST[$idn]]));
-            $sReturn = $this->setFeedbackModern('error', $tMsg['Confirmation'], $tMsg['Failed'])
-                    . '(' . $this->mySQLconnection->error . ')';
-            if ($this->mySQLconnection->affected_rows > 0) {
-                $sReturn = $this->setFeedbackModern('check', $tMsg['Confirmation'], $tMsg['Success']);
-            }
-        }
-        return $this->setViewDeletePackedFinal($sReturn);
     }
 }
