@@ -697,16 +697,14 @@ trait MySQLiAdvancedOutput
                 $sReturn['input'] = $result;
                 break;
         }
-        $finalReturn   = [];
-        $finalReturn[] = $sReturn['label'];
-        $finalReturn[] = $this->setStringIntoTag($sReturn['input'], 'span', ['class' => 'labell']);
-        $wrkDb         = $this->advCache['workingDatabase'];
-        if (isset($this->tableFKsCache[$wrkDb][$tableSource])) {
+        $finalReturn = $sReturn['label'] . $this->setStringIntoTag($sReturn['input'], 'span', ['class' => 'labell']);
+        $wrkDb       = $this->advCache['workingDatabase'];
+        if (isset($this->advCache['tableFKs'][$wrkDb][$tableSource])) {
             if (in_array($details['COLUMN_NAME'], $this->advCache['FKcol'][$wrkDb][$tableSource])) {
-                $finalReturn[] = $this->setFieldNumbers($details);
+                $finalReturn .= $this->setFieldNumbers($details);
             }
         }
-        return $this->setStringIntoTag(implode('', $finalReturn), 'div');
+        return $this->setStringIntoTag($finalReturn, 'div');
     }
 
     /**
