@@ -295,10 +295,10 @@ trait MySQLiAdvancedOutput
     /**
      * Prepares the output of text fields defined w. FKs
      *
-     * @param type $foreignKeysArray
-     * @param type $value
-     * @param type $iar
-     * @return type
+     * @param array $foreignKeysArray
+     * @param array $value
+     * @param array $iar
+     * @return string
      */
     private function getFieldOutputTextFK($foreignKeysArray, $value, $iar)
     {
@@ -395,7 +395,7 @@ trait MySQLiAdvancedOutput
      * Builds output as text input type
      *
      * @param array $value
-     * @param byte $szN
+     * @param integer $szN
      * @param array $iar
      * @return string
      */
@@ -767,9 +767,9 @@ trait MySQLiAdvancedOutput
     /**
      * Returns a generic form based on a given table
      *
-     * @param string $tblSrc Table Source
+     * @param string $tblSrc
      * @param array $feat
-     * @param string|array $hdnInf List of hidden fields
+     * @param array $hdnInf
      *
      * @return string Form to add/modify detail for a single row within a table
      */
