@@ -365,6 +365,9 @@ trait MySQLiAdvancedOutput
      */
     private function getFieldOutputTimestamp($value, $iar = [])
     {
+        if (($dtl['COLUMN_DEFAULT'] == 'CURRENT_TIMESTAMP') || ($dtl['EXTRA'] == 'on update CURRENT_TIMESTAMP')) {
+            return $this->getTimestamping($dtl);
+        }
         $input = $this->getFieldOutputTT($value, 19, $iar);
         if (!array_key_exists('readonly', $iar)) {
             $input .= $this->setCalendarControlWithTime($value['COLUMN_NAME']);
@@ -559,11 +562,7 @@ trait MySQLiAdvancedOutput
 
     private function setField($tableSource, $dtl, $features, $fieldLabel)
     {
-        if (in_array($dtl['DATA_TYPE'], ['datetime', 'timestamp'])) {
-            if (($dtl['COLUMN_DEFAULT'] == 'CURRENT_TIMESTAMP') || ($dtl['EXTRA'] == 'on update CURRENT_TIMESTAMP')) {
-                return $this->getTimestamping($dtl);
-            }
-        } elseif ($dtl['COLUMN_NAME'] == 'host') {
+        if ($dtl['COLUMN_NAME'] == 'host') {
             $inVl = gethostbyaddr($this->tCmnRequest->server->get('REMOTE_ADDR'));
             return [
                 'label' => '<label for="' . $dtl['COLUMN_NAME'] . '">Numele calculatorului</label>',
@@ -670,15 +669,7 @@ trait MySQLiAdvancedOutput
         if ($fieldLabel == 'hidden') {
             return null;
         }
-        $sReturn     = $this->setField($tableSource, $details, $features, $fieldLabel);
-        $finalReturn = $sReturn['label'] . $this->setStringIntoTag($sReturn['input'], 'span', ['class' => 'labell']);
-        $wrkDb       = $this->advCache['workingDatabase'];
-        if (isset($this->advCache['tableFKs'][$wrkDb][$tableSource])) {
-            if (in_array($details['COLUMN_NAME'], $this->advCache['FKcol'][$wrkDb][$tableSource])) {
-                $finalReturn .= $this->setFieldNumbers($details);
-            }
-        }
-        return $this->setStringIntoTag($finalReturn, 'div');
+        return $this->setNeededFieldFinal($tableSource, $details, $features, $fieldLabel);
     }
 
     /**
@@ -711,6 +702,19 @@ trait MySQLiAdvancedOutput
             $sReturn = $this->setNeededFieldSingleType($tblName, $dtls, $iar);
         }
         return $this->getFieldCompletionType($dtls) . $sReturn;
+    }
+
+    private function setNeededFieldFinal($tableSource, $details, $features, $fieldLabel)
+    {
+        $sReturn     = $this->setField($tableSource, $details, $features, $fieldLabel);
+        $finalReturn = $sReturn['label'] . $this->setStringIntoTag($sReturn['input'], 'span', ['class' => 'labell']);
+        $wrkDb       = $this->advCache['workingDatabase'];
+        if (isset($this->advCache['tableFKs'][$wrkDb][$tableSource])) {
+            if (in_array($details['COLUMN_NAME'], $this->advCache['FKcol'][$wrkDb][$tableSource])) {
+                $finalReturn .= $this->setFieldNumbers($details);
+            }
+        }
+        return '<div>' . $finalReturn . '</div>';
     }
 
     private function setNeededFieldSingleType($tblName, $dtls, $iar)
