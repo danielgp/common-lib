@@ -29,6 +29,7 @@
         "classmap": [
             "source/CommonBasic.php",
             "source/CommonLibLocale.php",
+            "source/CommonViews.php",
             "source/CommonCode.php",
             "source/CommonPermissions.php",
             "source/DomBasicComponentsByDanielGP.php",
