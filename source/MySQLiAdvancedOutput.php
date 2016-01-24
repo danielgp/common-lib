@@ -652,10 +652,7 @@ trait MySQLiAdvancedOutput
                 $sReturn          = call_user_func_array([$this, 'getTimestamping'], [$details]);
                 break;
             default:
-                $aLabel           = [
-                    'for' => $details['COLUMN_NAME'],
-                    'id'  => $details['COLUMN_NAME'] . '_label'
-                ];
+                $aLabel           = ['for' => $details['COLUMN_NAME'], 'id' => $details['COLUMN_NAME'] . '_label'];
                 if (isset($features['disabled'])) {
                     if (in_array($details['COLUMN_NAME'], $features['disabled'])) {
                         $aLabel = array_merge($aLabel, ['style' => 'color: grey;']);
@@ -687,39 +684,56 @@ trait MySQLiAdvancedOutput
      * Analyse the field type and returns the proper lines 2 use in forms
      *
      * @param string $tblName
-     * @param array $details
+     * @param array $dtls
      * @param array $features
      * @return string|array
      */
-    private function setNeededFieldByType($tblName, $details, $features)
+    private function setNeededFieldByType($tblName, $dtls, $features)
     {
-        if (isset($features['special']) && isset($features['special'][$details['COLUMN_NAME']])) {
-            $slctOpt = $this->setMySQLquery2Server($features['special'][$details['COLUMN_NAME']], 'array_key_value');
-            return $this->setArrayToSelect($slctOpt, $this->getFieldValue($details), $details['COLUMN_NAME'], [
-                        'size' => 1
-            ]);
+        if (isset($features['special']) && isset($features['special'][$dtls['COLUMN_NAME']])) {
+            $sOpt = $this->setMySQLquery2Server($features['special'][$dtls['COLUMN_NAME']], 'array_key_value');
+            return $this->setArrayToSelect($sOpt, $this->getFieldValue($dtls), $dtls['COLUMN_NAME'], ['size' => 1]);
         }
-        $iar      = $this->handleFeatures($details['COLUMN_NAME'], $features);
+        return $this->setNeededFieldKnown($tblName, $dtls, $iar);
+    }
+
+    private function setNeededFieldKnown($tblName, $dtls, $iar)
+    {
+        $iar      = $this->handleFeatures($dtls['COLUMN_NAME'], $features);
         $sReturn  = '';
         $numTypes = ['bigint', 'int', 'mediumint', 'smallint', 'tinyint', 'float', 'double', 'decimal', 'numeric'];
-        if (in_array($details['DATA_TYPE'], $numTypes)) {
-            $sReturn = $this->getFieldOutputNumeric($tblName, $details, $iar);
-        } elseif (in_array($details['DATA_TYPE'], ['char', 'tinytext', 'varchar'])) {
-            $sReturn = $this->getFieldOutputText($tblName, $details['DATA_TYPE'], $details, $iar);
-        } elseif ($details['DATA_TYPE'] == 'date') {
-            $sReturn = $this->getFieldOutputDate($details);
-        } elseif (in_array($details['DATA_TYPE'], ['datetime', 'timestamp'])) {
-            $sReturn = $this->getFieldOutputTimestamp($details, $iar);
-        } elseif (in_array($details['DATA_TYPE'], ['enum', 'set'])) {
-            $sReturn = $this->getFieldOutputEnumSet($tblName, $details['DATA_TYPE'], $details, $iar);
-        } elseif (in_array($details['DATA_TYPE'], ['text', 'blob'])) {
-            $sReturn = $this->getFieldOutputTextLarge($details['DATA_TYPE'], $details, $iar);
-        } elseif ($details['DATA_TYPE'] == 'time') {
-            $sReturn = $this->getFieldOutputTime($details, $iar);
-        } elseif ($details['DATA_TYPE'] == 'year') {
-            $sReturn = $this->getFieldOutputYear($tblName, $details, $iar);
+        if (in_array($dtls['DATA_TYPE'], $numTypes)) {
+            $sReturn = $this->getFieldOutputNumeric($tblName, $dtls, $iar);
+        } elseif (in_array($dtls['DATA_TYPE'], ['char', 'tinytext', 'varchar', 'enum', 'set', 'text', 'blob'])) {
+            $sReturn = $this->setNeededFieldTextRelated($tblName, $dtls, $iar);
+        } elseif (in_array($dtls['DATA_TYPE'], ['date', 'time', 'year'])) {
+            $sReturn = $this->setNeededFieldSingleType($tblName, $dtls, $iar);
         }
-        return $this->getFieldCompletionType($details) . $sReturn;
+        return $this->getFieldCompletionType($dtls) . $sReturn;
+    }
+
+    private function setNeededFieldSingleType($tblName, $dtls, $iar)
+    {
+        if ($dtls['DATA_TYPE'] == 'date') {
+            return $this->getFieldOutputDate($dtls);
+        } elseif ($dtls['DATA_TYPE'] == 'time') {
+            return $this->getFieldOutputTime($dtls, $iar);
+        } elseif ($dtls['DATA_TYPE'] == 'year') {
+            return $this->getFieldOutputYear($tblName, $dtls, $iar);
+        } elseif (in_array($dtls['DATA_TYPE'], ['datetime', 'timestamp'])) {
+            $sReturn = $this->getFieldOutputTimestamp($dtls, $iar);
+        }
+    }
+
+    private function setNeededFieldTextRelated($tblName, $dtls, $iar)
+    {
+        if (in_array($dtls['DATA_TYPE'], ['char', 'tinytext', 'varchar'])) {
+            return $this->getFieldOutputText($tblName, $dtls['DATA_TYPE'], $dtls, $iar);
+        } elseif (in_array($dtls['DATA_TYPE'], ['enum', 'set'])) {
+            return $this->getFieldOutputEnumSet($tblName, $dtls['DATA_TYPE'], $dtls, $iar);
+        } elseif (in_array($dtls['DATA_TYPE'], ['text', 'blob'])) {
+            return $this->getFieldOutputTextLarge($dtls['DATA_TYPE'], $dtls, $iar);
+        }
     }
 
     /**
