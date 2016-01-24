@@ -184,7 +184,7 @@ trait MySQLiAdvancedOutput
     private function getFieldOutputNumeric($tblSrc, $value, $iar = [])
     {
         if ($value['EXTRA'] == 'auto_increment') {
-            return $this->getFieldOutputNumericAI($tblSrc, $value, $iar);
+            return $this->getFieldOutputNumericAI($value, $iar);
         }
         $database = $this->advCache['workingDatabase'];
         $fkArray  = $this->getForeignKeysToArray($database, $tblSrc, $value['COLUMN_NAME']);
@@ -209,7 +209,7 @@ trait MySQLiAdvancedOutput
         return $this->setArrayToSelect($selectOptions, $selectValue, $value['COLUMN_NAME'], $inAdtnl);
     }
 
-    private function getFieldOutputNumericAI($tblSrc, $value, $iar = [])
+    private function getFieldOutputNumericAI($value, $iar = [])
     {
         if ($this->getFieldValue($value) == '') {
             $spF = ['id' => $value['COLUMN_NAME'], 'style' => 'font-style:italic;'];
