@@ -566,6 +566,22 @@ trait MySQLiByDanielGP
         return $aReturn;
     }
 
+    private function stFldLmtsExact($colType)
+    {
+        $xct     = [
+            'bigint'    => ['l' => -9223372036854775808, 'L' => 9223372036854775807, 's' => 21, 'sUS' => 20],
+            'int'       => ['l' => -2147483648, 'L' => 2147483647, 's' => 11, 'sUS' => 10],
+            'mediumint' => ['l' => -8388608, 'L' => 8388607, 's' => 9, 'sUS' => 8],
+            'smallint'  => ['l' => -32768, 'L' => 32767, 's' => 6, 'sUS' => 5],
+            'tinyint'   => ['l' => -128, 'L' => 127, 's' => 4, 'sUS' => 3],
+        ];
+        $sReturn = null;
+        if (array_key_exists($colType, $xct)) {
+            $sReturn = $this->stFldLmts($colType, $xct['l'], $xct['L'], $xct['s'], $xct['sUS']);
+        }
+        return $sReturn;
+    }
+
     /**
      * Returns maximum length for a given MySQL field
      *
@@ -574,22 +590,12 @@ trait MySQLiByDanielGP
      */
     protected function setFieldNumbers($fieldDetails, $outputFormated = false)
     {
-        $sRtrn = null;
-        if ($fieldDetails['DATA_TYPE'] == 'bigint') {
-            $sRtrn = $this->stFldLmts($fieldDetails['COLUMN_TYPE'], -9223372036854775808, 9223372036854775807, 21, 20);
-        } elseif (in_array($fieldDetails['DATA_TYPE'], ['char', 'varchar', 'tinytext'])) {
+        $sRtrn = $this->stFldLmtsExact($fieldDetails['COLUMN_TYPE']);
+        if (in_array($fieldDetails['DATA_TYPE'], ['char', 'varchar', 'tinytext'])) {
             $lgth  = str_replace([$fieldDetails['DATA_TYPE'], '(', ')'], '', $fieldDetails['COLUMN_TYPE']);
             $sRtrn = ['l' => $lgth];
         } elseif (in_array($fieldDetails['DATA_TYPE'], ['decimal', 'numeric'])) {
             $sRtrn = ['l' => $fieldDetails['NUMERIC_PRECISION'], 'd' => $fieldDetails['NUMERIC_SCALE']];
-        } elseif ($fieldDetails['DATA_TYPE'] == 'int') {
-            $sRtrn = $this->stFldLmts($fieldDetails['COLUMN_TYPE'], -2147483648, 2147483647, 11, 10);
-        } elseif ($fieldDetails['DATA_TYPE'] == 'mediumint') {
-            $sRtrn = $this->stFldLmts($fieldDetails['COLUMN_TYPE'], -8388608, 8388607, 9, 8);
-        } elseif ($fieldDetails['DATA_TYPE'] == 'smallint') {
-            $sRtrn = $this->stFldLmts($fieldDetails['COLUMN_TYPE'], -32768, 32767, 6, 5);
-        } elseif ($fieldDetails['DATA_TYPE'] == 'tinyint') {
-            $sRtrn = $this->stFldLmts($fieldDetails['COLUMN_TYPE'], -128, 127, 4, 3);
         }
         if ($outputFormated) {
             if (is_array($sRtrn)) {
