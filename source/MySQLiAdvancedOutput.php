@@ -186,27 +186,12 @@ trait MySQLiAdvancedOutput
         if ($value['EXTRA'] == 'auto_increment') {
             return $this->getFieldOutputNumericAI($value, $iar);
         }
-        $database = $this->advCache['workingDatabase'];
-        $fkArray  = $this->getForeignKeysToArray($database, $tblSrc, $value['COLUMN_NAME']);
+        $fkArray = $this->getForeignKeysToArray($this->advCache['workingDatabase'], $tblSrc, $value['COLUMN_NAME']);
         if (is_null($fkArray)) {
             $fldNos = $this->setFieldNumbers($value);
             return $this->getFieldOutputTT($value, min(50, $fldNos['l']), $iar);
         }
-        $query         = $this->sQueryGenericSelectKeyValue([
-            $fkArray[$value['COLUMN_NAME']][1],
-            $fkArray[$value['COLUMN_NAME']][2],
-            $fkArray[$value['COLUMN_NAME']][0],
-        ]);
-        $selectOptions = $this->setMySQLquery2Server($query, 'array_key_value')['result'];
-        $selectValue   = $this->getFieldValue($value);
-        $inAdtnl       = ['size' => 1];
-        if ($value['IS_NULLABLE'] == 'YES') {
-            $inAdtnl = array_merge($inAdtnl, ['include_null']);
-        }
-        if ($iar !== []) {
-            $inAdtnl = array_merge($inAdtnl, $iar);
-        }
-        return $this->setArrayToSelect($selectOptions, $selectValue, $value['COLUMN_NAME'], $inAdtnl);
+        return $this->getFieldOutputNumericNonFK($fkArray, $value, $iar);
     }
 
     private function getFieldOutputNumericAI($value, $iar = [])
@@ -225,6 +210,25 @@ trait MySQLiAdvancedOutput
             $inAdtnl = array_merge($inAdtnl, $iar);
         }
         return '<b>' . $this->getFieldValue($value) . '</b>' . $this->setStringIntoShortTag('input', $inAdtnl);
+    }
+
+    private function getFieldOutputNumericNonFK($fkArray, $value, $iar = [])
+    {
+        $query         = $this->sQueryGenericSelectKeyValue([
+            $fkArray[$value['COLUMN_NAME']][1],
+            $fkArray[$value['COLUMN_NAME']][2],
+            $fkArray[$value['COLUMN_NAME']][0],
+        ]);
+        $selectOptions = $this->setMySQLquery2Server($query, 'array_key_value')['result'];
+        $selectValue   = $this->getFieldValue($value);
+        $inAdtnl       = ['size' => 1];
+        if ($value['IS_NULLABLE'] == 'YES') {
+            $inAdtnl = array_merge($inAdtnl, ['include_null']);
+        }
+        if ($iar !== []) {
+            $inAdtnl = array_merge($inAdtnl, $iar);
+        }
+        return $this->setArrayToSelect($selectOptions, $selectValue, $value['COLUMN_NAME'], $inAdtnl);
     }
 
     /**
