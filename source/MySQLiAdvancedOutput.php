@@ -717,53 +717,30 @@ trait MySQLiAdvancedOutput
      */
     private function setNeededFieldByType($tblName, $details, $features)
     {
-        $sReturn = null;
         if (isset($features['special']) && isset($features['special'][$details['COLUMN_NAME']])) {
             $slctOpt = $this->setMySQLquery2Server($features['special'][$details['COLUMN_NAME']], 'array_key_value');
-            $sReturn = $this->setArrayToSelect($slctOpt, $this->getFieldValue($details), $details['COLUMN_NAME'], [
-                'size' => 1
+            return $this->setArrayToSelect($slctOpt, $this->getFieldValue($details), $details['COLUMN_NAME'], [
+                        'size' => 1
             ]);
-        } else {
-            $iar = $this->handleFeatures($details['COLUMN_NAME'], $features);
-            switch ($details['DATA_TYPE']) {
-                case 'bigint':
-                case 'int':
-                case 'mediumint':
-                case 'smallint':
-                case 'tinyint':
-                case 'float':
-                case 'double':
-                case 'decimal':
-                case 'numeric':
-                    $sReturn = $this->getFieldOutputNumeric($tblName, $details, $iar);
-                    break;
-                case 'char':
-                case 'tinytext':
-                case 'varchar':
-                    $sReturn = $this->getFieldOutputText($tblName, $details['DATA_TYPE'], $details, $iar);
-                    break;
-                case 'date':
-                    $sReturn = $this->getFieldOutputDate($details);
-                    break;
-                case 'datetime':
-                case 'timestamp':
-                    $sReturn = $this->getFieldOutputTimestamp($details, $iar);
-                    break;
-                case 'enum':
-                case 'set':
-                    $sReturn = $this->getFieldOutputEnumSet($tblName, $details['DATA_TYPE'], $details, $iar);
-                    break;
-                case 'text':
-                case 'blob':
-                    $sReturn = $this->getFieldOutputTextLarge($details['DATA_TYPE'], $details, $iar);
-                    break;
-                case 'time':
-                    $sReturn = $this->getFieldOutputTime($details, $iar);
-                    break;
-                case 'year':
-                    $sReturn = $this->getFieldOutputYear($tblName, $details, $iar);
-                    break;
-            }
+        }
+        $iar      = $this->handleFeatures($details['COLUMN_NAME'], $features);
+        $numTypes = ['bigint', 'int', 'mediumint', 'smallint', 'tinyint', 'float', 'double', 'decimal', 'numeric'];
+        if (in_array($details['DATA_TYPE'], $numTypes)) {
+            $sReturn = $this->getFieldOutputNumeric($tblName, $details, $iar);
+        } elseif (in_array($details['DATA_TYPE'], ['char', 'tinytext', 'varchar'])) {
+            $sReturn = $this->getFieldOutputText($tblName, $details['DATA_TYPE'], $details, $iar);
+        } elseif ($details['DATA_TYPE'] == 'date') {
+            $sReturn = $this->getFieldOutputDate($details);
+        } elseif (in_array($details['DATA_TYPE'], ['datetime', 'timestamp'])) {
+            $sReturn = $this->getFieldOutputTimestamp($details, $iar);
+        } elseif (in_array($details['DATA_TYPE'], ['enum', 'set'])) {
+            $sReturn = $this->getFieldOutputEnumSet($tblName, $details['DATA_TYPE'], $details, $iar);
+        } elseif (in_array($details['DATA_TYPE'], ['text', 'blob'])) {
+            $sReturn = $this->getFieldOutputTextLarge($details['DATA_TYPE'], $details, $iar);
+        } elseif ($details['DATA_TYPE'] == 'time') {
+            $sReturn = $this->getFieldOutputTime($details, $iar);
+        } elseif ($details['DATA_TYPE'] == 'year') {
+            $sReturn = $this->getFieldOutputYear($tblName, $details, $iar);
         }
         return $this->getFieldCompletionType($details) . $sReturn;
     }
