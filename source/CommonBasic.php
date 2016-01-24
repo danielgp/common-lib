@@ -168,7 +168,7 @@ trait CommonBasic
     protected function retrieveFilesOlderThanGivenRule($inputArray)
     {
         $proceedRetrieving = $this->removeFilesDecision($inputArray);
-        if ($proceedRetrieving) {
+        if ($proceedRetrieving !== false) {
             $finder   = new \Symfony\Component\Finder\Finder();
             $iterator = $finder->files()->ignoreUnreadableDirs(true)->followLinks()->in($inputArray['path']);
             $aFiles   = [];

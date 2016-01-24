@@ -881,7 +881,7 @@ trait MySQLiAdvancedOutput
     /**
      * create a Cache for given table to use it in many places
      *
-     * @param type $tblSrc
+     * @param string $tblSrc
      */
     private function setTableCache($tblSrc)
     {
