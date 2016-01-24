@@ -117,7 +117,7 @@ trait MySQLiAdvancedOutput
      * @param array $value
      * @return array
      */
-    private function getFieldOutputDate($fldType, $value)
+    private function getFieldOutputDate($value)
     {
         $defaultValue = $this->getFieldValue($value);
         if (is_null($defaultValue)) {
@@ -746,7 +746,7 @@ trait MySQLiAdvancedOutput
                     $sReturn = $this->getFieldOutputText($tblName, $details['DATA_TYPE'], $details, $iar);
                     break;
                 case 'date':
-                    $sReturn = $this->getFieldOutputDate($details['DATA_TYPE'], $details, $iar);
+                    $sReturn = $this->getFieldOutputDate($details);
                     break;
                 case 'datetime':
                 case 'timestamp':
