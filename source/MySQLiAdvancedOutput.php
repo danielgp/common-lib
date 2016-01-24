@@ -706,7 +706,7 @@ trait MySQLiAdvancedOutput
             $sReturn = $this->getFieldOutputNumeric($tblName, $dtls, $iar);
         } elseif (in_array($dtls['DATA_TYPE'], ['char', 'tinytext', 'varchar', 'enum', 'set', 'text', 'blob'])) {
             $sReturn = $this->setNeededFieldTextRelated($tblName, $dtls, $iar);
-        } elseif (in_array($dtls['DATA_TYPE'], ['date', 'time', 'year'])) {
+        } elseif (in_array($dtls['DATA_TYPE'], ['date', 'datetime', 'time', 'timestamp', 'year'])) {
             $sReturn = $this->setNeededFieldSingleType($tblName, $dtls, $iar);
         }
         return $this->getFieldCompletionType($dtls) . $sReturn;
@@ -718,11 +718,10 @@ trait MySQLiAdvancedOutput
             return $this->getFieldOutputDate($dtls);
         } elseif ($dtls['DATA_TYPE'] == 'time') {
             return $this->getFieldOutputTime($dtls, $iar);
-        } elseif ($dtls['DATA_TYPE'] == 'year') {
-            return $this->getFieldOutputYear($tblName, $dtls, $iar);
         } elseif (in_array($dtls['DATA_TYPE'], ['datetime', 'timestamp'])) {
             return $this->getFieldOutputTimestamp($dtls, $iar);
         }
+        return $this->getFieldOutputYear($tblName, $dtls, $iar);
     }
 
     private function setNeededFieldTextRelated($tblName, $dtls, $iar)
