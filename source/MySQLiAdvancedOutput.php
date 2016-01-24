@@ -557,6 +557,38 @@ trait MySQLiAdvancedOutput
         return $aReturn;
     }
 
+    private function setField($tableSource, $dtl, $features, $fieldLabel)
+    {
+        $sReturn = [];
+        if (in_array($dtl['DATA_TYPE'], ['datetime', 'timestamp'])) {
+            if (($dtl['COLUMN_DEFAULT'] == 'CURRENT_TIMESTAMP') || ($dtl['EXTRA'] == 'on update CURRENT_TIMESTAMP')) {
+                return $this->getTimestamping($dtl);
+            }
+        } elseif ($dtl['COLUMN_NAME'] == 'host') {
+            $inVl = gethostbyaddr($this->tCmnRequest->server->get('REMOTE_ADDR'));
+            return [
+                'label' => '<label for="' . $dtl['COLUMN_NAME'] . '">Numele calculatorului</label>',
+                'input' => '<input type="text" name="host" size="15" readonly value="' . $inVl . '" />',
+            ];
+        } elseif ($dtl['COLUMN_NAME'] == 'ChoiceId') {
+            $result = '<input type="text" name="ChoiceId" value="'
+                    . $this->tCmnRequest->request->get($dtl['COLUMN_NAME']) . '" />';
+        }
+        $result = $this->setNeededFieldByType($tableSource, $dtl, $features);
+        return ['label' => $this->setFieldLabel($dtl, $features, $fieldLabel), 'input' => $result];
+    }
+
+    private function setFieldLabel($details, $features, $fieldLabel)
+    {
+        $aLabel = ['for' => $details['COLUMN_NAME'], 'id' => $details['COLUMN_NAME'] . '_label'];
+        if (isset($features['disabled'])) {
+            if (in_array($details['COLUMN_NAME'], $features['disabled'])) {
+                $aLabel = array_merge($aLabel, ['style' => 'color: grey;']);
+            }
+        }
+        return $this->setStringIntoTag($fieldLabel, 'label', $aLabel);
+    }
+
     private function setFormButtons($feat, $hiddenInfo)
     {
         $btn   = [];
@@ -633,43 +665,7 @@ trait MySQLiAdvancedOutput
         if ($fieldLabel == 'hidden') {
             return null;
         }
-        $sReturn = [];
-        switch ($details['COLUMN_NAME']) {
-            case 'host':
-                $sReturn['label'] = $this->setStringIntoTag('Numele calculatorului', 'label', [
-                    'for' => $details['COLUMN_NAME']
-                ]);
-                $sReturn['input'] = $this->setStringIntoShortTag('input', [
-                    'type'     => 'input',
-                    'size'     => 15,
-                    'readonly' => 'readonly',
-                    'value'    => gethostbyaddr($this->tCmnRequest->server->get('REMOTE_ADDR')),
-                ]);
-                break;
-            case 'InsertDateTime':
-            case 'modification_datetime':
-            case 'ModificationDateTime':
-                $sReturn          = call_user_func_array([$this, 'getTimestamping'], [$details]);
-                break;
-            default:
-                $aLabel           = ['for' => $details['COLUMN_NAME'], 'id' => $details['COLUMN_NAME'] . '_label'];
-                if (isset($features['disabled'])) {
-                    if (in_array($details['COLUMN_NAME'], $features['disabled'])) {
-                        $aLabel = array_merge($aLabel, ['style' => 'color: grey;']);
-                    }
-                }
-                $sReturn['label'] = $this->setStringIntoTag($fieldLabel, 'label', $aLabel);
-                $result           = $this->setNeededFieldByType($tableSource, $details, $features);
-                if ($details['COLUMN_NAME'] == 'ChoiceId') {
-                    $result = $this->setStringIntoShortTag('input', [
-                        'type'  => 'text',
-                        'name'  => $details['COLUMN_NAME'],
-                        'value' => $this->tCmnRequest->request->get($details['COLUMN_NAME']),
-                    ]);
-                }
-                $sReturn['input'] = $result;
-                break;
-        }
+        $sReturn     = $this->setField($tableSource, $details, $features, $fieldLabel);
         $finalReturn = $sReturn['label'] . $this->setStringIntoTag($sReturn['input'], 'span', ['class' => 'labell']);
         $wrkDb       = $this->advCache['workingDatabase'];
         if (isset($this->advCache['tableFKs'][$wrkDb][$tableSource])) {
@@ -728,11 +724,10 @@ trait MySQLiAdvancedOutput
     {
         if (in_array($dtls['DATA_TYPE'], ['char', 'tinytext', 'varchar'])) {
             return $this->getFieldOutputText($tblName, $dtls['DATA_TYPE'], $dtls, $iar);
-        } elseif (in_array($dtls['DATA_TYPE'], ['enum', 'set'])) {
-            return $this->getFieldOutputEnumSet($tblName, $dtls['DATA_TYPE'], $dtls, $iar);
         } elseif (in_array($dtls['DATA_TYPE'], ['text', 'blob'])) {
             return $this->getFieldOutputTextLarge($dtls['DATA_TYPE'], $dtls, $iar);
         }
+        return $this->getFieldOutputEnumSet($tblName, $dtls['DATA_TYPE'], $dtls, $iar);
     }
 
     /**
@@ -744,13 +739,9 @@ trait MySQLiAdvancedOutput
     {
         $dat = $this->establishDatabaseAndTable($this->fixTableSource($tblSrc));
         if (!isset($this->advCache['tableStructureCache'][$dat[0]][$dat[1]])) {
-            switch ($dat[1]) {
-                case 'user_rights':
-                    $this->advCache['workingDatabase'] = 'usefull_security';
-                    break;
-                default:
-                    $this->advCache['workingDatabase'] = $dat[0];
-                    break;
+            $this->advCache['workingDatabase'] = $dat[0];
+            if ($dat[1] == 'user_rights') {
+                $this->advCache['workingDatabase'] = 'usefull_security';
             }
             $this->advCache['tableStructureCache'][$dat[0]][$dat[1]] = $this->getMySQLlistColumns([
                 'TABLE_SCHEMA' => $dat[0],
