@@ -67,6 +67,23 @@ trait MySQLiAdvancedOutput
         return $dfltArray[$fldType];
     }
 
+    private function fixTableSource($refTbl)
+    {
+        $outS = [];
+        if (substr($refTbl, 0, 1) !== '`') {
+            $outS[] = '`';
+        }
+        $psT = strpos($refTbl, '.`');
+        if ($psT !== false) {
+            $refTbl = substr($refTbl, $psT + 2, strlen($refTbl) - $psT);
+        }
+        $outS[] = $refTbl;
+        if (substr($refTbl, -1) !== '`') {
+            $outS[] = '`';
+        }
+        return implode('', $outS);
+    }
+
     private function getFieldCompletionType($details)
     {
         $inputFeatures = ['display' => '***', 'ftrs' => ['title' => 'Mandatory', 'class' => 'inputMandatory']];
@@ -209,17 +226,8 @@ trait MySQLiAdvancedOutput
         if (!in_array($fieldType, ['char', 'tinytext', 'varchar'])) {
             return '';
         }
-        $database = $this->advCache['workingDatabase'];
-        if (strpos($tbl, '`.`')) {
-            $database = substr($tbl, 0, strpos($tbl, '`.`'));
-        }
-        if (($tbl != 'user_rights') && ($value['COLUMN_NAME'] != 'eid')) {
-            $foreignKeysArray = $this->getForeignKeysToArray($database, $tbl, $value['COLUMN_NAME']);
-            if (is_null($foreignKeysArray)) {
-                unset($foreignKeysArray);
-            }
-        }
-        if (isset($foreignKeysArray)) {
+        $foreignKeysArray = $this->getFieldOutputTextPrerequisites($tbl, $value);
+        if (is_null($foreignKeysArray)) {
             return $this->getFieldOutputTextFK($foreignKeysArray, $value, $iar);
         }
         return $this->getFieldOutputTextNonFK($value, $iar);
@@ -288,6 +296,19 @@ trait MySQLiAdvancedOutput
             $inAdtnl = array_merge($inAdtnl, $iar);
         }
         return $this->setStringIntoShortTag('input', $inAdtnl);
+    }
+
+    private function getFieldOutputTextPrerequisites($tbl, $value)
+    {
+        $foreignKeysArray = null;
+        if (($tbl != 'user_rights') && ($value['COLUMN_NAME'] != 'eid')) {
+            $database = $this->advCache['workingDatabase'];
+            if (strpos($tbl, '`.`')) {
+                $database = substr($tbl, 0, strpos($tbl, '`.`'));
+            }
+            $foreignKeysArray = $this->getForeignKeysToArray($database, $tbl, $value['COLUMN_NAME']);
+        }
+        return $foreignKeysArray;
     }
 
     private function getFieldOutputTT($value, $szN, $iar = [])
@@ -389,44 +410,37 @@ trait MySQLiAdvancedOutput
         return $details['COLUMN_DEFAULT'];
     }
 
+    private function getForeignKeysQuery($value)
+    {
+        $flt = [
+            'TABLE_SCHEMA' => $value['REFERENCED_TABLE_SCHEMA'],
+            'TABLE_NAME'   => $value['REFERENCED_TABLE_NAME'],
+            'DATA_TYPE'    => ['char', 'varchar', 'text'],
+        ];
+        return $this->sQueryMySqlColumns($flt);
+    }
+
     /**
      * Returns an array with fields referenced by a Foreign key
      *
-     * @param object $db
      * @param string $database
      * @param string $tblName
-     * @param string $onlyCols
+     * @param string|array $onlyCols
      * @return array
      */
     private function getForeignKeysToArray($database, $tblName, $onlyCol = '')
     {
-        if (strpos($tblName, '.`')) {
-            $tblName = substr($tblName, strpos($tblName, '.`') + 2, 64);
-        }
-        $this->setTableForeginKeyCache($database, $tblName);
+        $this->setTableForeginKeyCache($database, $this->fixTableSource($tblName));
         $array2return = null;
         if (isset($this->advCache['tableFKs'][$database][$tblName])) {
             foreach ($this->advCache['tableFKs'][$database][$tblName] as $value) {
                 if ($value['COLUMN_NAME'] == $onlyCol) {
-                    $query                  = $this->sQueryMySqlColumns([
-                        'TABLE_SCHEMA' => $value['REFERENCED_TABLE_SCHEMA'],
-                        'TABLE_NAME'   => $value['REFERENCED_TABLE_NAME'],
-                        'DATA_TYPE'    => [
-                            'char',
-                            'varchar',
-                            'text',
-                        ],
-                    ]);
+                    $query                  = $this->getForeignKeysQuery($value);
                     $targetTblTxtFlds       = $this->setMySQLquery2Server($query, 'full_array_key_numbered')['result'];
-                    $significance           = $targetTblTxtFlds[0]['COLUMN_NAME'];
-                    unset($targetTblTxtFlds);
                     $array2return[$onlyCol] = [
-                        '`' . implode('`.`', [
-                            $value['REFERENCED_TABLE_SCHEMA'],
-                            $value['REFERENCED_TABLE_NAME'],
-                        ]) . '`',
+                        $this->glueDbTb($value['REFERENCED_TABLE_SCHEMA'], $value['REFERENCED_TABLE_NAME']),
                         $value['REFERENCED_COLUMN_NAME'],
-                        '`' . $significance . '`',
+                        '`' . $targetTblTxtFlds[0]['COLUMN_NAME'] . '`',
                     ];
                 }
             }
@@ -448,10 +462,7 @@ trait MySQLiAdvancedOutput
      */
     protected function getSetOrEnum2Array($refTbl, $refCol)
     {
-        if ((strpos($refTbl, '`') !== false) && (substr($refTbl, 0, 1) != '`')) {
-            $refTbl = '`' . $refTbl . '`';
-        }
-        $dat = $this->establishDatabaseAndTable($refTbl);
+        $dat = $this->establishDatabaseAndTable($this->fixTableSource($refTbl));
         foreach ($this->advCache['tableStructureCache'][$dat[0]][$dat[1]] as $value) {
             if ($value['COLUMN_NAME'] == $refCol) {
                 $clndVls = explode(',', str_replace([$value['DATA_TYPE'], '(', "'", ')'], '', $value['COLUMN_TYPE']));
@@ -485,6 +496,11 @@ trait MySQLiAdvancedOutput
             }
         }
         return ['label' => $this->getLabel($dtl), 'input' => $inM];
+    }
+
+    private function glueDbTb($dbName, $tbName)
+    {
+        return '`' . $dbName . '`.`' . $tbName . '`';
     }
 
     /**
@@ -733,7 +749,7 @@ trait MySQLiAdvancedOutput
      */
     private function setTableCache($tblSrc)
     {
-        $dat = $this->establishDatabaseAndTable($tblSrc);
+        $dat = $this->establishDatabaseAndTable($this->fixTableSource($tblSrc));
         if (!isset($this->advCache['tableStructureCache'][$dat[0]][$dat[1]])) {
             switch ($dat[1]) {
                 case 'user_rights':
