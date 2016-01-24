@@ -113,9 +113,8 @@ trait MySQLiAdvancedOutput
     /**
      * Returns a Date field 2 use in a form
      *
-     * @param string $fldType
      * @param array $value
-     * @return array
+     * @return string
      */
     private function getFieldOutputDate($value)
     {
