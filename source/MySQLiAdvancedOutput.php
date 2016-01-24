@@ -185,45 +185,18 @@ trait MySQLiAdvancedOutput
     private function getFieldOutputNumeric($tblSrc, $value, $iar = [])
     {
         if ($value['EXTRA'] == 'auto_increment') {
-            if ($this->getFieldValue($value) == '') {
-                return $this->setStringIntoTag('auto-numar', 'span', [
-                            'id'    => $value['COLUMN_NAME'],
-                            'style' => 'font-style:italic;',
-                ]);
-            }
-            $inAdtnl = [
-                'type'  => 'hidden',
-                'name'  => $value['COLUMN_NAME'],
-                'id'    => $value['COLUMN_NAME'],
-                'value' => $this->getFieldValue($value),
-            ];
-            if ($iar !== []) {
-                $inAdtnl = array_merge($inAdtnl, $iar);
-            }
-            return $this->setStringIntoTag($this->getFieldValue($value), 'b')
-                    . $this->setStringIntoShortTag('input', $inAdtnl);
+            return $this->getFieldOutputNumericAI($tblSrc, $value, $iar);
         }
         $database = $this->advCache['workingDatabase'];
         $fkArray  = $this->getForeignKeysToArray($database, $tblSrc, $value['COLUMN_NAME']);
         if (is_null($fkArray)) {
-            $fldNos  = $this->setFieldNumbers($value);
-            $inAdtnl = [
-                'type'      => 'text',
-                'name'      => $value['COLUMN_NAME'],
-                'id'        => $value['COLUMN_NAME'],
-                'value'     => $this->getFieldValue($value),
-                'size'      => min(50, $fldNos['l']),
-                'maxlength' => min(50, $fldNos['l'])
-            ];
-            if ($iar !== []) {
-                $inAdtnl = array_merge($inAdtnl, $iar);
-            }
-            return $this->setStringIntoShortTag('input', $inAdtnl);
+            $fldNos = $this->setFieldNumbers($value);
+            return $this->getFieldOutputTT($value, min(50, $fldNos['l']), $iar);
         }
         $query         = $this->sQueryGenericSelectKeyValue([
             $fkArray[$value['COLUMN_NAME']][1],
             $fkArray[$value['COLUMN_NAME']][2],
-            $fkArray[$value['COLUMN_NAME']][0]
+            $fkArray[$value['COLUMN_NAME']][0],
         ]);
         $selectOptions = $this->setMySQLquery2Server($query, 'array_key_value')['result'];
         $selectValue   = $this->getFieldValue($value);
@@ -235,6 +208,24 @@ trait MySQLiAdvancedOutput
             $inAdtnl = array_merge($inAdtnl, $iar);
         }
         return $this->setArrayToSelect($selectOptions, $selectValue, $value['COLUMN_NAME'], $inAdtnl);
+    }
+
+    private function getFieldOutputNumericAI($tblSrc, $value, $iar = [])
+    {
+        if ($this->getFieldValue($value) == '') {
+            $spF = ['id' => $value['COLUMN_NAME'], 'style' => 'font-style:italic;'];
+            return $this->setStringIntoTag('auto-numar', 'span', $spF);
+        }
+        $inAdtnl = [
+            'type'  => 'hidden',
+            'name'  => $value['COLUMN_NAME'],
+            'id'    => $value['COLUMN_NAME'],
+            'value' => $this->getFieldValue($value),
+        ];
+        if ($iar !== []) {
+            $inAdtnl = array_merge($inAdtnl, $iar);
+        }
+        return '<b>' . $this->getFieldValue($value) . '</b>' . $this->setStringIntoShortTag('input', $inAdtnl);
     }
 
     /**
