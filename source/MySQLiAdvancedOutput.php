@@ -569,12 +569,18 @@ trait MySQLiAdvancedOutput
                 'label' => '<label for="' . $dtl['COLUMN_NAME'] . '">Numele calculatorului</label>',
                 'input' => '<input type="text" name="host" size="15" readonly value="' . $inVl . '" />',
             ];
-        } elseif ($dtl['COLUMN_NAME'] == 'ChoiceId') {
-            $result = '<input type="text" name="ChoiceId" value="'
+        }
+        $result = $this->setFieldInput($tableSource, $dtl, $features);
+        return ['label' => $this->setFieldLabel($dtl, $features, $fieldLabel), 'input' => $result];
+    }
+
+    private function setFieldInput($tableSource, $dtl, $features)
+    {
+        if ($dtl['COLUMN_NAME'] == 'ChoiceId') {
+            return '<input type="text" name="ChoiceId" value="'
                     . $this->tCmnRequest->request->get($dtl['COLUMN_NAME']) . '" />';
         }
-        $result = $this->setNeededFieldByType($tableSource, $dtl, $features);
-        return ['label' => $this->setFieldLabel($dtl, $features, $fieldLabel), 'input' => $result];
+        return $this->setNeededFieldByType($tableSource, $dtl, $features);
     }
 
     private function setFieldLabel($details, $features, $fieldLabel)
@@ -689,10 +695,10 @@ trait MySQLiAdvancedOutput
             $sOpt = $this->setMySQLquery2Server($features['special'][$dtls['COLUMN_NAME']], 'array_key_value');
             return $this->setArrayToSelect($sOpt, $this->getFieldValue($dtls), $dtls['COLUMN_NAME'], ['size' => 1]);
         }
-        return $this->setNeededFieldKnown($tblName, $dtls, $iar);
+        return $this->setNeededFieldKnown($tblName, $dtls, $features);
     }
 
-    private function setNeededFieldKnown($tblName, $dtls, $iar)
+    private function setNeededFieldKnown($tblName, $dtls, $features)
     {
         $iar      = $this->handleFeatures($dtls['COLUMN_NAME'], $features);
         $sReturn  = '';
