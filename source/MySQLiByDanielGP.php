@@ -565,7 +565,7 @@ trait MySQLiByDanielGP
         return $aReturn;
     }
 
-    private function stFldLmtsExact($colType)
+    private function stFldLmtsExact($cTp)
     {
         $xct     = [
             'bigint'    => ['l' => -9223372036854775808, 'L' => 9223372036854775807, 's' => 21, 'sUS' => 20],
@@ -575,8 +575,8 @@ trait MySQLiByDanielGP
             'tinyint'   => ['l' => -128, 'L' => 127, 's' => 4, 'sUS' => 3],
         ];
         $sReturn = null;
-        if (array_key_exists($colType, $xct)) {
-            $sReturn = $this->stFldLmts($colType, $xct['l'], $xct['L'], $xct['s'], $xct['sUS']);
+        if (array_key_exists($cTp, $xct)) {
+            $sReturn = $this->stFldLmts($cTp, $xct[$cTp]['l'], $xct[$cTp]['L'], $xct[$cTp]['s'], $xct[$cTp]['sUS']);
         }
         return $sReturn;
     }
@@ -589,19 +589,32 @@ trait MySQLiByDanielGP
      */
     protected function setFieldNumbers($fieldDetails, $outputFormated = false)
     {
-        $sRtrn = $this->stFldLmtsExact($fieldDetails['COLUMN_TYPE']);
-        if (in_array($fieldDetails['DATA_TYPE'], ['char', 'varchar', 'tinytext'])) {
-            $lgth  = str_replace([$fieldDetails['DATA_TYPE'], '(', ')'], '', $fieldDetails['COLUMN_TYPE']);
-            $sRtrn = ['l' => $lgth];
-        } elseif (in_array($fieldDetails['DATA_TYPE'], ['decimal', 'numeric'])) {
-            $sRtrn = ['l' => $fieldDetails['NUMERIC_PRECISION'], 'd' => $fieldDetails['NUMERIC_SCALE']];
-        }
+        $sRtrn = $this->setFieldSpecific($fieldDetails);
         if ($outputFormated) {
             if (is_array($sRtrn)) {
                 foreach ($sRtrn as $key => $value) {
                     $sRtrn[$key] = $this->setNumberFormat($value);
                 }
             }
+        }
+        return $sRtrn;
+    }
+
+    private function setFieldSpecific($fieldDetails)
+    {
+        $sRtrn = '';
+        if (in_array($fieldDetails['DATA_TYPE'], ['char', 'varchar', 'tinytext'])) {
+            $sRtrn = ['M' => $fieldDetails['CHARACTER_MAXIMUM_LENGTH']];
+        } elseif (in_array($fieldDetails['DATA_TYPE'], ['date'])) {
+            $sRtrn = ['M' => 10];
+        } elseif (in_array($fieldDetails['DATA_TYPE'], ['time'])) {
+            $sRtrn = ['M' => 8];
+        } elseif (in_array($fieldDetails['DATA_TYPE'], ['datetime', 'timestamp'])) {
+            $sRtrn = ['M' => 19];
+        } elseif (in_array($fieldDetails['DATA_TYPE'], ['decimal', 'numeric'])) {
+            $sRtrn = ['M' => $fieldDetails['NUMERIC_PRECISION'], 'd' => $fieldDetails['NUMERIC_SCALE']];
+        } elseif (in_array($fieldDetails['DATA_TYPE'], ['bigint', 'int', 'mediumint', 'smallint', 'tinyint'])) {
+            $sRtrn = $this->stFldLmtsExact($fieldDetails['DATA_TYPE']);
         }
         return $sRtrn;
     }
