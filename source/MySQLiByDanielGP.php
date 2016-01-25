@@ -237,8 +237,7 @@ trait MySQLiByDanielGP
     {
         $queryPieces    = explode(' ', $sQuery);
         $statementTypes = $this->listOfMySQLqueryStatementType();
-        if (in_array($queryPieces[0], array_keys($statementTypes))) {
-            $type = $statementTypes[$queryPieces[0]]['Type'];
+        if (array_key_exists($queryPieces[0], $statementTypes)) {
             return array_merge(['detected1stKeywordWithinQuery' => $queryPieces[0]], $statementTypes[$queryPieces[0]]);
         }
         return [
