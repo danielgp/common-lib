@@ -238,23 +238,18 @@ trait MySQLiByDanielGP
         $queryPieces    = explode(' ', $sQuery);
         $statementTypes = $this->listOfMySQLqueryStatementType();
         if (in_array($queryPieces[0], array_keys($statementTypes))) {
-            $type    = $statementTypes[$queryPieces[0]]['Type'];
-            $sReturn = array_merge([
-                'detected1stKeywordWithinQuery' => $queryPieces[0],
-                $type                           => $this->getMySQLqueryLanguageType()[$type],
-                    ], $statementTypes[$queryPieces[0]]);
-        } else {
-            $sReturn = [
-                'detected1stKeywordWithinQuery' => $queryPieces[0],
-                'unknown'                       => [
-                    'standsFor'   => 'unknown',
-                    'description' => 'unknown',
-                ],
-                'Type'                          => 'unknown',
-                'Description'                   => 'unknown',
-            ];
+            $type = $statementTypes[$queryPieces[0]]['Type'];
+            return array_merge(['detected1stKeywordWithinQuery' => $queryPieces[0]], $statementTypes[$queryPieces[0]]);
         }
-        return $sReturn;
+        return [
+            'detected1stKeywordWithinQuery' => $queryPieces[0],
+            'unknown'                       => [
+                'standsFor'   => 'unknown',
+                'description' => 'unknown',
+            ],
+            'Type'                          => 'unknown',
+            'Description'                   => 'unknown',
+        ];
     }
 
     /**
