@@ -89,8 +89,11 @@ trait MySQLiByDanielGPqueries
      */
     private function sManageDynamicFilters($filterArray = null, $tableToApplyFilterTo = '')
     {
+        if (is_null($filterArray)) {
+            return '';
+        }
         $filters = [];
-        if (!is_null($filterArray) && is_array($filterArray)) {
+        if (is_array($filterArray)) {
             foreach ($filterArray as $key => $value) {
                 $filters[] = '`' . $tableToApplyFilterTo . '`.`' . $key . '` '
                         . $this->sGlueFilterValueIntoWhereString($value);
@@ -190,7 +193,7 @@ trait MySQLiByDanielGPqueries
                 . $this->sQueryMySqlStatisticPattern('EVENTS', 'EVENT_SCHEMA') . ' '
                 . 'FROM `information_schema`.`SCHEMATA` `S` '
                 . 'WHERE (`S`.`SCHEMA_NAME` NOT IN ("information_schema", "mysql", "performance_schema", "sys")) '
-                . str_replace('WHERE|AND', $this->sManageDynamicFilters($filterArray, 'S'))
+                . str_replace('WHERE', 'AND', $this->sManageDynamicFilters($filterArray, 'S'))
                 . 'ORDER BY `S`.`SCHEMA_NAME`;';
     }
 
