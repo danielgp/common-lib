@@ -1,0 +1,126 @@
+{
+    "ALTER": [
+        "DDL",
+        "create objects in the database"
+    ],
+    "CALL": [
+        "DML",
+        "call a stored procedure"
+    ],
+    "COMMENT": [
+        "DDL",
+        "add comments to the data dictionary"
+    ],
+    "COMMIT": [
+        "DTL",
+        "sends a signal to MySQL to save all un-commited statements"
+    ],
+    "CREATE": [
+        "DDL",
+        "create objects within a database"
+    ],
+    "DELETE": [
+        "DML",
+        "deletes records from a table (all or partial depending on potential conditions)"
+    ],
+    "DESC": [
+        "DML",
+        "interpretation of the data access path (synonym of EXPLAIN)"
+    ],
+    "DESCRIBE": [
+        "DML",
+        "interpretation of the data access path (synonym of EXPLAIN)"
+    ],
+    "DO": [
+        "DML",
+        "executes an expression without returning any result"
+    ],
+    "DROP": [
+        "DDL",
+        "delete objects from a database"
+    ],
+    "EXPLAIN": [
+        "DML",
+        "interpretation of the data access path"
+    ],
+    "GRANT": [
+        "DCL",
+        "allow users access privileges to database"
+    ],
+    "HANDLER": [
+        "DML",
+        "statement provides direct access to table storage engine interfaces"
+    ],
+    "HELP": [
+        "DQL",
+        "The HELP statement returns online information from the MySQL Reference manual. Its proper operation requires that the help tables in the mysql database be initialized with help topic information"
+    ],
+    "INSERT": [
+        "DML",
+        "insert data into a table"
+    ],
+    "LOAD": [
+        "DML",
+        "The LOAD DATA INFILE statement reads rows from a text file into a table at a very high speed or LOAD XML statement reads data from an XML file into a table"
+    ],
+    "LOCK": [
+        "DML",
+        "concurrency control"
+    ],
+    "MERGE": [
+        "DML",
+        "UPSERT operation (insert or update)"
+    ],
+    "RELEASE": [
+        "DTL",
+        "The RELEASE SAVEPOINT statement removes the named savepoint from the set of savepoints of the current transaction. No commit or rollback occurs. It is an error if the savepoint does not exist."
+    ],
+    "RENAME": [
+        "DDL",
+        "rename objects from a database"
+    ],
+    "REPLACE": [
+        "DML",
+        "REPLACE works exactly like INSERT, except that if an old row in the table has the same value as a new row for a PRIMARY KEY or a UNIQUE index, the old row is deleted before the new row is inserted"
+    ],
+    "REVOKE": [
+        "DCL",
+        "withdraw users access privileges given by using the GRANT command"
+    ],
+    "ROLLBACK": [
+        "DTL",
+        "restore database to original since the last COMMIT"
+    ],
+    "SAVEPOINT": [
+        "DTL",
+        "identify a point in a transaction to which you can later roll back"
+    ],
+    "SELECT": [
+        "DQL",
+        "retrieve data from the a database"
+    ],
+    "SET": [
+        "DTL",
+        "change values of global/session variables or transaction characteristics"
+    ],
+    "SHOW": [
+        "DQL",
+        "has many forms that provide information about databases, tables, columns, or status information about the server"
+    ],
+    "START": [
+        "DTL",
+        "marks the starting point for a transaction"
+    ],
+    "TRUNCATE": [
+        "DDL",
+        "remove all records from a table, including all spaces allocated for the records are removed"
+    ],
+    "UPDATE": [
+        "DML",
+        "updates existing data within a table"
+    ],
+    "USE": [
+        "DML",
+        "The USE db_name statement tells MySQL to use the db_name database as the default (current) database for subsequent statements."
+    ]
+}

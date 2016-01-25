@@ -41,7 +41,8 @@
             "source/MySQLiByDanielGPqueriesBasic.php",
             "source/MySQLiByDanielGPqueries.php",
             "source/MySQLiMultiple.php",
-            "source/MySQLiByDanielGP.php"
+            "source/MySQLiByDanielGP.php",
+            "source/MySQLiByDanielGPtypes.php"
         ]
     },
     "minimum-stability": "stable",

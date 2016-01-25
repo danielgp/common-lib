@@ -38,7 +38,8 @@ trait MySQLiByDanielGP
 
     use DomComponentsByDanielGP,
         MySQLiMultiple,
-        MySQLiByDanielGPqueries;
+        MySQLiByDanielGPqueries,
+        MySQLiByDanielGPtypes;
 
     /**
      * Intiates connection to MySQL
@@ -165,47 +166,39 @@ trait MySQLiByDanielGP
     private function getMySQLlistMultiple($returnChoice, $returnType, $additionalFeatures = null)
     {
         if (is_null($this->mySQLconnection)) {
-            switch ($returnType) {
-                case 'value':
-                    $line = null;
-                    break;
-                default:
-                    $line = [];
-                    break;
+            if ($returnType == 'value') {
+                return null;
             }
-        } else {
-            $query = '';
-            switch ($returnChoice) {
-                case 'Columns':
-                    $query = $this->sQueryMySqlColumns($additionalFeatures);
-                    break;
-                case 'Databases':
-                    $query = $this->sQueryMySqlActiveDatabases($additionalFeatures);
-                    break;
-                case 'Engines':
-                    $query = $this->sQueryMySqlActiveEngines($additionalFeatures);
-                    break;
-                case 'Indexes':
-                    $query = $this->sQueryMySqlIndexes($additionalFeatures);
-                    break;
-                case 'ServerTime':
-                    $query = $this->sQueryMySqlServerTime();
-                    break;
-                case 'Statistics':
-                    $query = $this->sQueryMySqlStatistics($additionalFeatures);
-                    break;
-                case 'Tables':
-                    $query = $this->sQueryMySqlTables($additionalFeatures);
-                    break;
-                case 'VariablesGlobal':
-                    $query = $this->sQueryMySqlGlobalVariables();
-                    break;
-            }
-            $line = $this->setMySQLquery2Server($query, $returnType)[
-                    'result'
-            ];
+            return [];
         }
-        return $line;
+        $query = '';
+        switch ($returnChoice) {
+            case 'Columns':
+                $query = $this->sQueryMySqlColumns($additionalFeatures);
+                break;
+            case 'Databases':
+                $query = $this->sQueryMySqlActiveDatabases($additionalFeatures);
+                break;
+            case 'Engines':
+                $query = $this->sQueryMySqlActiveEngines($additionalFeatures);
+                break;
+            case 'Indexes':
+                $query = $this->sQueryMySqlIndexes($additionalFeatures);
+                break;
+            case 'ServerTime':
+                $query = $this->sQueryMySqlServerTime();
+                break;
+            case 'Statistics':
+                $query = $this->sQueryMySqlStatistics($additionalFeatures);
+                break;
+            case 'Tables':
+                $query = $this->sQueryMySqlTables($additionalFeatures);
+                break;
+            case 'VariablesGlobal':
+                $query = $this->sQueryMySqlGlobalVariables();
+                break;
+        }
+        return $this->setMySQLquery2Server($query, $returnType)['result'];
     }
 
     /**
@@ -226,29 +219,6 @@ trait MySQLiByDanielGP
     protected function getMySQLlistTables($filterArray = null)
     {
         return $this->getMySQLlistMultiple('Tables', 'full_array_key_numbered', $filterArray);
-    }
-
-    /**
-     * Returns the Query language type by scanning the 1st keyword from a given query
-     *
-     * @param input $sQuery
-     */
-    protected function getMySQLqueryType($sQuery)
-    {
-        $queryPieces    = explode(' ', $sQuery);
-        $statementTypes = $this->listOfMySQLqueryStatementType();
-        if (array_key_exists($queryPieces[0], $statementTypes)) {
-            return array_merge(['detected1stKeywordWithinQuery' => $queryPieces[0]], $statementTypes[$queryPieces[0]]);
-        }
-        return [
-            'detected1stKeywordWithinQuery' => $queryPieces[0],
-            'unknown'                       => [
-                'standsFor'   => 'unknown',
-                'description' => 'unknown',
-            ],
-            'Type'                          => 'unknown',
-            'Description'                   => 'unknown',
-        ];
     }
 
     /**
@@ -295,211 +265,6 @@ trait MySQLiByDanielGP
                 $this->tCmnRequest->request->get($key, $vToSet);
             }
         }
-    }
-
-    /**
-     * Just to keep a list of type of language as array
-     *
-     * @return array
-     */
-    private static function listOfMySQLqueryLanguageType()
-    {
-        return [
-            'DCL' => [
-                'standsFor'   => 'Data Control Language',
-                'description' => implode(', ', [
-                    'includes commands such as GRANT',
-                    'and mostly concerned with rights',
-                    'permissions and other controls of the database system',
-                ]),
-            ],
-            'DDL' => [
-                'standsFor'   => 'Data Definition Language',
-                'description' => implode(', ', [
-                    'deals with database schemas and descriptions',
-                    'of how the data should reside in the database',
-                ]),
-            ],
-            'DML' => [
-                'standsFor'   => 'Data Manipulation Language',
-                'description' => implode(', ', [
-                    'deals with data manipulation',
-                    'and includes most common SQL statements such as SELECT, INSERT, UPDATE, DELETE etc',
-                    'and it is used to store, modify, retrieve, delete and update data in database',
-                ]),
-            ],
-            'DQL' => [
-                'standsFor'   => 'Data Query Language',
-                'description' => 'deals with data/structure retrieval',
-            ],
-            'DTL' => [
-                'standsFor'   => 'Data Transaction Language',
-                'description' => implode('. ', [
-                    'statements are used to manage changes made by DML statements',
-                    'It allows statements to be grouped together into logical transactions',
-                ]),
-            ],
-        ];
-    }
-
-    /**
-     * Just to keep a list of statement types as array
-     *
-     * @return array
-     */
-    private static function listOfMySQLqueryStatementType()
-    {
-        return [
-            'ALTER'     => [
-                'Type'        => 'DDL',
-                'Description' => 'create objects in the database',
-            ],
-            'CALL'      => [
-                'Type'        => 'DML',
-                'Description' => 'call a stored procedure',
-            ],
-            'COMMENT'   => [
-                'Type'        => 'DDL',
-                'Description' => 'add comments to the data dictionary',
-            ],
-            'COMMIT'    => [
-                'Type'        => 'DTL',
-                'Description' => 'sends a signal to MySQL to save all un-commited statements',
-            ],
-            'CREATE'    => [
-                'Type'        => 'DDL',
-                'Description' => 'create objects within a database',
-            ],
-            'DELETE'    => [
-                'Type'        => 'DML',
-                'Description' => 'deletes records from a table (all or partial depending on potential conditions)',
-            ],
-            'DESC'      => [
-                'Type'        => 'DML',
-                'Description' => 'interpretation of the data access path (synonym of EXPLAIN)',
-            ],
-            'DESCRIBE'  => [
-                'type'        => 'DML',
-                'Description' => 'interpretation of the data access path (synonym of EXPLAIN)',
-            ],
-            'DO'        => [
-                'Type'        => 'DML',
-                'Description' => 'executes an expression without returning any result',
-            ],
-            'DROP'      => [
-                'Type'        => 'DDL',
-                'Description' => 'delete objects from a database',
-            ],
-            'EXPLAIN'   => [
-                'Type'        => 'DML',
-                'Description' => 'interpretation of the data access path',
-            ],
-            'GRANT'     => [
-                'Type'        => 'DCL',
-                'Description' => 'allow users access privileges to database',
-            ],
-            'HANDLER'   => [
-                'Type'        => 'DML',
-                'Description' => 'statement provides direct access to table storage engine interfaces',
-            ],
-            'HELP'      => [
-                'Type'        => 'DQL',
-                'Description' => implode(' ', [
-                    'The HELP statement returns online information from the MySQL Reference manual.',
-                    'Its proper operation requires that the help tables in the mysql database',
-                    'be initialized with help topic information',
-                ]),
-            ],
-            'INSERT'    => [
-                'Type'        => 'DML',
-                'Description' => 'insert data into a table',
-            ],
-            'LOAD'      => [
-                'Type'        => 'DML',
-                'Description' => implode(' ', [
-                    'The LOAD DATA INFILE statement reads rows from a text file',
-                    'into a table at a very high speed',
-                    'or LOAD XML statement reads data from an XML file into a table',
-                ]),
-            ],
-            'LOCK'      => [
-                'Type'        => 'DML',
-                'Description' => 'concurrency control',
-            ],
-            'MERGE'     => [
-                'Type'        => 'DML',
-                'Description' => 'UPSERT operation (insert or update)',
-            ],
-            'RELEASE'   => [
-                'Type'        => 'DTL',
-                'Description' => implode(' ', [
-                    'The RELEASE SAVEPOINT statement removes the named savepoint',
-                    'from the set of savepoints of the current transaction.',
-                    'No commit or rollback occurs. It is an error if the savepoint does not exist.',
-                ]),
-            ],
-            'RENAME'    => [
-                'Type'        => 'DDL',
-                'Description' => 'rename objects from a database',
-            ],
-            'REPLACE'   => [
-                'Type'        => 'DML',
-                'Description' => implode(' ', [
-                    'REPLACE works exactly like INSERT, except that if an old row in the table',
-                    'has the same value as a new row for a PRIMARY KEY or a UNIQUE index,',
-                    'the old row is deleted before the new row is inserted',
-                ]),
-            ],
-            'REVOKE'    => [
-                'Type'        => 'DCL',
-                'description' => 'withdraw users access privileges given by using the GRANT command',
-            ],
-            'ROLLBACK'  => [
-                'Type'        => 'DTL',
-                'Description' => 'restore database to original since the last COMMIT',
-            ],
-            'SELECT'    => [
-                'Type'        => 'DQL',
-                'Description' => 'retrieve data from the a database',
-            ],
-            'SAVEPOINT' => [
-                'Type'        => 'DTL',
-                'Description' => 'identify a point in a transaction to which you can later roll back',
-            ],
-            'SET'       => [
-                'Type'        => 'DTL',
-                'Description' => 'change values of global/session variables or transaction characteristics',
-            ],
-            'SHOW'      => [
-                'Type'        => 'DQL',
-                'Description' => implode(' ', [
-                    'has many forms that provide information about databases, tables, columns,',
-                    'or status information about the server',
-                ]),
-            ],
-            'START'     => [
-                'Type'        => 'DTL',
-                'Description' => 'marks the starting point for a transaction',
-            ],
-            'TRUNCATE'  => [
-                'Type'        => 'DDL',
-                'Description' => implode(', ', [
-                    'remove all records from a table',
-                    'including all spaces allocated for the records are removed'
-                ]),
-            ],
-            'UPDATE'    => [
-                'Type'        => 'DML',
-                'Description' => 'updates existing data within a table',
-            ],
-            'USE'       => [
-                'Type'        => 'DML',
-                'Description' => implode(' ', [
-                    'The USE db_name statement tells MySQL to use the db_name database',
-                    'as the default (current) database for subsequent statements.',
-                ]),
-            ],
-        ];
     }
 
     /**
@@ -550,31 +315,6 @@ trait MySQLiByDanielGP
         return $filters;
     }
 
-    private function stFldLmts($colType, $loLmt, $upLmt, $szN, $szUS)
-    {
-        $aReturn = ['m' => $loLmt, 'M' => $upLmt, 'l' => $szN];
-        if (strpos($colType, 'unsigned') !== false) {
-            $aReturn = ['m' => 0, 'M' => ($upLmt - $loLmt), 'l' => $szUS];
-        }
-        return $aReturn;
-    }
-
-    private function stFldLmtsExact($cTp)
-    {
-        $xct     = [
-            'bigint'    => ['l' => -9223372036854775808, 'L' => 9223372036854775807, 's' => 21, 'sUS' => 20],
-            'int'       => ['l' => -2147483648, 'L' => 2147483647, 's' => 11, 'sUS' => 10],
-            'mediumint' => ['l' => -8388608, 'L' => 8388607, 's' => 9, 'sUS' => 8],
-            'smallint'  => ['l' => -32768, 'L' => 32767, 's' => 6, 'sUS' => 5],
-            'tinyint'   => ['l' => -128, 'L' => 127, 's' => 4, 'sUS' => 3],
-        ];
-        $sReturn = null;
-        if (array_key_exists($cTp, $xct)) {
-            $sReturn = $this->stFldLmts($cTp, $xct[$cTp]['l'], $xct[$cTp]['L'], $xct[$cTp]['s'], $xct[$cTp]['sUS']);
-        }
-        return $sReturn;
-    }
-
     /**
      * Returns maximum length for a given MySQL field
      *
@@ -609,9 +349,34 @@ trait MySQLiByDanielGP
         } elseif (in_array($fieldDetails['DATA_TYPE'], ['decimal', 'numeric'])) {
             $sRtrn = ['M' => $fieldDetails['NUMERIC_PRECISION'], 'd' => $fieldDetails['NUMERIC_SCALE']];
         } elseif (in_array($fieldDetails['DATA_TYPE'], ['bigint', 'int', 'mediumint', 'smallint', 'tinyint'])) {
-            $sRtrn = $this->stFldLmtsExact($fieldDetails['DATA_TYPE']);
+            $sRtrn = $this->setFldLmtsExact($fieldDetails['DATA_TYPE']);
         }
         return $sRtrn;
+    }
+
+    private function setFldLmts($colType, $loLmt, $upLmt, $szN, $szUS)
+    {
+        $aReturn = ['m' => $loLmt, 'M' => $upLmt, 'l' => $szN];
+        if (strpos($colType, 'unsigned') !== false) {
+            $aReturn = ['m' => 0, 'M' => ($upLmt - $loLmt), 'l' => $szUS];
+        }
+        return $aReturn;
+    }
+
+    private function setFldLmtsExact($cTp)
+    {
+        $xct     = [
+            'bigint'    => ['l' => -9223372036854775808, 'L' => 9223372036854775807, 's' => 21, 'sUS' => 20],
+            'int'       => ['l' => -2147483648, 'L' => 2147483647, 's' => 11, 'sUS' => 10],
+            'mediumint' => ['l' => -8388608, 'L' => 8388607, 's' => 9, 'sUS' => 8],
+            'smallint'  => ['l' => -32768, 'L' => 32767, 's' => 6, 'sUS' => 5],
+            'tinyint'   => ['l' => -128, 'L' => 127, 's' => 4, 'sUS' => 3],
+        ];
+        $sReturn = null;
+        if (array_key_exists($cTp, $xct)) {
+            $sReturn = $this->setFldLmts($cTp, $xct[$cTp]['l'], $xct[$cTp]['L'], $xct[$cTp]['s'], $xct[$cTp]['sUS']);
+        }
+        return $sReturn;
     }
 
     /**
