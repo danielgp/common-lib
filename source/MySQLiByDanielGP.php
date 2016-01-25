@@ -236,7 +236,7 @@ trait MySQLiByDanielGP
     protected function getMySQLqueryType($sQuery)
     {
         $queryPieces    = explode(' ', $sQuery);
-        $statementTypes = $this->getMySQLqueryStatementType();
+        $statementTypes = $this->listOfMySQLqueryStatementType();
         if (in_array($queryPieces[0], array_keys($statementTypes))) {
             $type    = $statementTypes[$queryPieces[0]]['Type'];
             $sReturn = array_merge([
@@ -584,7 +584,8 @@ trait MySQLiByDanielGP
     /**
      * Returns maximum length for a given MySQL field
      *
-     * @param string $field_full_type
+     * @param array $fieldDetails
+     * @param boolean $outputFormated
      * @return array
      */
     protected function setFieldNumbers($fieldDetails, $outputFormated = false)
