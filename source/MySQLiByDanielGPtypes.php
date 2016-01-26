@@ -68,9 +68,9 @@ trait MySQLiByDanielGPtypes
      */
     private function listOfMySQLqueryLanguageType($qType)
     {
-        $vMap = ['DCL', 'DDL', 'DML', 'DQL', 'DTL'];
+        $keyForReturn = 'Type ' . $qType . ' stands for';
+        $vMap         = ['DCL', 'DDL', 'DML', 'DQL', 'DTL'];
         if (in_array($qType, $vMap)) {
-            $keyForReturn = 'Type ' . $qType . ' stands for';
             $valForReturn = $this->readTypeFromJsonFile('MySQLiLanguageTypes')[$qType];
             return [$keyForReturn => $valForReturn[0] . ' (' . $valForReturn[1] . ')'];
         }
@@ -96,7 +96,7 @@ trait MySQLiByDanielGPtypes
 
     private function readTypeFromJsonFile($fileBaseName)
     {
-        $fName       = __DIR__ . DIRECTORY_SEPARATOR . 'json' . DIRECTORY_SEPARATOR . $fileBaseName . '.json';
+        $fName       = __DIR__ . DIRECTORY_SEPARATOR . 'json' . DIRECTORY_SEPARATOR . $fileBaseName . '.min.json';
         $fJson       = fopen($fName, 'r');
         $jSonContent = fread($fJson, filesize($fName));
         fclose($fJson);
