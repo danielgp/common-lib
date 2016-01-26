@@ -186,9 +186,9 @@ trait CommonLibLocale
         return $this->setNumberFormat(round(($fAbove / $fBelow), $mArguments));
     }
 
-    protected function setNumberFormat($content, $features = null)
+    protected function setNumberFormat($content, $ftrs = null)
     {
-        $features = $this->setNumberFormatFeatures($features);
+        $features = $this->setNumberFormatFeatures($ftrs);
         $fmt      = new \NumberFormatter($features['locale'], $features['style']);
         $fmt->setAttribute(\NumberFormatter::MIN_FRACTION_DIGITS, $features['MinFractionDigits']);
         $fmt->setAttribute(\NumberFormatter::MAX_FRACTION_DIGITS, $features['MaxFractionDigits']);
