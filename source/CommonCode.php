@@ -36,7 +36,8 @@ namespace danielgp\common_lib;
 trait CommonCode
 {
 
-    use CommonViews;
+    use CommonViews,
+        MySQLiByDanielGPtypes;
 
     private function buildArrayForCurlInterogation($chanel, $rspJsonFromClient)
     {
