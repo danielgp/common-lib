@@ -37,7 +37,7 @@ trait MySQLiByDanielGP
 {
 
     use DomComponentsByDanielGP,
-        MySQLiMultiple,
+        MySQLiMultipleExecution,
         MySQLiByDanielGPqueries,
         MySQLiByDanielGPtypes;
 
@@ -98,14 +98,9 @@ trait MySQLiByDanielGP
     protected function getMySQLgenericInformations()
     {
         if (is_null($this->mySQLconnection)) {
-            $line = [];
-        } else {
-            $line = [
-                'Info'    => $this->mySQLconnection->server_info,
-                'Version' => $this->mySQLconnection->server_version
-            ];
+            return [];
         }
-        return $line;
+        return ['Info' => $this->mySQLconnection->server_info, 'Version' => $this->mySQLconnection->server_version];
     }
 
     /**
@@ -338,7 +333,7 @@ trait MySQLiByDanielGP
     private function setFieldSpecific($fieldDetails)
     {
         $sRtrn = '';
-        if (in_array($fieldDetails['DATA_TYPE'], ['char', 'varchar', 'tinytext'])) {
+        if (in_array($fieldDetails['DATA_TYPE'], ['char', 'varchar', 'tinytext', 'text', 'mediumtext', 'longtext'])) {
             $sRtrn = ['M' => $fieldDetails['CHARACTER_MAXIMUM_LENGTH']];
         } elseif (in_array($fieldDetails['DATA_TYPE'], ['date'])) {
             $sRtrn = ['M' => 10];

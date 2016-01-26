@@ -33,7 +33,7 @@ namespace danielgp\common_lib;
  *
  * @author Daniel Popiniuc
  */
-trait MySQLiMultiple
+trait MySQLiMultipleExecution
 {
 
     protected $mySQLconnection = null;

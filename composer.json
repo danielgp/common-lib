@@ -40,7 +40,7 @@
             "source/MySQLiAdvancedOutput.php",
             "source/MySQLiByDanielGPqueriesBasic.php",
             "source/MySQLiByDanielGPqueries.php",
-            "source/MySQLiMultiple.php",
+            "source/MySQLiMultipleExecution.php",
             "source/MySQLiByDanielGP.php",
             "source/MySQLiByDanielGPtypes.php"
         ]
