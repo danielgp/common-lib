@@ -166,34 +166,20 @@ trait MySQLiByDanielGP
             }
             return [];
         }
-        $query = '';
-        switch ($returnChoice) {
-            case 'Columns':
-                $query = $this->sQueryMySqlColumns($additionalFeatures);
-                break;
-            case 'Databases':
-                $query = $this->sQueryMySqlActiveDatabases($additionalFeatures);
-                break;
-            case 'Engines':
-                $query = $this->sQueryMySqlActiveEngines($additionalFeatures);
-                break;
-            case 'Indexes':
-                $query = $this->sQueryMySqlIndexes($additionalFeatures);
-                break;
-            case 'ServerTime':
-                $query = $this->sQueryMySqlServerTime();
-                break;
-            case 'Statistics':
-                $query = $this->sQueryMySqlStatistics($additionalFeatures);
-                break;
-            case 'Tables':
-                $query = $this->sQueryMySqlTables($additionalFeatures);
-                break;
-            case 'VariablesGlobal':
-                $query = $this->sQueryMySqlGlobalVariables();
-                break;
+        $queryByChoice = [
+            'Columns'         => $this->sQueryMySqlColumns($additionalFeatures),
+            'Databases'       => $this->sQueryMySqlActiveDatabases($additionalFeatures),
+            'Engines'         => $this->sQueryMySqlActiveEngines($additionalFeatures),
+            'Indexes'         => $this->sQueryMySqlIndexes($additionalFeatures),
+            'ServerTime'      => $this->sQueryMySqlServerTime(),
+            'Statistics'      => $this->sQueryMySqlStatistics($additionalFeatures),
+            'Tables'          => $this->sQueryMySqlTables($additionalFeatures),
+            'VariablesGlobal' => $this->sQueryMySqlGlobalVariables(),
+        ];
+        if (array_key_exists($returnChoice, $queryByChoice)) {
+            return $this->setMySQLquery2Server($queryByChoice[$returnChoice], $returnType)['result'];
         }
-        return $this->setMySQLquery2Server($query, $returnType)['result'];
+        return [];
     }
 
     /**
@@ -332,23 +318,18 @@ trait MySQLiByDanielGP
 
     private function setFieldSpecific($fieldDetails)
     {
-        $sRtrn = '';
         if (in_array($fieldDetails['DATA_TYPE'], ['char', 'varchar', 'tinytext', 'text', 'mediumtext', 'longtext'])) {
-            $sRtrn = ['M' => $fieldDetails['CHARACTER_MAXIMUM_LENGTH']];
-        } elseif (in_array($fieldDetails['DATA_TYPE'], ['date'])) {
-            $sRtrn = ['M' => 10];
-        } elseif (in_array($fieldDetails['DATA_TYPE'], ['time'])) {
-            $sRtrn = ['M' => 8];
-        } elseif (in_array($fieldDetails['DATA_TYPE'], ['datetime', 'timestamp'])) {
-            $sRtrn = ['M' => 19];
+            return ['M' => $fieldDetails['CHARACTER_MAXIMUM_LENGTH']];
         } elseif (in_array($fieldDetails['DATA_TYPE'], ['decimal', 'numeric'])) {
-            $sRtrn = ['M' => $fieldDetails['NUMERIC_PRECISION'], 'd' => $fieldDetails['NUMERIC_SCALE']];
+            return ['M' => $fieldDetails['NUMERIC_PRECISION'], 'd' => $fieldDetails['NUMERIC_SCALE']];
         } elseif (in_array($fieldDetails['DATA_TYPE'], ['bigint', 'int', 'mediumint', 'smallint', 'tinyint'])) {
-            $sRtrn = $this->setFldLmtsExact($fieldDetails['DATA_TYPE']);
-        } elseif (in_array($fieldDetails['DATA_TYPE'], ['enum', 'set'])) {
-            $sRtrn = ['M' => 0];
+            return $this->setFldLmtsExact($fieldDetails['DATA_TYPE']);
         }
-        return $sRtrn;
+        $map = ['date' => 10, 'datetime' => 19, 'enum' => 65536, 'set' => 64, 'time' => 8, 'timestamp' => 19];
+        if (array_key_exists($fieldDetails['DATA_TYPE'], $map)) {
+            return ['M' => $map[$fieldDetails['DATA_TYPE']]];
+        }
+        return ['M' => '???'];
     }
 
     private function setFldLmts($colType, $loLmt, $upLmt, $szN, $szUS)
