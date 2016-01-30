@@ -59,7 +59,8 @@ trait MySQLiMultipleExecution
 
     protected function getMySqlCurrentDatabase()
     {
-        return $this->mySQLconnection->query('SELECT DATABASE();')[0];
+        $result = $this->mySQLconnection->query('SELECT DATABASE();');
+        return $result->fetch_row()[0];
     }
 
     /**

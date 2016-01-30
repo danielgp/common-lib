@@ -118,12 +118,12 @@ trait DomDynamicSelectByDanielGP
         return $featArray;
     }
 
-    protected function setArrayToSelectNotReadOnly($aElements, $sDefaultValue, $selectName, $featArray = null)
+    protected function setArrayToSelectNotReadOnly($aElements, $sDefaultValue, $selectName, $ftArray = null)
     {
-        if (!is_array($featArray)) {
-            $featArray = [];
+        if (!is_array($ftArray)) {
+            $ftArray = [];
         }
-        $featArray = $this->normalizeFeatureArray($featArray);
+        $featArray = $this->normalizeFeatureArray($ftArray);
         return '<select name="' . $selectName . '" '
                 . 'id="' . $this->buildSelectId($selectName, $featArray) . '" '
                 . 'size="' . $this->calculateSelectOptionsSize($aElements, $featArray) . '"'

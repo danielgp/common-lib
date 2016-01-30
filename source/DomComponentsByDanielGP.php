@@ -678,22 +678,7 @@ trait DomComponentsByDanielGP
                     }
                 } else {
                     if (is_numeric($value)) {
-                        if (substr($value, 0, 1) === '0') {
-                            $sReturn .= 'style="text-align: right;">' . $value;
-                        } else {
-                            $decimals = 0;
-                            if (isset($features['no_of_decimals'])) {
-                                $decimals = $features['no_of_decimals'];
-                            }
-                            if (isset($features['decimals']) && array_key_exists($key, $features['decimals'])) {
-                                $decimals = $features['decimals'][$key];
-                            }
-                            $sReturn .= 'style="text-align: right;">';
-                            $sReturn .= $this->setNumberFormat($value, [
-                                'MinFractionDigits' => $decimals,
-                                'MaxFractionDigits' => $decimals
-                            ]);
-                        }
+                        $sReturn .= $this->setTableCellNumeric($key, $value, $features);
                     } else {
                         $outputet = false;
                         if ((strpos($value, '-') !== false) && (strlen($value) == 10)) {
@@ -714,6 +699,29 @@ trait DomComponentsByDanielGP
         return $sReturn;
     }
 
+    private function setTableCellDecimals($key, $features)
+    {
+        $decimals = 0;
+        if (isset($features['no_of_decimals'])) {
+            $decimals = $features['no_of_decimals'];
+        }
+        if (isset($features['decimals']) && array_key_exists($key, $features['decimals'])) {
+            $decimals = $features['decimals'][$key];
+        }
+        return $decimals;
+    }
+
+    private function setTableCellNumeric($key, $value, $features)
+    {
+        $styleToReturn = 'style="text-align: right;">';
+        if (substr($value, 0, 1) === '0') {
+            return $styleToReturn . $value;
+        }
+        $decimals = $this->setTableCellDecimals($key, $features);
+        $nDc      = ['MinFractionDigits' => $decimals, 'MaxFractionDigits' => $decimals];
+        return $styleToReturn . $this->setNumberFormat($value, $nDc);
+    }
+
     /**
      * Generates a table header
      *
@@ -723,10 +731,9 @@ trait DomComponentsByDanielGP
      */
     private function setTableHeader($aElements, $bHeadersBreaked)
     {
+        $aTableHeader = $aElements;
         if ($bHeadersBreaked) {
             $aTableHeader = $this->setArrayToArrayKbr($aElements);
-        } else {
-            $aTableHeader = $aElements;
         }
         $sReturn[] = null;
         foreach (array_keys($aTableHeader) as $value) {

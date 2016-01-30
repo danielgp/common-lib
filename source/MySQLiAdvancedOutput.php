@@ -49,10 +49,10 @@ trait MySQLiAdvancedOutput
     private function establishDatabaseAndTable($tblSrc)
     {
         if (strpos($tblSrc, '.') === false) {
-            if (!defined('MYSQL_DATABASE')) {
-                define('MYSQL_DATABASE', $this->getMySqlCurrentDatabase());
+            if (!array_key_exists('workingDatabase', $this->advCache)) {
+                $this->advCache['workingDatabase'] = $this->getMySqlCurrentDatabase();
             }
-            return [$tblSrc, MYSQL_DATABASE];
+            return [$this->advCache['workingDatabase'], $tblSrc];
         }
         return explode('.', str_replace('`', '', $tblSrc));
     }
@@ -566,12 +566,12 @@ trait MySQLiAdvancedOutput
      */
     protected function getSetOrEnum2Array($refTbl, $refCol)
     {
-        $dat = $this->establishDatabaseAndTable($this->fixTableSource($refTbl));
+        $dat = $this->establishDatabaseAndTable($refTbl);
         foreach ($this->advCache['tableStructureCache'][$dat[0]][$dat[1]] as $value) {
             if ($value['COLUMN_NAME'] == $refCol) {
                 $clndVls = explode(',', str_replace([$value['DATA_TYPE'], '(', "'", ')'], '', $value['COLUMN_TYPE']));
                 $enmVls  = array_combine($clndVls, $clndVls);
-                if ($value['IS_NULLABLE'] == 'YES') {
+                if ($value['IS_NULLABLE'] === 'YES') {
                     $enmVls['NULL'] = '';
                 }
             }
@@ -747,7 +747,7 @@ trait MySQLiAdvancedOutput
      */
     private function setFormJavascriptFinal($frmId)
     {
-        $cnt = implode('', [
+        $cnt = implode(PHP_EOL, [
             '$(document).ready(function(){',
             '$("form#' . $frmId . '").submit(function(){',
             '$("form#' . $frmId . ' input[type=checkbox]").attr("readonly", true);',
@@ -761,7 +761,7 @@ trait MySQLiAdvancedOutput
             '});',
             '});',
         ]);
-        return $this->setJavascriptContent($cnt);
+        return $this->setJavascriptContent(PHP_EOL . $cnt . PHP_EOL);
     }
 
     /**
@@ -887,10 +887,7 @@ trait MySQLiAdvancedOutput
     {
         $dat = $this->establishDatabaseAndTable($tblSrc);
         if (!isset($this->advCache['tableStructureCache'][$dat[0]][$dat[1]])) {
-            $this->advCache['workingDatabase'] = $dat[0];
-            if ($dat[1] == 'user_rights') {
-                $this->advCache['workingDatabase'] = 'usefull_security';
-            }
+            $this->advCache['workingDatabase']                       = $dat[0];
             $this->advCache['tableStructureCache'][$dat[0]][$dat[1]] = $this->getMySQLlistColumns([
                 'TABLE_SCHEMA' => $dat[0],
                 'TABLE_NAME'   => $dat[1],

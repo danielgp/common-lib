@@ -345,6 +345,8 @@ trait MySQLiByDanielGP
             $sRtrn = ['M' => $fieldDetails['NUMERIC_PRECISION'], 'd' => $fieldDetails['NUMERIC_SCALE']];
         } elseif (in_array($fieldDetails['DATA_TYPE'], ['bigint', 'int', 'mediumint', 'smallint', 'tinyint'])) {
             $sRtrn = $this->setFldLmtsExact($fieldDetails['DATA_TYPE']);
+        } elseif (in_array($fieldDetails['DATA_TYPE'], ['enum', 'set'])) {
+            $sRtrn = ['M' => 0];
         }
         return $sRtrn;
     }
