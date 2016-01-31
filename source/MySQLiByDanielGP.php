@@ -62,9 +62,9 @@ trait MySQLiByDanielGP
             if (is_null($this->mySQLconnection->connect_error)) {
                 return '';
             }
+            $this->mySQLconnection = null;
             $erNo                  = $this->mySQLconnection->connect_errno;
             $erMsg                 = $this->mySQLconnection->connect_error;
-            $this->mySQLconnection = null;
             $msg                   = $this->lclMsgCmn('i18n_Feedback_ConnectionError');
             return sprintf($msg, $erNo, $erMsg, $host, $port, $username, $database);
         }
@@ -405,67 +405,18 @@ trait MySQLiByDanielGP
     protected function setMySQLquery2Server($sQuery, $sReturnType = null, $ftrs = null)
     {
         if (is_null($sReturnType)) {
-            return $this->mySQLconnection->query(html_entity_decode($sQuery));
+            $this->mySQLconnection->query(html_entity_decode($sQuery));
+            return '';
         } elseif (is_null($this->mySQLconnection)) {
             return ['customError' => $this->lclMsgCmn('i18n_MySQL_ConnectionNotExisting'), 'result' => null];
         }
-        $aReturn = ['customError' => '', 'result' => null];
-        $result  = $this->mySQLconnection->query(html_entity_decode($sQuery));
+        $result = $this->mySQLconnection->query(html_entity_decode($sQuery));
         if ($result) {
-            switch (strtolower($sReturnType)) {
-                case 'array_first_key_rest_values':
-                case 'array_key_value':
-                case 'array_key_value2':
-                case 'array_key2_value':
-                case 'array_numbered':
-                case 'array_pairs_key_value':
-                case 'full_array_key_numbered':
-                    $aReturn           = $this->setMySQLquery2ServerByPattern([
-                        'NoOfColumns' => $result->field_count,
-                        'NoOfRows'    => $result->num_rows,
-                        'QueryResult' => $result,
-                        'returnType'  => $sReturnType,
-                        'return'      => $aReturn
-                    ]);
-                    break;
-                case 'full_array_key_numbered_with_record_number_prefix':
-                case 'full_array_key_numbered_with_prefix':
-                    $aReturn           = $this->setMySQLquery2ServerByPattern([
-                        'NoOfColumns' => $result->field_count,
-                        'NoOfRows'    => $result->num_rows,
-                        'QueryResult' => $result,
-                        'returnType'  => $sReturnType,
-                        'prefix'      => $ftrs['prefix'],
-                        'return'      => $aReturn
-                    ]);
-                    break;
-                case 'id':
-                    $aReturn['result'] = $this->mySQLconnection->insert_id;
-                    break;
-                case 'lines':
-                    $aReturn['result'] = $result->num_rows;
-                    break;
-                case 'value':
-                    if (($result->num_rows == 1) && ($result->field_count == 1)) {
-                        $aReturn['result'] = $result->fetch_row()[0];
-                        return $aReturn;
-                    }
-                    $msg                    = $this->lclMsgCmn('i18n_MySQL_QueryResultExpected1ResultedOther');
-                    $aReturn['customError'] = sprintf($msg, $result->num_rows);
-                    break;
-                default:
-                    $msg                    = $this->lclMsgCmn('i18n_MySQL_QueryInvalidReturnTypeSpecified');
-                    $aReturn['customError'] = sprintf($msg, $sReturnType, __FUNCTION__);
-                    break;
-            }
-            if (is_object($result)) {
-                $result->close();
-            }
-            return $aReturn;
+            return $this->setMySQLquery2ServerConnected($result, $sReturnType);
         }
-        $erNo  = $this->mySQLconnection->errno;
-        $erMsg = $this->mySQLconnection->error;
-        return ['customError' => sprintf($this->lclMsgCmn('i18n_MySQL_QueryError'), $erNo, $erMsg), 'result' => null];
+        $erM  = [$this->mySQLconnection->errno, $this->mySQLconnection->error];
+        $cErr = sprintf($this->lclMsgCmn('i18n_MySQL_QueryError'), $erM[0], $erM[1]);
+        return ['customError' => $cErr, 'result' => null];
     }
 
     /**
@@ -537,29 +488,48 @@ trait MySQLiByDanielGP
                     }
                     $counter2++;
                     break;
+                case 'value':
+                    $aReturn['result'] = $line[0];
+                    break;
             }
         }
-        return $aReturn;
+        return ['customError' => '', 'result' => $aReturn['result']];
+    }
+
+    protected function setMySQLquery2ServerConnected($result, $sReturnType)
+    {
+        if ($sReturnType == 'id') {
+            return ['customError' => '', 'result' => $this->mySQLconnection->insert_id];
+        } elseif ($sReturnType == 'lines') {
+            return ['result' => $result->num_rows, 'customError' => ''];
+        }
+        $prm = [
+            'NoOfColumns' => $result->field_count,
+            'NoOfRows'    => $result->num_rows,
+            'QueryResult' => $result,
+            'returnType'  => $sReturnType,
+            'return'      => $aReturn
+        ];
+        if (substr($sReturnType, -6) == 'prefix') {
+            $prm['prefix'] = $ftrs['prefix'];
+        }
+        return $this->setMySQLquery2ServerByPattern($prm);
     }
 
     private function setMySQLqueryValidateInputs($prm)
     {
         $rMap = $this->setMySQLqueryValidationMap();
         if (array_key_exists($prm['returnType'], $rMap)) {
-            $nrInt = $prm['NoOfColumns'];
-            $min   = $rMap[$prm['returnType']]['c'][0];
-            $max   = $rMap[$prm['returnType']]['c'][1];
-            if (filter_var($nrInt, FILTER_VALIDATE_INT, ['min_range' => $min, 'max_range' => $max])) {
-                if (array_key_exists('r', $rMap[$prm['returnType']])) {
-                    $elC = [$prm['NoOfRows'], $rMap[$prm['returnType']]['r'][0], $rMap[$prm['returnType']]['r'][1]];
-                    if (filter_var($elC[0], FILTER_VALIDATE_INT, ['min_range' => $elC[1], 'max_range' => $elC[2]])) {
-                        return [true, ''];
-                    }
-                } else {
-                    return [true, ''];
-                }
+            $elC = [$prm['NoOfRows'], $rMap[$prm['returnType']]['r'][0], $rMap[$prm['returnType']]['r'][1]];
+            if (filter_var($elC[0], FILTER_VALIDATE_INT, ['min_range' => $elC[1], 'max_range' => $elC[2]]) === false) {
+                $msg = $this->lclMsgCmn('i18n_MySQL_QueryResultExpected' . $rMap[$prm['returnType']][2]);
+                return [false, sprintf($msg, $prm['NoOfColumns'])];
             }
-            $msg = $this->lclMsgCmn('i18n_MySQL_QueryResultExpected' . $rMap[$prm['returnType']][2]);
+            $elR = [$prm['NoOfColumns'], $rMap[$prm['returnType']]['c'][0], $rMap[$prm['returnType']]['c'][1]];
+            if (filter_var($elR[0], FILTER_VALIDATE_INT, ['min_range' => $elR[1], 'max_range' => $elR[2]])) {
+                return [true, ''];
+            }
+            $msg = $this->lclMsgCmn('i18n_MySQL_QueryResultExpected' . $rMap[$prm['returnType']][1]);
             return [false, sprintf($msg, $prm['NoOfColumns'])];
         }
         return [false, $prm['returnType'] . ' is not defined!'];
@@ -567,20 +537,18 @@ trait MySQLiByDanielGP
 
     private function setMySQLqueryValidationMap()
     {
+        $lngKey = 'full_array_key_numbered_with_record_number_prefix';
         return [
-            'array_first_key_rest_values'                       => ['c' => [2, 99], 'AtLeast2ColsResultedOther'],
-            'array_key_value'                                   => ['c' => [2, 2], '2ColumnsResultedOther'],
-            'array_key_value2'                                  => ['c' => [2, 2], '2ColumnsResultedOther'],
-            'array_key2_value'                                  => ['c' => [2, 2], '2ColumnsResultedOther'],
-            'array_numbered'                                    => ['c' => [1, 1], '1ColumnResultedOther'],
-            'array_pairs_key_value'                             => [
-                'r' => [1, 1],
-                'c' => [1, 99],
-                '1RowManyColumnsResultedOther',
-            ],
-            'full_array_key_numbered'                           => ['c' => [1, 99], '1OrMoreRows0Resulted'],
-            'full_array_key_numbered_with_prefix'               => ['c' => [1, 99], '1OrMoreRows0Resulted'],
-            'full_array_key_numbered_with_record_number_prefix' => ['c' => [1, 99], '1OrMoreRows0Resulted'],
+            'array_first_key_rest_values'         => ['r' => [1, 999999], 'c' => [2, 99], 'AtLeast2ColsResultedOther'],
+            'array_key_value'                     => ['r' => [1, 999999], 'c' => [2, 2], '2ColumnsResultedOther'],
+            'array_key_value2'                    => ['r' => [1, 999999], 'c' => [2, 2], '2ColumnsResultedOther'],
+            'array_key2_value'                    => ['r' => [1, 999999], 'c' => [2, 2], '2ColumnsResultedOther'],
+            'array_numbered'                      => ['r' => [1, 999999], 'c' => [1, 1], '1ColumnResultedOther'],
+            'array_pairs_key_value'               => ['r' => [1, 1], 'c' => [1, 99], '1RowManyColumnsResultedOther'],
+            'full_array_key_numbered'             => ['r' => [1, 999999], 'c' => [1, 99], '1OrMoreRows0Resulted'],
+            'full_array_key_numbered_with_prefix' => ['r' => [1, 999999], 'c' => [1, 99], '1OrMoreRows0Resulted'],
+            $lngKey                               => ['r' => [1, 999999], 'c' => [1, 99], '1OrMoreRows0Resulted'],
+            'value'                               => ['r' => [1, 1], 'c' => [1, 1], '1ResultedOther'],
         ];
     }
 }
