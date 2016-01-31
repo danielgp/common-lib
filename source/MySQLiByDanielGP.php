@@ -71,6 +71,21 @@ trait MySQLiByDanielGP
     }
 
     /**
+     * Ensures table has special quoes and DOT as final char
+     * (if not empty, of course)
+     *
+     * @param string $referenceTable
+     * @return string
+     */
+    private function correctTableWithQuotesAsFieldPrefix($referenceTable)
+    {
+        if ($referenceTable != '') {
+            return '`' . str_replace('`', '', $referenceTable) . '`.';
+        }
+        return '';
+    }
+
+    /**
      * returns a list of MySQL databases
      *
      * @return array
@@ -156,7 +171,7 @@ trait MySQLiByDanielGP
     /**
      * Return various informations (from predefined list) from the MySQL server
      *
-     * @return string
+     * @return int|array
      */
     private function getMySQLlistMultiple($returnChoice, $returnType, $additionalFeatures = null)
     {
@@ -166,6 +181,16 @@ trait MySQLiByDanielGP
             }
             return [];
         }
+        return $this->getMySQLlistMultipleFinal($returnChoice, $returnType, $additionalFeatures);
+    }
+
+    /**
+     * Return various informations (from predefined list) from the MySQL server
+     *
+     * @return array
+     */
+    private function getMySQLlistMultipleFinal($returnChoice, $returnType, $additionalFeatures = null)
+    {
         $queryByChoice = [
             'Columns'         => $this->sQueryMySqlColumns($additionalFeatures),
             'Databases'       => $this->sQueryMySqlActiveDatabases($additionalFeatures),
@@ -243,9 +268,43 @@ trait MySQLiByDanielGP
             $this->initializeSprGlbAndSession();
             foreach ($rawData as $key => $value) {
                 $vToSet = str_replace(['\\\\"', '\\"', "\\\\'", "\\'"], ['"', '"', "'", "'"], $value);
-                $this->tCmnRequest->request->get($key, $vToSet);
+                $this->tCmnRequest->request->set($key, $vToSet);
             }
         }
+    }
+
+    /**
+     * Builds an filter string from pair of key and value, where value is array
+     *
+     * @param string $key
+     * @param array $value
+     * @param string $referenceTable
+     * @return string
+     */
+    private function setArrayLineArrayToFilter($key, $value, $referenceTable)
+    {
+        $filters2 = implode(', ', array_diff($value, ['']));
+        if ($filters2 != '') {
+            return '(' . $referenceTable . '`' . $key . '` IN ("'
+                    . str_replace(',', '","', str_replace(["'", '"'], '', $filters2)) . '"))';
+        }
+        return '';
+    }
+
+    /**
+     * Builds an filter string from pair of key and value, none array
+     *
+     * @param string $key
+     * @param int|float|string $value
+     * @return string
+     */
+    private function setArrayLineToFilter($key, $value)
+    {
+        $fTemp = '=';
+        if ((substr($value, 0, 1) == '%') && (substr($value, -1) == '%')) {
+            $fTemp = 'LIKE';
+        }
+        return '(`' . $key . '` ' . $fTemp . '"' . $value . '")';
     }
 
     /**
@@ -257,43 +316,16 @@ trait MySQLiByDanielGP
      */
     private function setArrayToFilterValues($entryArray, $referenceTable = '')
     {
-        $filters = '';
-        if ($referenceTable != '') {
-            $referenceTable = '`' . $referenceTable . '`.';
-        }
+        $filters  = [];
+        $refTable = $this->correctTableWithQuotesAsFieldPrefix($referenceTable);
         foreach ($entryArray as $key => $value) {
             if (is_array($value)) {
-                $filters2 = '';
-                foreach ($value as $value2) {
-                    if ($value2 != '') {
-                        if ($filters2 != '') {
-                            $filters2 .= ',';
-                        }
-                        $filters2 .= '"' . $value2 . '"';
-                    }
-                }
-                if ($filters2 != '') {
-                    if ($filters != '') {
-                        $filters .= ' AND ';
-                    }
-                    $filters .= ' ' . $referenceTable . '`' . $key
-                            . '` IN ("' . str_replace(',', '","', str_replace(["'", '"'], '', $filters2))
-                            . '")';
-                }
-            } else {
-                if (($filters != '') && (!in_array($value, ['', '%%']))) {
-                    $filters .= ' AND ';
-                }
-                if (!in_array($value, ['', '%%'])) {
-                    if ((substr($value, 0, 1) == '%') && (substr($value, -1) == '%')) {
-                        $filters .= ' ' . $key . ' LIKE "' . $value . '"';
-                    } else {
-                        $filters .= ' ' . $key . ' = "' . $value . '"';
-                    }
-                }
+                $filters[] = $this->setArrayLineArrayToFilter($key, $value, $refTable);
+            } elseif (!in_array($value, ['', '%%'])) {
+                $filters[] = $this->setArrayLineToFilter($key, $value);
             }
         }
-        return $filters;
+        return implode(' AND ', array_diff($filters, ['']));
     }
 
     /**
@@ -325,6 +357,11 @@ trait MySQLiByDanielGP
         } elseif (in_array($fieldDetails['DATA_TYPE'], ['bigint', 'int', 'mediumint', 'smallint', 'tinyint'])) {
             return $this->setFldLmtsExact($fieldDetails['DATA_TYPE']);
         }
+        return $this->setFieldSpecificElse($fieldDetails);
+    }
+
+    private function setFieldSpecificElse($fieldDetails)
+    {
         $map = ['date' => 10, 'datetime' => 19, 'enum' => 65536, 'set' => 64, 'time' => 8, 'timestamp' => 19];
         if (array_key_exists($fieldDetails['DATA_TYPE'], $map)) {
             return ['M' => $map[$fieldDetails['DATA_TYPE']]];
