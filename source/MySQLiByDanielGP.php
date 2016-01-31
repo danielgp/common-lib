@@ -412,7 +412,7 @@ trait MySQLiByDanielGP
         }
         $result = $this->mySQLconnection->query(html_entity_decode($sQuery));
         if ($result) {
-            return $this->setMySQLquery2ServerConnected($result, $sReturnType);
+            return $this->setMySQLquery2ServerConnected(['Result' => $result, 'RType' => $sReturnType, 'F' => $ftrs]);
         }
         $erM  = [$this->mySQLconnection->errno, $this->mySQLconnection->error];
         $cErr = sprintf($this->lclMsgCmn('i18n_MySQL_QueryError'), $erM[0], $erM[1]);
@@ -496,24 +496,24 @@ trait MySQLiByDanielGP
         return ['customError' => '', 'result' => $aReturn['result']];
     }
 
-    protected function setMySQLquery2ServerConnected($result, $sReturnType)
+    protected function setMySQLquery2ServerConnected($inArray)
     {
-        if ($sReturnType == 'id') {
+        if ($inArray['RType'] == 'id') {
             return ['customError' => '', 'result' => $this->mySQLconnection->insert_id];
-        } elseif ($sReturnType == 'lines') {
-            return ['result' => $result->num_rows, 'customError' => ''];
+        } elseif ($inArray['RType'] == 'lines') {
+            return ['result' => $inArray['Result']->num_rows, 'customError' => ''];
         }
-        $prm = [
-            'NoOfColumns' => $result->field_count,
-            'NoOfRows'    => $result->num_rows,
-            'QueryResult' => $result,
-            'returnType'  => $sReturnType,
-            'return'      => $aReturn
+        $parameters = [
+            'NoOfColumns' => $inArray['Result']->field_count,
+            'NoOfRows'    => $inArray['Result']->num_rows,
+            'QueryResult' => $inArray['Result'],
+            'returnType'  => $inArray['RType'],
+            'return'      => ['customError' => '', 'result' => null]
         ];
-        if (substr($sReturnType, -6) == 'prefix') {
-            $prm['prefix'] = $ftrs['prefix'];
+        if (substr($inArray['RType'], -6) == 'prefix') {
+            $parameters['prefix'] = $inArray['F']['prefix'];
         }
-        return $this->setMySQLquery2ServerByPattern($prm);
+        return $this->setMySQLquery2ServerByPattern($parameters);
     }
 
     private function setMySQLqueryValidateInputs($prm)
