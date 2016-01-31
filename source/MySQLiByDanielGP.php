@@ -404,73 +404,68 @@ trait MySQLiByDanielGP
      */
     protected function setMySQLquery2Server($sQuery, $sReturnType = null, $ftrs = null)
     {
-        $aReturn = [
-            'customError' => '',
-            'result'      => null
-        ];
         if (is_null($sReturnType)) {
             return $this->mySQLconnection->query(html_entity_decode($sQuery));
         } elseif (is_null($this->mySQLconnection)) {
-            $aReturn['customError'] = $this->lclMsgCmn('i18n_MySQL_ConnectionNotExisting');
-        } else {
-            $result = $this->mySQLconnection->query(html_entity_decode($sQuery));
-            if ($result) {
-                switch (strtolower($sReturnType)) {
-                    case 'array_first_key_rest_values':
-                    case 'array_key_value':
-                    case 'array_key_value2':
-                    case 'array_key2_value':
-                    case 'array_numbered':
-                    case 'array_pairs_key_value':
-                    case 'full_array_key_numbered':
-                        $aReturn           = $this->setMySQLquery2ServerByPattern([
-                            'NoOfColumns' => $result->field_count,
-                            'NoOfRows'    => $result->num_rows,
-                            'QueryResult' => $result,
-                            'returnType'  => $sReturnType,
-                            'return'      => $aReturn
-                        ]);
-                        break;
-                    case 'full_array_key_numbered_with_record_number_prefix':
-                    case 'full_array_key_numbered_with_prefix':
-                        $aReturn           = $this->setMySQLquery2ServerByPattern([
-                            'NoOfColumns' => $result->field_count,
-                            'NoOfRows'    => $result->num_rows,
-                            'QueryResult' => $result,
-                            'returnType'  => $sReturnType,
-                            'prefix'      => $ftrs['prefix'],
-                            'return'      => $aReturn
-                        ]);
-                        break;
-                    case 'id':
-                        $aReturn['result'] = $this->mySQLconnection->insert_id;
-                        break;
-                    case 'lines':
-                        $aReturn['result'] = $result->num_rows;
-                        break;
-                    case 'value':
-                        if (($result->num_rows == 1) && ($result->field_count == 1)) {
-                            $aReturn['result'] = $result->fetch_row()[0];
-                        } else {
-                            $msg                    = $this->lclMsgCmn('i18n_MySQL_QueryResultExpected1ResultedOther');
-                            $aReturn['customError'] = sprintf($msg, $result->num_rows);
-                        }
-                        break;
-                    default:
-                        $msg                    = $this->lclMsgCmn('i18n_MySQL_QueryInvalidReturnTypeSpecified');
-                        $aReturn['customError'] = sprintf($msg, $sReturnType, __FUNCTION__);
-                        break;
-                }
-                if (is_object($result)) {
-                    $result->close();
-                }
-            } else {
-                $erNo                   = $this->mySQLconnection->errno;
-                $erMsg                  = $this->mySQLconnection->error;
-                $aReturn['customError'] = sprintf($this->lclMsgCmn('i18n_MySQL_QueryError'), $erNo, $erMsg);
-            }
+            return ['customError' => $this->lclMsgCmn('i18n_MySQL_ConnectionNotExisting'), 'result' => null];
         }
-        return $aReturn;
+        $aReturn = ['customError' => '', 'result' => null];
+        $result  = $this->mySQLconnection->query(html_entity_decode($sQuery));
+        if ($result) {
+            switch (strtolower($sReturnType)) {
+                case 'array_first_key_rest_values':
+                case 'array_key_value':
+                case 'array_key_value2':
+                case 'array_key2_value':
+                case 'array_numbered':
+                case 'array_pairs_key_value':
+                case 'full_array_key_numbered':
+                    $aReturn           = $this->setMySQLquery2ServerByPattern([
+                        'NoOfColumns' => $result->field_count,
+                        'NoOfRows'    => $result->num_rows,
+                        'QueryResult' => $result,
+                        'returnType'  => $sReturnType,
+                        'return'      => $aReturn
+                    ]);
+                    break;
+                case 'full_array_key_numbered_with_record_number_prefix':
+                case 'full_array_key_numbered_with_prefix':
+                    $aReturn           = $this->setMySQLquery2ServerByPattern([
+                        'NoOfColumns' => $result->field_count,
+                        'NoOfRows'    => $result->num_rows,
+                        'QueryResult' => $result,
+                        'returnType'  => $sReturnType,
+                        'prefix'      => $ftrs['prefix'],
+                        'return'      => $aReturn
+                    ]);
+                    break;
+                case 'id':
+                    $aReturn['result'] = $this->mySQLconnection->insert_id;
+                    break;
+                case 'lines':
+                    $aReturn['result'] = $result->num_rows;
+                    break;
+                case 'value':
+                    if (($result->num_rows == 1) && ($result->field_count == 1)) {
+                        $aReturn['result'] = $result->fetch_row()[0];
+                        return $aReturn;
+                    }
+                    $msg                    = $this->lclMsgCmn('i18n_MySQL_QueryResultExpected1ResultedOther');
+                    $aReturn['customError'] = sprintf($msg, $result->num_rows);
+                    break;
+                default:
+                    $msg                    = $this->lclMsgCmn('i18n_MySQL_QueryInvalidReturnTypeSpecified');
+                    $aReturn['customError'] = sprintf($msg, $sReturnType, __FUNCTION__);
+                    break;
+            }
+            if (is_object($result)) {
+                $result->close();
+            }
+            return $aReturn;
+        }
+        $erNo  = $this->mySQLconnection->errno;
+        $erMsg = $this->mySQLconnection->error;
+        return ['customError' => sprintf($this->lclMsgCmn('i18n_MySQL_QueryError'), $erNo, $erMsg), 'result' => null];
     }
 
     /**
@@ -480,124 +475,112 @@ trait MySQLiByDanielGP
      * @param array $parameters
      * @return array as ['customError' => '...', 'result' => '...']
      */
-    protected function setMySQLquery2ServerByPattern($parameters)
+    private function setMySQLquery2ServerByPattern($parameters)
     {
-        $aReturn    = $parameters['return'];
-        $buildArray = false;
-        switch ($parameters['returnType']) {
-            case 'array_first_key_rest_values':
-                if ($parameters['NoOfColumns'] >= 2) {
-                    $buildArray = true;
-                } else {
-                    $msg                    = $this->lclMsgCmn('QueryResultExpectedAtLeast2ColsResultedOther');
-                    $aReturn['customError'] = sprintf($msg, $parameters['NoOfColumns']);
-                }
-                break;
-            case 'array_key_value':
-            case 'array_key_value2':
-            case 'array_key2_value':
-                if ($parameters['NoOfColumns'] == 2) {
-                    $buildArray = true;
-                } else {
-                    $msg                    = $this->lclMsgCmn('i18n_MySQL_QueryResultExpected2ColumnsResultedOther');
-                    $aReturn['customError'] = sprintf($msg, $parameters['NoOfColumns']);
-                }
-                break;
-            case 'array_numbered':
-                if ($parameters['NoOfColumns'] == 1) {
-                    $buildArray = true;
-                } else {
-                    $msg                    = $this->lclMsgCmn('i18n_MySQL_QueryResultExpected1ColumnResultedOther');
-                    $aReturn['customError'] = sprintf($msg, $parameters['NoOfColumns']);
-                }
-                break;
-            case 'array_pairs_key_value':
-                if (($parameters['NoOfRows'] == 1) && ($parameters['NoOfColumns'] > 1)) {
-                    $buildArray = true;
-                } else {
-                    $shorterLclString       = 'i18n_MySQL_QueryResultExpected1RowManyColumnsResultedOther';
-                    $msg                    = $this->lclMsgCmn($shorterLclString);
-                    $aReturn['customError'] = sprintf($msg, $parameters['NoOfRows'], $parameters['NoOfColumns']);
-                }
-                break;
-            case 'full_array_key_numbered':
-            case 'full_array_key_numbered_with_prefix':
-            case 'full_array_key_numbered_with_record_number_prefix':
-                if ($parameters['NoOfColumns'] == 0) {
-                    $aReturn['customError'] = $this->lclMsgCmn('i18n_MySQL_QueryResultExpected1OrMoreRows0Resulted');
-                    if (in_array($parameters['returnType'], [
-                                'full_array_key_numbered_with_prefix',
-                                'full_array_key_numbered_with_record_number_prefix',
-                            ])) {
-                        $aReturn['result'][$parameters['prefix']] = null;
-                    }
-                } else {
-                    $buildArray = true;
-                }
-                break;
-            default:
-                $aReturn['customError'] = $parameters['returnType'] . ' is not defined!';
-                break;
+        $aReturn = $parameters['return'];
+        $vld     = $this->setMySQLqueryValidateInputs($parameters);
+        if ($vld[1] !== '') {
+            return ['customError' => $vld[1], 'result' => ''];
         }
-        if ($buildArray) {
-            $counter2 = 0;
-            for ($counter = 0; $counter < $parameters['NoOfRows']; $counter++) {
-                $line = $parameters['QueryResult']->fetch_row();
-                switch ($parameters['returnType']) {
-                    case 'array_first_key_rest_values':
-                        $finfo         = $parameters['QueryResult']->fetch_fields();
-                        $columnCounter = 0;
-                        foreach ($finfo as $value) {
-                            if ($columnCounter != 0) {
-                                $aReturn['result'][$line[0]][$value->name] = $line[$columnCounter];
-                            }
-                            $columnCounter++;
+        $counter2 = 0;
+        for ($counter = 0; $counter < $parameters['NoOfRows']; $counter++) {
+            $line = $parameters['QueryResult']->fetch_row();
+            switch ($parameters['returnType']) {
+                case 'array_first_key_rest_values':
+                    $finfo         = $parameters['QueryResult']->fetch_fields();
+                    $columnCounter = 0;
+                    foreach ($finfo as $value) {
+                        if ($columnCounter != 0) {
+                            $aReturn['result'][$line[0]][$value->name] = $line[$columnCounter];
                         }
-                        break;
-                    case 'array_key_value':
-                        $aReturn['result'][$line[0]]                  = $line[1];
-                        break;
-                    case 'array_key_value2':
-                        $aReturn['result'][$line[0]][]                = $line[1];
-                        break;
-                    case 'array_key2_value':
-                        $aReturn['result'][$line[0] . '@' . $line[1]] = $line[1];
-                        break;
-                    case 'array_numbered':
-                        $aReturn['result'][]                          = $line[0];
-                        break;
-                    case 'array_pairs_key_value':
-                        $finfo                                        = $parameters['QueryResult']->fetch_fields();
-                        $columnCounter                                = 0;
-                        foreach ($finfo as $value) {
-                            $aReturn['result'][$value->name] = $line[$columnCounter];
-                            $columnCounter++;
-                        }
-                        break;
-                    case 'full_array_key_numbered':
-                        $finfo         = $parameters['QueryResult']->fetch_fields();
-                        $columnCounter = 0;
-                        foreach ($finfo as $value) {
-                            $aReturn['result'][$counter2][$value->name] = $line[$columnCounter];
-                            $columnCounter++;
-                        }
-                        $counter2++;
-                        break;
-                    case 'full_array_key_numbered_with_record_number_prefix':
-                        $parameters['prefix'] = 'RecordNo';
-                    // intentionally left open
-                    case 'full_array_key_numbered_with_prefix':
-                        $finfo                = $parameters['QueryResult']->fetch_fields();
-                        $columnCounter        = 0;
-                        foreach ($finfo as $value) {
-                            $aReturn['result'][$parameters['prefix']][$counter2][$value->name] = $line[$columnCounter];
-                            $columnCounter++;
-                        }
-                        $counter2++;
-                        break;
-                }
+                        $columnCounter++;
+                    }
+                    break;
+                case 'array_key_value':
+                    $aReturn['result'][$line[0]]                  = $line[1];
+                    break;
+                case 'array_key_value2':
+                    $aReturn['result'][$line[0]][]                = $line[1];
+                    break;
+                case 'array_key2_value':
+                    $aReturn['result'][$line[0] . '@' . $line[1]] = $line[1];
+                    break;
+                case 'array_numbered':
+                    $aReturn['result'][]                          = $line[0];
+                    break;
+                case 'array_pairs_key_value':
+                    $finfo                                        = $parameters['QueryResult']->fetch_fields();
+                    $columnCounter                                = 0;
+                    foreach ($finfo as $value) {
+                        $aReturn['result'][$value->name] = $line[$columnCounter];
+                        $columnCounter++;
+                    }
+                    break;
+                case 'full_array_key_numbered':
+                    $finfo         = $parameters['QueryResult']->fetch_fields();
+                    $columnCounter = 0;
+                    foreach ($finfo as $value) {
+                        $aReturn['result'][$counter2][$value->name] = $line[$columnCounter];
+                        $columnCounter++;
+                    }
+                    $counter2++;
+                    break;
+                case 'full_array_key_numbered_with_record_number_prefix':
+                    $parameters['prefix'] = 'RecordNo';
+                // intentionally left open
+                case 'full_array_key_numbered_with_prefix':
+                    $finfo                = $parameters['QueryResult']->fetch_fields();
+                    $columnCounter        = 0;
+                    foreach ($finfo as $value) {
+                        $aReturn['result'][$parameters['prefix']][$counter2][$value->name] = $line[$columnCounter];
+                        $columnCounter++;
+                    }
+                    $counter2++;
+                    break;
             }
         }
         return $aReturn;
+    }
+
+    private function setMySQLqueryValidateInputs($prm)
+    {
+        $rMap = $this->setMySQLqueryValidationMap();
+        if (array_key_exists($prm['returnType'], $rMap)) {
+            $nrInt = $prm['NoOfColumns'];
+            $min   = $rMap[$prm['returnType']]['c'][0];
+            $max   = $rMap[$prm['returnType']]['c'][1];
+            if (filter_var($nrInt, FILTER_VALIDATE_INT, ['min_range' => $min, 'max_range' => $max])) {
+                if (array_key_exists('r', $rMap[$prm['returnType']])) {
+                    $elC = [$prm['NoOfRows'], $rMap[$prm['returnType']]['r'][0], $rMap[$prm['returnType']]['r'][1]];
+                    if (filter_var($elC[0], FILTER_VALIDATE_INT, ['min_range' => $elC[1], 'max_range' => $elC[2]])) {
+                        return [true, ''];
+                    }
+                } else {
+                    return [true, ''];
+                }
+            }
+            $msg = $this->lclMsgCmn('i18n_MySQL_QueryResultExpected' . $rMap[$prm['returnType']][2]);
+            return [false, sprintf($msg, $prm['NoOfColumns'])];
+        }
+        return [false, $prm['returnType'] . ' is not defined!'];
+    }
+
+    private function setMySQLqueryValidationMap()
+    {
+        return [
+            'array_first_key_rest_values'                       => ['c' => [2, 99], 'AtLeast2ColsResultedOther'],
+            'array_key_value'                                   => ['c' => [2, 2], '2ColumnsResultedOther'],
+            'array_key_value2'                                  => ['c' => [2, 2], '2ColumnsResultedOther'],
+            'array_key2_value'                                  => ['c' => [2, 2], '2ColumnsResultedOther'],
+            'array_numbered'                                    => ['c' => [1, 1], '1ColumnResultedOther'],
+            'array_pairs_key_value'                             => [
+                'r' => [1, 1],
+                'c' => [1, 99],
+                '1RowManyColumnsResultedOther',
+            ],
+            'full_array_key_numbered'                           => ['c' => [1, 99], '1OrMoreRows0Resulted'],
+            'full_array_key_numbered_with_prefix'               => ['c' => [1, 99], '1OrMoreRows0Resulted'],
+            'full_array_key_numbered_with_record_number_prefix' => ['c' => [1, 99], '1OrMoreRows0Resulted'],
+        ];
     }
 }
