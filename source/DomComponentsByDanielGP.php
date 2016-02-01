@@ -766,7 +766,7 @@ trait DomComponentsByDanielGP
     private function setUpperRightVisibleOnHoverLanguages($aAvailableLanguages)
     {
         $linkWithoutLanguage = '';
-        $alR                 = $this->tCmnSuperGlobals->request->all();
+        $alR                 = $this->tCmnSuperGlobals->query->all();
         if (count($alR) > 0) {
             $linkWithoutLanguage = $this->setArrayToStringForUrl('&amp;', $alR, ['lang']) . '&amp;';
         }
