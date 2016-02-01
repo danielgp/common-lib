@@ -348,6 +348,12 @@ trait MySQLiByDanielGP
         return $sRtrn;
     }
 
+    /**
+     * Establishes numbers of fields
+     *
+     * @param array $fieldDetails
+     * @return array
+     */
     private function setFieldSpecific($fieldDetails)
     {
         if (in_array($fieldDetails['DATA_TYPE'], ['char', 'varchar', 'tinytext', 'text', 'mediumtext', 'longtext'])) {
@@ -432,6 +438,8 @@ trait MySQLiByDanielGP
         $vld     = $this->setMySQLqueryValidateInputs($parameters);
         if ($vld[1] !== '') {
             return ['customError' => $vld[1], 'result' => ''];
+        } elseif (in_array($parameters['returnType'], ['array_key_value', 'array_key_value2', 'array_key2_value'])) {
+            return ['customError' => $vld[1], 'result' => $this->setMySQLquery2ServerByPatternKey($parameters)];
         }
         $counter2 = 0;
         for ($counter = 0; $counter < $parameters['NoOfRows']; $counter++) {
@@ -447,21 +455,12 @@ trait MySQLiByDanielGP
                         $columnCounter++;
                     }
                     break;
-                case 'array_key_value':
-                    $aReturn['result'][$line[0]]                  = $line[1];
-                    break;
-                case 'array_key_value2':
-                    $aReturn['result'][$line[0]][]                = $line[1];
-                    break;
-                case 'array_key2_value':
-                    $aReturn['result'][$line[0] . '@' . $line[1]] = $line[1];
-                    break;
                 case 'array_numbered':
-                    $aReturn['result'][]                          = $line[0];
+                    $aReturn['result'][] = $line[0];
                     break;
                 case 'array_pairs_key_value':
-                    $finfo                                        = $parameters['QueryResult']->fetch_fields();
-                    $columnCounter                                = 0;
+                    $finfo               = $parameters['QueryResult']->fetch_fields();
+                    $columnCounter       = 0;
                     foreach ($finfo as $value) {
                         $aReturn['result'][$value->name] = $line[$columnCounter];
                         $columnCounter++;
@@ -494,6 +493,26 @@ trait MySQLiByDanielGP
             }
         }
         return ['customError' => '', 'result' => $aReturn['result']];
+    }
+
+    private function setMySQLquery2ServerByPatternKey($parameters)
+    {
+        $aReturn = [];
+        for ($counter = 0; $counter < $parameters['NoOfRows']; $counter++) {
+            $line = $parameters['QueryResult']->fetch_row();
+            switch ($parameters['returnType']) {
+                case 'array_key_value':
+                    $aReturn[$line[0]]                  = $line[1];
+                    break;
+                case 'array_key_value2':
+                    $aReturn[$line[0]][]                = $line[1];
+                    break;
+                case 'array_key2_value':
+                    $aReturn[$line[0] . '@' . $line[1]] = $line[1];
+                    break;
+            }
+        }
+        return $aReturn;
     }
 
     protected function setMySQLquery2ServerConnected($inArray)
