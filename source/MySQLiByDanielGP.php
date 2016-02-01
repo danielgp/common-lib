@@ -438,81 +438,65 @@ trait MySQLiByDanielGP
         $vld     = $this->setMySQLqueryValidateInputs($parameters);
         if ($vld[1] !== '') {
             return ['customError' => $vld[1], 'result' => ''];
-        } elseif (in_array($parameters['returnType'], ['array_key_value', 'array_key_value2', 'array_key2_value'])) {
-            return ['customError' => $vld[1], 'result' => $this->setMySQLquery2ServerByPatternKey($parameters)];
+        } elseif ($parameters['returnType'] == 'value') {
+            return ['customError' => $vld[1], 'result' => $parameters['QueryResult']->fetch_row()[0]];
         }
         $counter2 = 0;
         for ($counter = 0; $counter < $parameters['NoOfRows']; $counter++) {
             $line = $parameters['QueryResult']->fetch_row();
-            switch ($parameters['returnType']) {
-                case 'array_first_key_rest_values':
-                    $finfo         = $parameters['QueryResult']->fetch_fields();
-                    $columnCounter = 0;
-                    foreach ($finfo as $value) {
-                        if ($columnCounter != 0) {
-                            $aReturn['result'][$line[0]][$value->name] = $line[$columnCounter];
+            if (in_array($parameters['returnType'], ['array_key_value', 'array_key2_value', 'array_numbered'])) {
+                $rslt                        = $this->setMySQLquery2ServerByPatternKey($parameters, $line, $counter);
+                $aReturn['result'][$rslt[0]] = $rslt[1];
+            } elseif ($parameters['returnType'] == 'array_key_value2') {
+                $aReturn['result'][$line[0]][] = $line[1];
+            } else {
+                $finfo = $parameters['QueryResult']->fetch_fields();
+                switch ($parameters['returnType']) {
+                    case 'array_first_key_rest_values':
+                        foreach ($finfo as $columnCounter => $value) {
+                            if ($columnCounter !== 0) {
+                                $aReturn['result'][$line[0]][$value->name] = $line[$columnCounter];
+                            }
                         }
-                        $columnCounter++;
-                    }
-                    break;
-                case 'array_numbered':
-                    $aReturn['result'][] = $line[0];
-                    break;
-                case 'array_pairs_key_value':
-                    $finfo               = $parameters['QueryResult']->fetch_fields();
-                    $columnCounter       = 0;
-                    foreach ($finfo as $value) {
-                        $aReturn['result'][$value->name] = $line[$columnCounter];
-                        $columnCounter++;
-                    }
-                    break;
-                case 'full_array_key_numbered':
-                    $finfo         = $parameters['QueryResult']->fetch_fields();
-                    $columnCounter = 0;
-                    foreach ($finfo as $value) {
-                        $aReturn['result'][$counter2][$value->name] = $line[$columnCounter];
-                        $columnCounter++;
-                    }
-                    $counter2++;
-                    break;
-                case 'full_array_key_numbered_with_record_number_prefix':
-                    $parameters['prefix'] = 'RecordNo';
-                // intentionally left open
-                case 'full_array_key_numbered_with_prefix':
-                    $finfo                = $parameters['QueryResult']->fetch_fields();
-                    $columnCounter        = 0;
-                    foreach ($finfo as $value) {
-                        $aReturn['result'][$parameters['prefix']][$counter2][$value->name] = $line[$columnCounter];
-                        $columnCounter++;
-                    }
-                    $counter2++;
-                    break;
-                case 'value':
-                    $aReturn['result'] = $line[0];
-                    break;
+                        break;
+                    case 'array_pairs_key_value':
+                        foreach ($finfo as $columnCounter => $value) {
+                            $aReturn['result'][$value->name] = $line[$columnCounter];
+                        }
+                        break;
+                    case 'full_array_key_numbered':
+                        foreach ($finfo as $columnCounter => $value) {
+                            $aReturn['result'][$counter2][$value->name] = $line[$columnCounter];
+                        }
+                        break;
+                    case 'full_array_key_numbered_with_record_number_prefix':
+                        $parameters['prefix'] = 'RecordNo';
+                    // intentionally left open
+                    case 'full_array_key_numbered_with_prefix':
+                        foreach ($finfo as $columnCounter => $value) {
+                            $aReturn['result'][$parameters['prefix']][$counter2][$value->name] = $line[$columnCounter];
+                        }
+                        break;
+                }
+                $counter2++;
             }
         }
         return ['customError' => '', 'result' => $aReturn['result']];
     }
 
-    private function setMySQLquery2ServerByPatternKey($parameters)
+    private function setMySQLquery2ServerByPatternKey($parameters, $line, $counter)
     {
-        $aReturn = [];
-        for ($counter = 0; $counter < $parameters['NoOfRows']; $counter++) {
-            $line = $parameters['QueryResult']->fetch_row();
-            switch ($parameters['returnType']) {
-                case 'array_key_value':
-                    $aReturn[$line[0]]                  = $line[1];
-                    break;
-                case 'array_key_value2':
-                    $aReturn[$line[0]][]                = $line[1];
-                    break;
-                case 'array_key2_value':
-                    $aReturn[$line[0] . '@' . $line[1]] = $line[1];
-                    break;
-            }
+        switch ($parameters['returnType']) {
+            case 'array_key_value':
+                return [$line[0], $line[1]];
+            // intentionally left open
+            case 'array_key2_value':
+                return [$line[0] . '@' . $line[1], $line[1]];
+            // intentionally left open
+            case 'array_numbered':
+                return [$counter, $line[0]];
+            // intentionally left open
         }
-        return $aReturn;
     }
 
     protected function setMySQLquery2ServerConnected($inArray)
