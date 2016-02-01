@@ -451,32 +451,26 @@ trait MySQLiByDanielGP
                 $aReturn['result'][$line[0]][] = $line[1];
             } else {
                 $finfo = $parameters['QueryResult']->fetch_fields();
-                switch ($parameters['returnType']) {
-                    case 'array_first_key_rest_values':
-                        foreach ($finfo as $columnCounter => $value) {
+                foreach ($finfo as $columnCounter => $value) {
+                    switch ($parameters['returnType']) {
+                        case 'array_first_key_rest_values':
                             if ($columnCounter !== 0) {
                                 $aReturn['result'][$line[0]][$value->name] = $line[$columnCounter];
                             }
-                        }
-                        break;
-                    case 'array_pairs_key_value':
-                        foreach ($finfo as $columnCounter => $value) {
-                            $aReturn['result'][$value->name] = $line[$columnCounter];
-                        }
-                        break;
-                    case 'full_array_key_numbered':
-                        foreach ($finfo as $columnCounter => $value) {
-                            $aReturn['result'][$counter2][$value->name] = $line[$columnCounter];
-                        }
-                        break;
-                    case 'full_array_key_numbered_with_record_number_prefix':
-                        $parameters['prefix'] = 'RecordNo';
-                    // intentionally left open
-                    case 'full_array_key_numbered_with_prefix':
-                        foreach ($finfo as $columnCounter => $value) {
+                            break;
+                        case 'array_pairs_key_value':
+                            $aReturn['result'][$value->name]                                   = $line[$columnCounter];
+                            break;
+                        case 'full_array_key_numbered':
+                            $aReturn['result'][$counter2][$value->name]                        = $line[$columnCounter];
+                            break;
+                        case 'full_array_key_numbered_with_record_number_prefix':
+                            $parameters['prefix']                                              = 'RecordNo';
+                        // intentionally left open
+                        case 'full_array_key_numbered_with_prefix':
                             $aReturn['result'][$parameters['prefix']][$counter2][$value->name] = $line[$columnCounter];
-                        }
-                        break;
+                            break;
+                    }
                 }
                 $counter2++;
             }
