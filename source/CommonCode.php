@@ -38,23 +38,6 @@ trait CommonCode
 
     use CommonViews;
 
-    private function buildArrayForCurlInterogation($curlFeedback)
-    {
-        if ($curlFeedback['errNo'] !== 0) {
-            $info = $this->setArrayToJson(['#' => $curlFeedback['errNo'], 'description' => $curlFeedback['errMsg']]);
-            return ['info' => $info, 'response' => ''];
-        }
-        return ['info' => $this->setArrayToJson($curlFeedback['info']), 'response' => $curlFeedback['response']];
-    }
-
-    private function checkSecureChannelOnCurl($chanel, $fullURL, $features = null)
-    {
-        if ((strpos($fullURL, 'https') !== false) || (isset($features['forceSSLverification']))) {
-            curl_setopt($chanel, CURLOPT_SSL_VERIFYHOST, false);
-            curl_setopt($chanel, CURLOPT_SSL_VERIFYPEER, false);
-        }
-    }
-
     /**
      * Reads the content of a remote file through CURL extension
      *
@@ -97,9 +80,16 @@ trait CommonCode
 
     protected function getContentFromUrlThroughCurlRaw($fullURL, $features = null)
     {
-        $chanel  = curl_init();
+        $chanel = curl_init();
         curl_setopt($chanel, CURLOPT_USERAGENT, $this->getUserAgentByCommonLib());
-        $this->checkSecureChannelOnCurl($chanel, $fullURL, $features);
+        if ((strpos($fullURL, 'https') !== false)) {
+            $chk = false;
+            if (isset($features['forceSSLverification'])) {
+                $chk = true;
+            }
+            curl_setopt($chanel, CURLOPT_SSL_VERIFYHOST, $chk);
+            curl_setopt($chanel, CURLOPT_SSL_VERIFYPEER, $chk);
+        }
         curl_setopt($chanel, CURLOPT_URL, $fullURL);
         curl_setopt($chanel, CURLOPT_HEADER, false);
         curl_setopt($chanel, CURLOPT_RETURNTRANSFER, true);
@@ -117,8 +107,12 @@ trait CommonCode
 
     protected function getContentFromUrlThroughCurlRawArray($fullURL, $features = null)
     {
-        $rspJsonFromClient = $this->getContentFromUrlThroughCurlRaw($fullURL, $features);
-        return $this->buildArrayForCurlInterogation($rspJsonFromClient);
+        $curlFeedback = $this->getContentFromUrlThroughCurlRaw($fullURL, $features);
+        if ($curlFeedback['errNo'] !== 0) {
+            $info = $this->setArrayToJson(['#' => $curlFeedback['errNo'], 'description' => $curlFeedback['errMsg']]);
+            return ['info' => $info, 'response' => ''];
+        }
+        return ['info' => $this->setArrayToJson($curlFeedback['info']), 'response' => $curlFeedback['response']];
     }
 
     protected function getFeedbackMySQLAffectedRecords()
