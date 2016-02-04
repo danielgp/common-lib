@@ -38,15 +38,21 @@ trait CommonCode
 
     use CommonViews;
 
-    private function buildArrayForCurlInterogation($chanel, $rspJsonFromClient)
+    private function buildArrayForCurlInterogation($curlFeedback)
     {
-        if (curl_errno($chanel)) {
-            return [
-                'info'     => $this->setArrayToJson(['#' => curl_errno($chanel), 'description' => curl_error($chanel)]),
-                'response' => '',
-            ];
+        if ($curlFeedback['errNo'] !== 0) {
+            $info = $this->setArrayToJson(['#' => $curlFeedback['errNo'], 'description' => $curlFeedback['errMsg']]);
+            return ['info' => $info, 'response' => ''];
         }
-        return ['info' => $this->setArrayToJson(curl_getinfo($chanel)), 'response' => $rspJsonFromClient];
+        return ['info' => $this->setArrayToJson($curlFeedback['info']), 'response' => $curlFeedback['response']];
+    }
+
+    private function checkSecureChannelOnCurl($chanel, $fullURL, $features = null)
+    {
+        if ((strpos($fullURL, 'https') !== false) || (isset($features['forceSSLverification']))) {
+            curl_setopt($chanel, CURLOPT_SSL_VERIFYHOST, false);
+            curl_setopt($chanel, CURLOPT_SSL_VERIFYPEER, false);
+        }
     }
 
     /**
@@ -89,23 +95,30 @@ trait CommonCode
         return $result;
     }
 
-    protected function getContentFromUrlThroughCurlRawArray($fullURL, $features = null)
+    protected function getContentFromUrlThroughCurlRaw($fullURL, $features = null)
     {
-        $chanel = curl_init();
+        $chanel  = curl_init();
         curl_setopt($chanel, CURLOPT_USERAGENT, $this->getUserAgentByCommonLib());
-        if ((strpos($fullURL, 'https') !== false) || (isset($features['forceSSLverification']))) {
-            curl_setopt($chanel, CURLOPT_SSL_VERIFYHOST, false);
-            curl_setopt($chanel, CURLOPT_SSL_VERIFYPEER, false);
-        }
+        $this->checkSecureChannelOnCurl($chanel, $fullURL, $features);
         curl_setopt($chanel, CURLOPT_URL, $fullURL);
         curl_setopt($chanel, CURLOPT_HEADER, false);
         curl_setopt($chanel, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($chanel, CURLOPT_FRESH_CONNECT, true); //avoid a cached response
         curl_setopt($chanel, CURLOPT_FAILONERROR, true);
-        $rspJsonFromClient = curl_exec($chanel);
-        $aReturn           = $this->buildArrayForCurlInterogation($chanel, $rspJsonFromClient);
+        $aReturn = [
+            'response' => curl_exec($chanel),
+            'info'     => curl_getinfo($chanel),
+            'errNo'    => curl_errno($chanel),
+            'errMsg'   => curl_error($chanel),
+        ];
         curl_close($chanel);
         return $aReturn;
+    }
+
+    protected function getContentFromUrlThroughCurlRawArray($fullURL, $features = null)
+    {
+        $rspJsonFromClient = $this->getContentFromUrlThroughCurlRaw($fullURL, $features);
+        return $this->buildArrayForCurlInterogation($rspJsonFromClient);
     }
 
     protected function getFeedbackMySQLAffectedRecords()

@@ -493,7 +493,7 @@ trait MySQLiByDanielGP
         }
     }
 
-    protected function setMySQLquery2ServerConnected($inArray)
+    private function setMySQLquery2ServerConnected($inArray)
     {
         if ($inArray['RType'] == 'id') {
             return ['customError' => '', 'result' => $this->mySQLconnection->insert_id];
