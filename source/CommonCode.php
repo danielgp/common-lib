@@ -95,14 +95,9 @@ trait CommonCode
         curl_setopt($chanel, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($chanel, CURLOPT_FRESH_CONNECT, true); //avoid a cached response
         curl_setopt($chanel, CURLOPT_FAILONERROR, true);
-        $aReturn = [
-            'response' => curl_exec($chanel),
-            'info'     => curl_getinfo($chanel),
-            'errNo'    => curl_errno($chanel),
-            'errMsg'   => curl_error($chanel),
-        ];
+        $aReturn = [curl_exec($chanel), curl_getinfo($chanel), curl_errno($chanel), curl_error($chanel)];
         curl_close($chanel);
-        return $aReturn;
+        return ['response' => $aReturn[0], 'info' => $aReturn[1], 'errNo' => $aReturn[2], 'errMsg' => $aReturn[3]];
     }
 
     protected function getContentFromUrlThroughCurlRawArray($fullURL, $features = null)
