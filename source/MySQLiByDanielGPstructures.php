@@ -197,13 +197,13 @@ trait MySQLiByDanielGPstructures
             'smallint'  => ['l' => -32768, 'L' => 32767, 's' => 6, 'sUS' => 5],
             'tinyint'   => ['l' => -128, 'L' => 127, 's' => 4, 'sUS' => 3],
         ];
-        $sReturn = null;
+        $aReturn = null;
         if (array_key_exists($cTp, $xct)) {
             $aReturn = ['m' => $xct[$cTp]['l'], 'M' => $xct[$cTp]['L'], 'l' => $xct[$cTp]['s']];
             if (strpos($cTp, 'unsigned') !== false) {
                 $aReturn = ['m' => 0, 'M' => ($xct[$cTp]['L'] - $xct[$cTp]['l']), 'l' => $xct[$cTp]['sUS']];
             }
         }
-        return $sReturn;
+        return $aReturn;
     }
 }
