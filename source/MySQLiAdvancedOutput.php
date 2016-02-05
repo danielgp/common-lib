@@ -36,7 +36,7 @@ namespace danielgp\common_lib;
 trait MySQLiAdvancedOutput
 {
 
-    use MySQLiByDanielGP;
+    use MySQLiByDanielGPstructures;
 
     protected $advCache = null;
 
