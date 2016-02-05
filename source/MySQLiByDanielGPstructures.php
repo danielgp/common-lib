@@ -84,19 +84,6 @@ trait MySQLiByDanielGPstructures
     }
 
     /**
-     * returns the list of all MySQL generic informations
-     *
-     * @return array
-     */
-    protected function getMySQLgenericInformations()
-    {
-        if (is_null($this->mySQLconnection)) {
-            return [];
-        }
-        return ['Info' => $this->mySQLconnection->server_info, 'Version' => $this->mySQLconnection->server_version];
-    }
-
-    /**
      * returns the list of all MySQL global variables
      *
      * @return array

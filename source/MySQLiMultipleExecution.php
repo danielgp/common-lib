@@ -38,6 +38,19 @@ trait MySQLiMultipleExecution
 
     protected $mySQLconnection = null;
 
+    /**
+     * returns the list of all MySQL generic informations
+     *
+     * @return array
+     */
+    protected function getMySQLgenericInformations()
+    {
+        if (is_null($this->mySQLconnection)) {
+            return [];
+        }
+        return ['Info' => $this->mySQLconnection->server_info, 'Version' => $this->mySQLconnection->server_version];
+    }
+
     protected function executeMultipleRepetitiveValues($qry, $prmtrs)
     {
         $stmt = $this->mySQLconnection->stmt_init();
