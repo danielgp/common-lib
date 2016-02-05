@@ -80,16 +80,17 @@ trait MySQLiByDanielGPtypes
     /**
      * Just to keep a list of statement types as array
      *
+     * @param string $firstKwordWQuery
      * @return array
      */
-    private function listOfMySQLqueryStatementType($firstKeywordWithQuery)
+    private function listOfMySQLqueryStatementType($firstKwordWQuery)
     {
         $statmentsArray = $this->readTypeFromJsonFile('MySQLiStatementTypes');
         return [
             'keys'  => array_keys($statmentsArray),
             'value' => [
-                'Description' => $statmentsArray[$firstKeywordWithQuery][1],
-                'Type'        => $statmentsArray[$firstKeywordWithQuery][0],
+                'Description' => $statmentsArray[$firstKwordWQuery][1],
+                'Type'        => $statmentsArray[$firstKwordWQuery][0],
             ],
         ];
     }
