@@ -43,6 +43,7 @@
             "source/MySQLiByDanielGPqueries.php",
             "source/MySQLiMultipleExecution.php",
             "source/MySQLiByDanielGP.php",
+            "source/MySQLiByDanielGPnumbers.php",
             "source/MySQLiByDanielGPstructures.php",
             "source/MySQLiByDanielGPtypes.php"
         ]
