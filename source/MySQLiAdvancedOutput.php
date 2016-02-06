@@ -270,36 +270,6 @@ trait MySQLiAdvancedOutput
     }
 
     /**
-     * Prepares the output of text fields defined w. FKs
-     *
-     * @param array $foreignKeysArray
-     * @param array $value
-     * @param array $iar
-     * @return string
-     */
-    private function getFieldOutputTextFK($foreignKeysArray, $value, $iar)
-    {
-        $query   = $this->sQueryGenericSelectKeyValue([
-            $foreignKeysArray[$value['COLUMN_NAME']][1],
-            $foreignKeysArray[$value['COLUMN_NAME']][2],
-            $foreignKeysArray[$value['COLUMN_NAME']][0]
-        ]);
-        echo '<hr/>' . $query . '<hr/>';
-        $inAdtnl = ['size' => 1];
-        if ($value['IS_NULLABLE'] == 'YES') {
-            $inAdtnl = array_merge($inAdtnl, ['include_null']);
-        }
-        if ($iar !== []) {
-            $inAdtnl = array_merge($inAdtnl, $iar);
-        }
-        $slct = [
-            'Options' => $this->setMySQLquery2Server($query, 'array_key_value'),
-            'Value'   => $this->getFieldValue($value),
-        ];
-        return $this->setArrayToSelect($slct['Options'], $slct['Value'], $value['COLUMN_NAME'], $inAdtnl);
-    }
-
-    /**
      * Returns a Text field 2 use in a form
      *
      * @param string $fieldType
@@ -325,30 +295,6 @@ trait MySQLiAdvancedOutput
     }
 
     /**
-     * Prepares the output of text fields w/o FKs
-     *
-     * @param array $value
-     * @param array $iar
-     * @return string
-     */
-    private function getFieldOutputTextNonFK($value, $iar)
-    {
-        $fldNos  = $this->setFieldNumbers($value);
-        $inAdtnl = [
-            'type'      => ($value['COLUMN_NAME'] == 'password' ? 'password' : 'text'),
-            'name'      => $value['COLUMN_NAME'],
-            'id'        => $value['COLUMN_NAME'],
-            'size'      => min(30, $fldNos['M']),
-            'maxlength' => min(255, $fldNos['M']),
-            'value'     => $this->getFieldValue($value),
-        ];
-        if ($iar !== []) {
-            $inAdtnl = array_merge($inAdtnl, $iar);
-        }
-        return $this->setStringIntoShortTag('input', $inAdtnl);
-    }
-
-    /**
      * Prepares the text output fields
      *
      * @param string $tbl
@@ -366,30 +312,6 @@ trait MySQLiAdvancedOutput
             $foreignKeysArray = $this->getForeignKeysToArray($database, $tbl, $value['COLUMN_NAME']);
         }
         return $foreignKeysArray;
-    }
-
-    /**
-     * Builds output as text input type
-     *
-     * @param array $value
-     * @param integer $szN
-     * @param array $iar
-     * @return string
-     */
-    private function getFieldOutputTT($value, $szN, $iar = [])
-    {
-        $inAdtnl = [
-            'id'        => $value['COLUMN_NAME'],
-            'maxlength' => $szN,
-            'name'      => $value['COLUMN_NAME'],
-            'size'      => $szN,
-            'type'      => 'text',
-            'value'     => $this->getFieldValue($value),
-        ];
-        if ($iar !== []) {
-            $inAdtnl = array_merge($inAdtnl, $iar);
-        }
-        return $this->setStringIntoShortTag('input', $inAdtnl);
     }
 
     /**
@@ -453,7 +375,7 @@ trait MySQLiAdvancedOutput
      */
     private function getForeignKeysToArray($database, $tblName, $onlyCol = '')
     {
-        $this->setTableForeginKeyCache($database, $this->fixTableSource($tblName));
+        $this->setTableForeignKeyCache($database, $this->fixTableSource($tblName));
         $array2return = null;
         if (isset($this->advCache['tableFKs'][$database][$tblName])) {
             foreach ($this->advCache['tableFKs'][$database][$tblName] as $value) {
@@ -513,8 +435,9 @@ trait MySQLiAdvancedOutput
      */
     private function getTimestamping($dtl)
     {
-        $inM = $this->setStringIntoTag($this->getFieldValue($dtl), 'span');
-        if (in_array($this->getFieldValue($dtl), ['', 'CURRENT_TIMESTAMP', 'NULL'])) {
+        $fieldValue = $this->getFieldValue($dtl);
+        $inM        = $this->setStringIntoTag($fieldValue, 'span');
+        if (in_array($fieldValue, ['', 'CURRENT_TIMESTAMP', 'NULL'])) {
             $mCN = [
                 'InsertDateTime'        => 'data/timpul ad. informatiei',
                 'ModificationDateTime'  => 'data/timpul modificarii inf.',
@@ -525,18 +448,6 @@ trait MySQLiAdvancedOutput
             }
         }
         return ['label' => $this->getLabel($dtl), 'input' => $inM];
-    }
-
-    /**
-     * Glues Database and Table into 1 single string
-     *
-     * @param string $dbName
-     * @param string $tbName
-     * @return string
-     */
-    private function glueDbTb($dbName, $tbName)
-    {
-        return '`' . $dbName . '`.`' . $tbName . '`';
     }
 
     /**
@@ -706,11 +617,11 @@ trait MySQLiAdvancedOutput
                 'TABLE_SCHEMA' => $dat[0],
                 'TABLE_NAME'   => $dat[1],
             ]);
-            $this->setTableForeginKeyCache($dat[0], $dat[1]);
+            $this->setTableForeignKeyCache($dat[0], $dat[1]);
         }
     }
 
-    private function setTableForeginKeyCache($dbName, $tblName)
+    private function setTableForeignKeyCache($dbName, $tblName)
     {
         $frgnKs = $this->getMySQLlistIndexes([
             'TABLE_SCHEMA'          => $dbName,

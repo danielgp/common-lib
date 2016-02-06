@@ -100,6 +100,18 @@ trait MySQLiMultipleExecution
     }
 
     /**
+     * Glues Database and Table into 1 single string
+     *
+     * @param string $dbName
+     * @param string $tbName
+     * @return string
+     */
+    protected function glueDbTb($dbName, $tbName)
+    {
+        return '`' . $dbName . '`.`' . $tbName . '`';
+    }
+
+    /**
      * Manages features flag
      *
      * @param string $fieldName

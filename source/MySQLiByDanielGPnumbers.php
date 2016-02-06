@@ -39,6 +39,30 @@ trait MySQLiByDanielGPnumbers
     use DomComponentsByDanielGP;
 
     /**
+     * Builds output as text input type
+     *
+     * @param array $value
+     * @param integer $szN
+     * @param array $iar
+     * @return string
+     */
+    protected function getFieldOutputTT($value, $szN, $iar = [])
+    {
+        $inAdtnl = [
+            'id'        => $value['COLUMN_NAME'],
+            'maxlength' => $szN,
+            'name'      => $value['COLUMN_NAME'],
+            'size'      => $szN,
+            'type'      => 'text',
+            'value'     => $this->getFieldValue($value),
+        ];
+        if ($iar !== []) {
+            $inAdtnl = array_merge($inAdtnl, $iar);
+        }
+        return $this->setStringIntoShortTag('input', $inAdtnl);
+    }
+
+    /**
      * Returns given value for a field from REQUEST global variable
      *
      * @param array $details

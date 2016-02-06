@@ -55,6 +55,59 @@ trait MySQLiByDanielGPstructures
     }
 
     /**
+     * Prepares the output of text fields defined w. FKs
+     *
+     * @param array $foreignKeysArray
+     * @param array $value
+     * @param array $iar
+     * @return string
+     */
+    protected function getFieldOutputTextFK($foreignKeysArray, $value, $iar)
+    {
+        $query   = $this->sQueryGenericSelectKeyValue([
+            $foreignKeysArray[$value['COLUMN_NAME']][1],
+            $foreignKeysArray[$value['COLUMN_NAME']][2],
+            $foreignKeysArray[$value['COLUMN_NAME']][0]
+        ]);
+        $inAdtnl = ['size' => 1];
+        if ($value['IS_NULLABLE'] == 'YES') {
+            $inAdtnl = array_merge($inAdtnl, ['include_null']);
+        }
+        if ($iar !== []) {
+            $inAdtnl = array_merge($inAdtnl, $iar);
+        }
+        $slct = [
+            'Options' => $this->setMySQLquery2Server($query, 'array_key_value'),
+            'Value'   => $this->getFieldValue($value),
+        ];
+        return $this->setArrayToSelect($slct['Options'], $slct['Value'], $value['COLUMN_NAME'], $inAdtnl);
+    }
+
+    /**
+     * Prepares the output of text fields w/o FKs
+     *
+     * @param array $value
+     * @param array $iar
+     * @return string
+     */
+    protected function getFieldOutputTextNonFK($value, $iar)
+    {
+        $fldNos  = $this->setFieldNumbers($value);
+        $inAdtnl = [
+            'type'      => ($value['COLUMN_NAME'] == 'password' ? 'password' : 'text'),
+            'name'      => $value['COLUMN_NAME'],
+            'id'        => $value['COLUMN_NAME'],
+            'size'      => min(30, $fldNos['M']),
+            'maxlength' => min(255, $fldNos['M']),
+            'value'     => $this->getFieldValue($value),
+        ];
+        if ($iar !== []) {
+            $inAdtnl = array_merge($inAdtnl, $iar);
+        }
+        return $this->setStringIntoShortTag('input', $inAdtnl);
+    }
+
+    /**
      * Return the list of Tables from the MySQL server
      *
      * @return string
