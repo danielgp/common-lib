@@ -58,6 +58,21 @@ trait MySQLiMultipleExecution
     }
 
     /**
+     * Establishes the defaults for ENUM or SET field
+     *
+     * @param string $fldType
+     * @return array
+     */
+    protected function establishDefaultEnumSet($fldType)
+    {
+        $dfltArray = [
+            'enum' => ['additional' => ['size' => 1], 'suffix' => ''],
+            'set'  => ['additional' => ['size' => 5, 'multiselect'], 'suffix' => '[]'],
+        ];
+        return $dfltArray[$fldType];
+    }
+
+    /**
      * Adjust table name with proper sufix and prefix
      *
      * @param string $refTbl
@@ -78,6 +93,21 @@ trait MySQLiMultipleExecution
             $outS[] = '`';
         }
         return implode('', $outS);
+    }
+
+    /**
+     * Creates a mask to differentiate between Mandatory and Optional fields
+     *
+     * @param array $details
+     * @return string
+     */
+    protected function getFieldCompletionType($details)
+    {
+        $inputFeatures = ['display' => '***', 'ftrs' => ['title' => 'Mandatory', 'class' => 'inputMandatory']];
+        if ($details['IS_NULLABLE'] == 'YES') {
+            $inputFeatures = ['display' => '~', 'ftrs' => ['title' => 'Optional', 'class' => 'inputOptional']];
+        }
+        return $this->setStringIntoTag($inputFeatures['display'], 'span', $inputFeatures['ftrs']);
     }
 
     /**

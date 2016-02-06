@@ -39,6 +39,26 @@ trait MySQLiByDanielGPnumbers
     use DomComponentsByDanielGP;
 
     /**
+     * Creats an input for ENUM or SET if marked Read-Only
+     *
+     * @param array $val
+     * @param array $adnlThings
+     * @return string
+     */
+    protected function getFieldOutputEnumSetReadOnly($val, $adnlThings)
+    {
+        $inputFeatures = [
+            'name'     => $val['COLUMN_NAME'] . $adnlThings['suffix'],
+            'id'       => $val['COLUMN_NAME'],
+            'readonly' => 'readonly',
+            'class'    => 'input_readonly',
+            'size'     => 50,
+            'value'    => $this->getFieldValue($val),
+        ];
+        return $this->setStringIntoShortTag('input', $inputFeatures);
+    }
+
+    /**
      * Builds output as text input type
      *
      * @param array $value

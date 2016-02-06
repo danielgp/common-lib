@@ -58,36 +58,6 @@ trait MySQLiAdvancedOutput
     }
 
     /**
-     * Establishes the defaults for ENUM or SET field
-     *
-     * @param string $fldType
-     * @return array
-     */
-    private function establishDefaultEnumSet($fldType)
-    {
-        $dfltArray = [
-            'enum' => ['additional' => ['size' => 1], 'suffix' => ''],
-            'set'  => ['additional' => ['size' => 5, 'multiselect'], 'suffix' => '[]'],
-        ];
-        return $dfltArray[$fldType];
-    }
-
-    /**
-     * Creates a mask to differentiate between Mandatory and Optional fields
-     *
-     * @param array $details
-     * @return string
-     */
-    private function getFieldCompletionType($details)
-    {
-        $inputFeatures = ['display' => '***', 'ftrs' => ['title' => 'Mandatory', 'class' => 'inputMandatory']];
-        if ($details['IS_NULLABLE'] == 'YES') {
-            $inputFeatures = ['display' => '~', 'ftrs' => ['title' => 'Optional', 'class' => 'inputOptional']];
-        }
-        return $this->setStringIntoTag($inputFeatures['display'], 'span', $inputFeatures['ftrs']);
-    }
-
-    /**
      * Returns the name of a field for displaying
      *
      * @param array $details
@@ -153,26 +123,6 @@ trait MySQLiAdvancedOutput
         $vlSlct    = explode(',', $this->getFieldValue($val));
         $slctOptns = $this->getSetOrEnum2Array($tblSrc, $val['COLUMN_NAME']);
         return $this->setArrayToSelect($slctOptns, $vlSlct, $val['COLUMN_NAME'] . $adnlThings['suffix'], $inAdtnl);
-    }
-
-    /**
-     * Creats an input for ENUM or SET if marked Read-Only
-     *
-     * @param array $val
-     * @param array $adnlThings
-     * @return string
-     */
-    private function getFieldOutputEnumSetReadOnly($val, $adnlThings)
-    {
-        $inputFeatures = [
-            'name'     => $val['COLUMN_NAME'] . $adnlThings['suffix'],
-            'id'       => $val['COLUMN_NAME'],
-            'readonly' => 'readonly',
-            'class'    => 'input_readonly',
-            'size'     => 50,
-            'value'    => $this->getFieldValue($val),
-        ];
-        return $this->setStringIntoShortTag('input', $inputFeatures);
     }
 
     /**
