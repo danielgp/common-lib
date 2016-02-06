@@ -36,7 +36,8 @@ namespace danielgp\common_lib;
 trait CommonCode
 {
 
-    use CommonViews;
+    use CommonViews,
+        MySQLiByDanielGPtypes;
 
     /**
      * Reads the content of a remote file through CURL extension

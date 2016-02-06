@@ -103,4 +103,40 @@ trait MySQLiByDanielGPnumbers
         }
         return $aReturn;
     }
+
+    protected function setMySQLqueryValidateInputs($prm)
+    {
+        $rMap = $this->setMySQLqueryValidationMap();
+        if (array_key_exists($prm['returnType'], $rMap)) {
+            $elC = [$prm['NoOfRows'], $rMap[$prm['returnType']]['r'][0], $rMap[$prm['returnType']]['r'][1]];
+            if (filter_var($elC[0], FILTER_VALIDATE_INT, ['min_range' => $elC[1], 'max_range' => $elC[2]]) === false) {
+                $msg = $this->lclMsgCmn('i18n_MySQL_QueryResultExpected' . $rMap[$prm['returnType']][2]);
+                return [false, sprintf($msg, $prm['NoOfColumns'])];
+            }
+            $elR = [$prm['NoOfColumns'], $rMap[$prm['returnType']]['c'][0], $rMap[$prm['returnType']]['c'][1]];
+            if (filter_var($elR[0], FILTER_VALIDATE_INT, ['min_range' => $elR[1], 'max_range' => $elR[2]])) {
+                return [true, ''];
+            }
+            $msg = $this->lclMsgCmn('i18n_MySQL_QueryResultExpected' . $rMap[$prm['returnType']][1]);
+            return [false, sprintf($msg, $prm['NoOfColumns'])];
+        }
+        return [false, $prm['returnType'] . ' is not defined!'];
+    }
+
+    private function setMySQLqueryValidationMap()
+    {
+        $lngKey = 'full_array_key_numbered_with_record_number_prefix';
+        return [
+            'array_first_key_rest_values'         => ['r' => [1, 999999], 'c' => [2, 99], 'AtLeast2ColsResultedOther'],
+            'array_key_value'                     => ['r' => [1, 999999], 'c' => [2, 2], '2ColumnsResultedOther'],
+            'array_key_value2'                    => ['r' => [1, 999999], 'c' => [2, 2], '2ColumnsResultedOther'],
+            'array_key2_value'                    => ['r' => [1, 999999], 'c' => [2, 2], '2ColumnsResultedOther'],
+            'array_numbered'                      => ['r' => [1, 999999], 'c' => [1, 1], '1ColumnResultedOther'],
+            'array_pairs_key_value'               => ['r' => [1, 1], 'c' => [1, 99], '1RowManyColumnsResultedOther'],
+            'full_array_key_numbered'             => ['r' => [1, 999999], 'c' => [1, 99], '1OrMoreRows0Resulted'],
+            'full_array_key_numbered_with_prefix' => ['r' => [1, 999999], 'c' => [1, 99], '1OrMoreRows0Resulted'],
+            $lngKey                               => ['r' => [1, 999999], 'c' => [1, 99], '1OrMoreRows0Resulted'],
+            'value'                               => ['r' => [1, 1], 'c' => [1, 1], '1ResultedOther'],
+        ];
+    }
 }

@@ -36,7 +36,8 @@ namespace danielgp\common_lib;
 trait MySQLiByDanielGPstructures
 {
 
-    use MySQLiByDanielGP;
+    use MySQLiByDanielGP,
+        MySQLiByDanielGPqueries;
 
     /**
      * Ensures table has special quoes and DOT as final char
@@ -131,6 +132,45 @@ trait MySQLiByDanielGPstructures
     protected function getMySQLlistIndexes($filterArray = null)
     {
         return $this->getMySQLlistMultiple('Indexes', 'full_array_key_numbered', $filterArray);
+    }
+
+    /**
+     * Return various informations (from predefined list) from the MySQL server
+     *
+     * @return int|array
+     */
+    private function getMySQLlistMultiple($returnChoice, $returnType, $additionalFeatures = null)
+    {
+        if (is_null($this->mySQLconnection)) {
+            if ($returnType == 'value') {
+                return null;
+            }
+            return [];
+        }
+        return $this->getMySQLlistMultipleFinal($returnChoice, $returnType, $additionalFeatures);
+    }
+
+    /**
+     * Return various informations (from predefined list) from the MySQL server
+     *
+     * @return array
+     */
+    private function getMySQLlistMultipleFinal($returnChoice, $returnType, $additionalFeatures = null)
+    {
+        $queryByChoice = [
+            'Columns'         => $this->sQueryMySqlColumns($additionalFeatures),
+            'Databases'       => $this->sQueryMySqlActiveDatabases($additionalFeatures),
+            'Engines'         => $this->sQueryMySqlActiveEngines($additionalFeatures),
+            'Indexes'         => $this->sQueryMySqlIndexes($additionalFeatures),
+            'ServerTime'      => $this->sQueryMySqlServerTime(),
+            'Statistics'      => $this->sQueryMySqlStatistics($additionalFeatures),
+            'Tables'          => $this->sQueryMySqlTables($additionalFeatures),
+            'VariablesGlobal' => $this->sQueryMySqlGlobalVariables(),
+        ];
+        if (array_key_exists($returnChoice, $queryByChoice)) {
+            return $this->setMySQLquery2Server($queryByChoice[$returnChoice], $returnType)['result'];
+        }
+        return [];
     }
 
     /**

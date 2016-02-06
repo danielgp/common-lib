@@ -37,9 +37,7 @@ trait MySQLiByDanielGP
 {
 
     use MySQLiByDanielGPnumbers,
-        MySQLiMultipleExecution,
-        MySQLiByDanielGPqueries,
-        MySQLiByDanielGPtypes;
+        MySQLiMultipleExecution;
 
     /**
      * Intiates connection to MySQL
@@ -68,45 +66,6 @@ trait MySQLiByDanielGP
             $msg                   = $this->lclMsgCmn('i18n_Feedback_ConnectionError');
             return sprintf($msg, $erNo, $erMsg, $host, $port, $username, $database);
         }
-    }
-
-    /**
-     * Return various informations (from predefined list) from the MySQL server
-     *
-     * @return int|array
-     */
-    protected function getMySQLlistMultiple($returnChoice, $returnType, $additionalFeatures = null)
-    {
-        if (is_null($this->mySQLconnection)) {
-            if ($returnType == 'value') {
-                return null;
-            }
-            return [];
-        }
-        return $this->getMySQLlistMultipleFinal($returnChoice, $returnType, $additionalFeatures);
-    }
-
-    /**
-     * Return various informations (from predefined list) from the MySQL server
-     *
-     * @return array
-     */
-    private function getMySQLlistMultipleFinal($returnChoice, $returnType, $additionalFeatures = null)
-    {
-        $queryByChoice = [
-            'Columns'         => $this->sQueryMySqlColumns($additionalFeatures),
-            'Databases'       => $this->sQueryMySqlActiveDatabases($additionalFeatures),
-            'Engines'         => $this->sQueryMySqlActiveEngines($additionalFeatures),
-            'Indexes'         => $this->sQueryMySqlIndexes($additionalFeatures),
-            'ServerTime'      => $this->sQueryMySqlServerTime(),
-            'Statistics'      => $this->sQueryMySqlStatistics($additionalFeatures),
-            'Tables'          => $this->sQueryMySqlTables($additionalFeatures),
-            'VariablesGlobal' => $this->sQueryMySqlGlobalVariables(),
-        ];
-        if (array_key_exists($returnChoice, $queryByChoice)) {
-            return $this->setMySQLquery2Server($queryByChoice[$returnChoice], $returnType)['result'];
-        }
-        return [];
     }
 
     /**
@@ -170,36 +129,8 @@ trait MySQLiByDanielGP
         $counter2 = 0;
         for ($counter = 0; $counter < $parameters['NoOfRows']; $counter++) {
             $line = $parameters['QueryResult']->fetch_row();
-            if (in_array($parameters['returnType'], ['array_key_value', 'array_key2_value', 'array_numbered'])) {
-                $rslt                        = $this->setMySQLquery2ServerByPatternKey($parameters, $line, $counter);
-                $aReturn['result'][$rslt[0]] = $rslt[1];
-            } elseif ($parameters['returnType'] == 'array_key_value2') {
-                $aReturn['result'][$line[0]][] = $line[1];
-            } else {
-                $finfo = $parameters['QueryResult']->fetch_fields();
-                foreach ($finfo as $columnCounter => $value) {
-                    switch ($parameters['returnType']) {
-                        case 'array_first_key_rest_values':
-                            if ($columnCounter !== 0) {
-                                $aReturn['result'][$line[0]][$value->name] = $line[$columnCounter];
-                            }
-                            break;
-                        case 'array_pairs_key_value':
-                            $aReturn['result'][$value->name]                                   = $line[$columnCounter];
-                            break;
-                        case 'full_array_key_numbered':
-                            $aReturn['result'][$counter2][$value->name]                        = $line[$columnCounter];
-                            break;
-                        case 'full_array_key_numbered_with_record_number_prefix':
-                            $parameters['prefix']                                              = 'RecordNo';
-                        // intentionally left open
-                        case 'full_array_key_numbered_with_prefix':
-                            $aReturn['result'][$parameters['prefix']][$counter2][$value->name] = $line[$columnCounter];
-                            break;
-                    }
-                }
-                $counter2++;
-            }
+            $this->setMySQLquery2ServerByPatternLine($parameters, $line, $counter, $counter2, $aReturn);
+            $counter2++;
         }
         return ['customError' => '', 'result' => $aReturn['result']];
     }
@@ -216,6 +147,44 @@ trait MySQLiByDanielGP
             case 'array_numbered':
                 return [$counter, $line[0]];
             // intentionally left open
+        }
+    }
+
+    private function setMySQLquery2ServerByPatternLine($parameters, $line, $counter, $counter2, &$aReturn)
+    {
+        if (in_array($parameters['returnType'], ['array_key_value', 'array_key2_value', 'array_numbered'])) {
+            $rslt                        = $this->setMySQLquery2ServerByPatternKey($parameters, $line, $counter);
+            $aReturn['result'][$rslt[0]] = $rslt[1];
+        } elseif ($parameters['returnType'] == 'array_key_value2') {
+            $aReturn['result'][$line[0]][] = $line[1];
+        } else {
+            $finfo = $parameters['QueryResult']->fetch_fields();
+            $this->setMySQLquery2ServerByPatternLineAdvanced($parameters, $finfo, $line, $counter2, $aReturn);
+        }
+    }
+
+    private function setMySQLquery2ServerByPatternLineAdvanced($parameters, $finfo, $line, $counter2, &$aReturn)
+    {
+        foreach ($finfo as $columnCounter => $value) {
+            switch ($parameters['returnType']) {
+                case 'array_first_key_rest_values':
+                    if ($columnCounter !== 0) {
+                        $aReturn['result'][$line[0]][$value->name] = $line[$columnCounter];
+                    }
+                    break;
+                case 'array_pairs_key_value':
+                    $aReturn['result'][$value->name]                                   = $line[$columnCounter];
+                    break;
+                case 'full_array_key_numbered':
+                    $aReturn['result'][$counter2][$value->name]                        = $line[$columnCounter];
+                    break;
+                case 'full_array_key_numbered_with_record_number_prefix':
+                    $parameters['prefix']                                              = 'RecordNo';
+                // intentionally left open
+                case 'full_array_key_numbered_with_prefix':
+                    $aReturn['result'][$parameters['prefix']][$counter2][$value->name] = $line[$columnCounter];
+                    break;
+            }
         }
     }
 
@@ -237,41 +206,5 @@ trait MySQLiByDanielGP
             $parameters['prefix'] = $inArray['F']['prefix'];
         }
         return $this->setMySQLquery2ServerByPattern($parameters);
-    }
-
-    private function setMySQLqueryValidateInputs($prm)
-    {
-        $rMap = $this->setMySQLqueryValidationMap();
-        if (array_key_exists($prm['returnType'], $rMap)) {
-            $elC = [$prm['NoOfRows'], $rMap[$prm['returnType']]['r'][0], $rMap[$prm['returnType']]['r'][1]];
-            if (filter_var($elC[0], FILTER_VALIDATE_INT, ['min_range' => $elC[1], 'max_range' => $elC[2]]) === false) {
-                $msg = $this->lclMsgCmn('i18n_MySQL_QueryResultExpected' . $rMap[$prm['returnType']][2]);
-                return [false, sprintf($msg, $prm['NoOfColumns'])];
-            }
-            $elR = [$prm['NoOfColumns'], $rMap[$prm['returnType']]['c'][0], $rMap[$prm['returnType']]['c'][1]];
-            if (filter_var($elR[0], FILTER_VALIDATE_INT, ['min_range' => $elR[1], 'max_range' => $elR[2]])) {
-                return [true, ''];
-            }
-            $msg = $this->lclMsgCmn('i18n_MySQL_QueryResultExpected' . $rMap[$prm['returnType']][1]);
-            return [false, sprintf($msg, $prm['NoOfColumns'])];
-        }
-        return [false, $prm['returnType'] . ' is not defined!'];
-    }
-
-    private function setMySQLqueryValidationMap()
-    {
-        $lngKey = 'full_array_key_numbered_with_record_number_prefix';
-        return [
-            'array_first_key_rest_values'         => ['r' => [1, 999999], 'c' => [2, 99], 'AtLeast2ColsResultedOther'],
-            'array_key_value'                     => ['r' => [1, 999999], 'c' => [2, 2], '2ColumnsResultedOther'],
-            'array_key_value2'                    => ['r' => [1, 999999], 'c' => [2, 2], '2ColumnsResultedOther'],
-            'array_key2_value'                    => ['r' => [1, 999999], 'c' => [2, 2], '2ColumnsResultedOther'],
-            'array_numbered'                      => ['r' => [1, 999999], 'c' => [1, 1], '1ColumnResultedOther'],
-            'array_pairs_key_value'               => ['r' => [1, 1], 'c' => [1, 99], '1RowManyColumnsResultedOther'],
-            'full_array_key_numbered'             => ['r' => [1, 999999], 'c' => [1, 99], '1OrMoreRows0Resulted'],
-            'full_array_key_numbered_with_prefix' => ['r' => [1, 999999], 'c' => [1, 99], '1OrMoreRows0Resulted'],
-            $lngKey                               => ['r' => [1, 999999], 'c' => [1, 99], '1OrMoreRows0Resulted'],
-            'value'                               => ['r' => [1, 1], 'c' => [1, 1], '1ResultedOther'],
-        ];
     }
 }
