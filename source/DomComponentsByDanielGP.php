@@ -152,7 +152,7 @@ trait DomComponentsByDanielGP
         if ((isset($ftrs['actions']['checkbox_inlineEdit'])) || (isset($ftrs['actions']['checkbox']))) {
             $checkboxFormId = 'frm' . date('YmdHis');
             $sReturn .= '<form id="' . $checkboxFormId . '" ' . 'name="' . $checkboxFormId
-                    . '" method="post" ' . ' action="' . $_SERVER['PHP_SELF'] . '" >';
+                    . '" method="post" ' . ' action="' . $this->tCmnRequest->server->get('PHP_SELF') . '" >';
         }
         $tbl['Def'] = '<table'
                 . (isset($ftrs['table_style']) ? ' style="' . $ftrs['table_style'] . '"' : '')
@@ -343,7 +343,7 @@ trait DomComponentsByDanielGP
                         case 'edit':
                             $edt           = '';
                             if (isset($ftrs['NoAjaxEditing'])) {
-                                $edt .= $_SERVER['PHP_SELF'] . '?' . $actPrfx
+                                $edt .= $this->tCmnRequest->server->get('PHP_SELF') . '?' . $actPrfx
                                         . $action_key . '=' . $value[0] . '&amp;';
                                 $iActArgs = count($value[1]);
                                 for ($cntr2 = 0; $cntr2 < $iActArgs; $cntr2++) {
@@ -351,7 +351,7 @@ trait DomComponentsByDanielGP
                                 }
                                 $sReturn .= '<a href="' . $edt . '"><i class="fa fa-pencil">&nbsp;</i></a>';
                             } else {
-                                $edt .= 'javascript:loadAE(\'' . $_SERVER['PHP_SELF'] . '?'
+                                $edt .= 'javascript:loadAE(\'' . $this->tCmnRequest->server->get('PHP_SELF') . '?'
                                         . $actPrfx . $action_key . '=' . $value[0] . '&amp;';
                                 $iActArgs = count($value[1]);
                                 for ($cntr2 = 0; $cntr2 < $iActArgs; $cntr2++) {
@@ -372,7 +372,7 @@ trait DomComponentsByDanielGP
                                 }
                                 $sReturn .= '"><i class="fa fa-list">&nbsp;</i></a>';
                             } else {
-                                $edt .= 'javascript:loadAE(\'' . $_SERVER['PHP_SELF'] . '?'
+                                $edt .= 'javascript:loadAE(\'' . $this->tCmnRequest->server->get('PHP_SELF') . '?'
                                         . $actPrfx . $action_key . '=' . $value[0] . '&amp;';
                                 $iActArgs = count($value[1]);
                                 for ($cntr2 = 0; $cntr2 < $iActArgs; $cntr2++) {

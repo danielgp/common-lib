@@ -467,42 +467,6 @@ trait MySQLiAdvancedOutput
     }
 
     /**
-     * Returns given value for a field from REQUEST global variable
-     *
-     * @param array $details
-     * @return string
-     */
-    private function getFieldValue($details)
-    {
-        $this->initializeSprGlbAndSession();
-        $rqCN = $this->tCmnRequest->request->get($details['COLUMN_NAME']);
-        if (!is_null($rqCN)) {
-            if (($details['IS_NULLABLE'] == 'YES') && ($rqCN == '')) {
-                return 'NULL';
-            }
-            return $rqCN;
-        }
-        return $this->getFieldValueWithoutUserInput($details);
-    }
-
-    /**
-     * Handles field value ignoring any input from the user
-     *
-     * @param array $details
-     * @return string
-     */
-    private function getFieldValueWithoutUserInput($details)
-    {
-        if ($details['COLUMN_DEFAULT'] === null) {
-            if ($details['IS_NULLABLE'] == 'YES') {
-                return 'NULL';
-            }
-            return '';
-        }
-        return $details['COLUMN_DEFAULT'];
-    }
-
-    /**
      * prepares the query to detect FKs
      *
      * @param array $value
