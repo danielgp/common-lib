@@ -39,6 +39,22 @@ trait MySQLiByDanielGPqueries
     use MySQLiByDanielGPqueriesBasic;
 
     /**
+     * prepares the query to detect FKs
+     *
+     * @param array $value
+     * @return string
+     */
+    protected function getForeignKeysQuery($value)
+    {
+        $flt = [
+            'TABLE_SCHEMA' => $value['REFERENCED_TABLE_SCHEMA'],
+            'TABLE_NAME'   => $value['REFERENCED_TABLE_NAME'],
+            'DATA_TYPE'    => ['char', 'varchar', 'text'],
+        ];
+        return $this->sQueryMySqlColumns($flt);
+    }
+
+    /**
      * Internal function to manage concatenation for filters
      *
      * @param type $filterValue

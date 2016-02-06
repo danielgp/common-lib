@@ -467,22 +467,6 @@ trait MySQLiAdvancedOutput
     }
 
     /**
-     * prepares the query to detect FKs
-     *
-     * @param array $value
-     * @return string
-     */
-    private function getForeignKeysQuery($value)
-    {
-        $flt = [
-            'TABLE_SCHEMA' => $value['REFERENCED_TABLE_SCHEMA'],
-            'TABLE_NAME'   => $value['REFERENCED_TABLE_NAME'],
-            'DATA_TYPE'    => ['char', 'varchar', 'text'],
-        ];
-        return $this->sQueryMySqlColumns($flt);
-    }
-
-    /**
      * Returns an array with fields referenced by a Foreign key
      *
      * @param string $database
@@ -659,73 +643,6 @@ trait MySQLiAdvancedOutput
                     . $this->tCmnRequest->request->get($dtl['COLUMN_NAME']) . '" />';
         }
         return $this->setNeededFieldByType($tableSource, $dtl, $features);
-    }
-
-    /**
-     * Prepares the label for inputs
-     *
-     * @param array $details
-     * @param array $features
-     * @param string $fieldLabel
-     * @return string
-     */
-    private function setFieldLabel($details, $features, $fieldLabel)
-    {
-        $aLabel = ['for' => $details['COLUMN_NAME'], 'id' => $details['COLUMN_NAME'] . '_label'];
-        if (isset($features['disabled'])) {
-            if (in_array($details['COLUMN_NAME'], $features['disabled'])) {
-                $aLabel = array_merge($aLabel, ['style' => 'color: grey;']);
-            }
-        }
-        return $this->setStringIntoTag($fieldLabel, 'label', $aLabel);
-    }
-
-    /**
-     * Form default buttons
-     *
-     * @param array $feat
-     * @param array $hiddenInfo
-     * @return string
-     */
-    private function setFormButtons($feat, $hiddenInfo = [])
-    {
-        $btn   = [];
-        $btn[] = '<input type="submit" id="submit" style="margin-left:220px;" value="'
-                . $this->lclMsgCmn('i18n_Form_ButtonSave') . '" />';
-        if (isset($feat['insertAndUpdate'])) {
-            $btn[] = '<input type="hidden" id="insertAndUpdate" name="insertAndUpdate" value="insertAndUpdate" />';
-        }
-        if ($hiddenInfo != []) {
-            foreach ($hiddenInfo as $key => $value) {
-                $btn[] = '<input type="hidden" id="' . $key . '" name="' . $key . '" value="' . $value . '" />';
-            }
-        }
-        return '<div>' . implode('', $btn) . '</div>';
-    }
-
-    /**
-     * Builds javascript to avoid multiple form submission
-     *
-     * @param string $frmId
-     * @return string
-     */
-    private function setFormJavascriptFinal($frmId)
-    {
-        $cnt = implode(PHP_EOL, [
-            '$(document).ready(function(){',
-            '$("form#' . $frmId . '").submit(function(){',
-            '$("form#' . $frmId . ' input[type=checkbox]").attr("readonly", true);',
-            '$("form#' . $frmId . ' input[type=password]").attr("readonly", true);',
-            '$("form#' . $frmId . ' input[type=radio]").attr("readonly", true);',
-            '$("form#' . $frmId . ' input[type=text]").attr("readonly", true);',
-            '$("form#' . $frmId . ' textarea").attr("readonly", true);',
-            '$("form#' . $frmId . ' select").attr("readonly", true);',
-            '$("input[type=submit]").attr("disabled", "disabled");',
-            '$("input[type=submit]").attr("value", "' . $this->lclMsgCmn('i18n_Form_ButtonSaving') . '");',
-            '});',
-            '});',
-        ]);
-        return $this->setJavascriptContent(PHP_EOL . $cnt . PHP_EOL);
     }
 
     /**

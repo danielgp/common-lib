@@ -85,6 +85,31 @@ trait DomCssAndJavascriptByDanielGP
     }
 
     /**
+     * Builds javascript to avoid multiple form submission
+     *
+     * @param string $frmId
+     * @return string
+     */
+    protected function setFormJavascriptFinal($frmId)
+    {
+        $cnt = implode(PHP_EOL, [
+            '$(document).ready(function(){',
+            '$("form#' . $frmId . '").submit(function(){',
+            '$("form#' . $frmId . ' input[type=checkbox]").attr("readonly", true);',
+            '$("form#' . $frmId . ' input[type=password]").attr("readonly", true);',
+            '$("form#' . $frmId . ' input[type=radio]").attr("readonly", true);',
+            '$("form#' . $frmId . ' input[type=text]").attr("readonly", true);',
+            '$("form#' . $frmId . ' textarea").attr("readonly", true);',
+            '$("form#' . $frmId . ' select").attr("readonly", true);',
+            '$("input[type=submit]").attr("disabled", "disabled");',
+            '$("input[type=submit]").attr("value", "' . $this->lclMsgCmn('i18n_Form_ButtonSaving') . '");',
+            '});',
+            '});',
+        ]);
+        return $this->setJavascriptContent(PHP_EOL . $cnt . PHP_EOL);
+    }
+
+    /**
      * Returns javascript function to support Add or Edit through Ajax
      *
      * @return string

@@ -75,6 +75,25 @@ trait MySQLiByDanielGPnumbers
     }
 
     /**
+     * Prepares the label for inputs
+     *
+     * @param array $details
+     * @param array $features
+     * @param string $fieldLabel
+     * @return string
+     */
+    protected function setFieldLabel($details, $features, $fieldLabel)
+    {
+        $aLabel = ['for' => $details['COLUMN_NAME'], 'id' => $details['COLUMN_NAME'] . '_label'];
+        if (isset($features['disabled'])) {
+            if (in_array($details['COLUMN_NAME'], $features['disabled'])) {
+                $aLabel = array_merge($aLabel, ['style' => 'color: grey;']);
+            }
+        }
+        return $this->setStringIntoTag($fieldLabel, 'label', $aLabel);
+    }
+
+    /**
      * Returns maximum length for a given MySQL field
      *
      * @param array $fieldDetails
@@ -138,6 +157,29 @@ trait MySQLiByDanielGPnumbers
             }
         }
         return $aReturn;
+    }
+
+    /**
+     * Form default buttons
+     *
+     * @param array $feat
+     * @param array $hiddenInfo
+     * @return string
+     */
+    protected function setFormButtons($feat, $hiddenInfo = [])
+    {
+        $btn   = [];
+        $btn[] = '<input type="submit" id="submit" style="margin-left:220px;" value="'
+                . $this->lclMsgCmn('i18n_Form_ButtonSave') . '" />';
+        if (isset($feat['insertAndUpdate'])) {
+            $btn[] = '<input type="hidden" id="insertAndUpdate" name="insertAndUpdate" value="insertAndUpdate" />';
+        }
+        if ($hiddenInfo != []) {
+            foreach ($hiddenInfo as $key => $value) {
+                $btn[] = '<input type="hidden" id="' . $key . '" name="' . $key . '" value="' . $value . '" />';
+            }
+        }
+        return '<div>' . implode('', $btn) . '</div>';
     }
 
     protected function setMySQLqueryValidateInputs($prm)
