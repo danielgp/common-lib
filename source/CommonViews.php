@@ -78,23 +78,6 @@ trait CommonViews
     }
 
     /**
-     * Returns the name of a field for displaying
-     *
-     * @param array $details
-     * @return string
-     */
-    private function getFieldNameForDisplay($details)
-    {
-        $tableUniqueId = $details['TABLE_SCHEMA'] . '.' . $details['TABLE_NAME'];
-        if ($details['COLUMN_COMMENT'] != '') {
-            return $details['COLUMN_COMMENT'];
-        } elseif (isset($this->advCache['tableStructureLocales'][$tableUniqueId][$details['COLUMN_NAME']])) {
-            return $this->advCache['tableStructureLocales'][$tableUniqueId][$details['COLUMN_NAME']];
-        }
-        return $details['COLUMN_NAME'];
-    }
-
-    /**
      * Returns a generic form based on a given table
      *
      * @param string $tblSrc

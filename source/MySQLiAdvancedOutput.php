@@ -58,6 +58,23 @@ trait MySQLiAdvancedOutput
     }
 
     /**
+     * Returns the name of a field for displaying
+     *
+     * @param array $details
+     * @return string
+     */
+    protected function getFieldNameForDisplay($details)
+    {
+        $tableUniqueId = $details['TABLE_SCHEMA'] . '.' . $details['TABLE_NAME'];
+        if ($details['COLUMN_COMMENT'] != '') {
+            return $details['COLUMN_COMMENT'];
+        } elseif (isset($this->advCache['tableStructureLocales'][$tableUniqueId][$details['COLUMN_NAME']])) {
+            return $this->advCache['tableStructureLocales'][$tableUniqueId][$details['COLUMN_NAME']];
+        }
+        return $details['COLUMN_NAME'];
+    }
+
+    /**
      * Returns a Enum or Set field to use in form
      *
      * @param string $tblSrc
@@ -288,17 +305,6 @@ trait MySQLiAdvancedOutput
     }
 
     /**
-     * Build label html tag
-     *
-     * @param array $details
-     * @return string
-     */
-    private function getLabel($details)
-    {
-        return '<span class="fake_label">' . $this->getFieldNameForDisplay($details) . '</span>';
-    }
-
-    /**
      * Returns an array with possible values of a SET or ENUM column
      *
      * @param string $refTbl
@@ -341,7 +347,8 @@ trait MySQLiAdvancedOutput
                 $inM = $this->setStringIntoTag($mCN[$dtl['COLUMN_NAME']], 'span', ['style' => 'font-style:italic;']);
             }
         }
-        return ['label' => $this->getLabel($dtl), 'input' => $inM];
+        $lbl = '<span class="fake_label">' . $this->getFieldNameForDisplay($details) . '</span>';
+        return ['label' => $lbl, 'input' => $inM];
     }
 
     protected function setNeededFieldKnown($tblName, $dtls, $features)
