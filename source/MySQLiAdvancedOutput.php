@@ -347,7 +347,7 @@ trait MySQLiAdvancedOutput
                 $inM = $this->setStringIntoTag($mCN[$dtl['COLUMN_NAME']], 'span', ['style' => 'font-style:italic;']);
             }
         }
-        $lbl = '<span class="fake_label">' . $this->getFieldNameForDisplay($details) . '</span>';
+        $lbl = '<span class="fake_label">' . $this->getFieldNameForDisplay($dtl) . '</span>';
         return ['label' => $lbl, 'input' => $inM];
     }
 
