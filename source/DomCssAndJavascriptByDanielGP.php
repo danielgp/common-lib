@@ -56,6 +56,31 @@ trait DomCssAndJavascriptByDanielGP
     }
 
     /**
+     * Returns a Text field 2 use in a form
+     *
+     * @param string $fieldType
+     * @param array $value
+     * @param array $iar
+     * @return string
+     */
+    protected function getFieldOutputTextLarge($fieldType, $value, $iar = [])
+    {
+        if (!in_array($fieldType, ['blob', 'text'])) {
+            return '';
+        }
+        $inAdtnl = [
+            'name' => $value['COLUMN_NAME'],
+            'id'   => $value['COLUMN_NAME'],
+            'rows' => 4,
+            'cols' => 55,
+        ];
+        if ($iar !== []) {
+            $inAdtnl = array_merge($inAdtnl, $iar);
+        }
+        return $this->setStringIntoTag($this->getFieldValue($value), 'textarea', $inAdtnl);
+    }
+
+    /**
      * Returns css codes
      *
      * @param string $cssContent

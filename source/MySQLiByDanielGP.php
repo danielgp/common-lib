@@ -96,6 +96,18 @@ trait MySQLiByDanielGP
     }
 
     /**
+     * Returns a Time field 2 use in a form
+     *
+     * @param array $value
+     * @param array $iar
+     * @return string
+     */
+    protected function getFieldOutputTime($value, $iar = [])
+    {
+        return $this->getFieldOutputTT($value, 8, $iar);
+    }
+
+    /**
      * Provides a detection if given Query does contain a Parameter
      * that may require statement processing later on
      *

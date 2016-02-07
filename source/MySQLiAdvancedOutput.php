@@ -193,31 +193,6 @@ trait MySQLiAdvancedOutput
     }
 
     /**
-     * Returns a Text field 2 use in a form
-     *
-     * @param string $fieldType
-     * @param array $value
-     * @param array $iar
-     * @return string
-     */
-    private function getFieldOutputTextLarge($fieldType, $value, $iar = [])
-    {
-        if (!in_array($fieldType, ['blob', 'text'])) {
-            return '';
-        }
-        $inAdtnl = [
-            'name' => $value['COLUMN_NAME'],
-            'id'   => $value['COLUMN_NAME'],
-            'rows' => 4,
-            'cols' => 55,
-        ];
-        if ($iar !== []) {
-            $inAdtnl = array_merge($inAdtnl, $iar);
-        }
-        return $this->setStringIntoTag($this->getFieldValue($value), 'textarea', $inAdtnl);
-    }
-
-    /**
      * Prepares the text output fields
      *
      * @param string $tbl
@@ -235,18 +210,6 @@ trait MySQLiAdvancedOutput
             $foreignKeysArray = $this->getForeignKeysToArray($database, $tbl, $value['COLUMN_NAME']);
         }
         return $foreignKeysArray;
-    }
-
-    /**
-     * Returns a Time field 2 use in a form
-     *
-     * @param array $value
-     * @param array $iar
-     * @return string
-     */
-    private function getFieldOutputTime($value, $iar = [])
-    {
-        return $this->getFieldOutputTT($value, 8, $iar);
     }
 
     /**
@@ -413,33 +376,6 @@ trait MySQLiAdvancedOutput
     }
 
     /**
-     * Returns a generic form based on a given table
-     *
-     * @param string $tblSrc
-     * @param array $feat
-     * @param array $hdnInf
-     *
-     * @return string Form to add/modify detail for a single row within a table
-     */
-    protected function setFormGenericSingleRecord($tblSrc, $feat, $hdnInf = [])
-    {
-        echo $this->setStringIntoTag('', 'div', ['id' => 'loading']);
-        $this->setTableCache($tblSrc);
-        if (strpos($tblSrc, '.') !== false) {
-            $tblSrc = explode('.', str_replace('`', '', $tblSrc))[1];
-        }
-        $sReturn = [];
-        if (count($this->advCache['tableStructureCache'][$this->advCache['workingDatabase']][$tblSrc]) != 0) {
-            foreach ($this->advCache['tableStructureCache'][$this->advCache['workingDatabase']][$tblSrc] as $value) {
-                $sReturn[] = $this->setNeededField($tblSrc, $value, $feat);
-            }
-        }
-        $frmFtrs = ['id' => $feat['id'], 'action' => $feat['action'], 'method' => $feat['method']];
-        return $this->setStringIntoTag(implode('', $sReturn) . $this->setFormButtons($feat, $hdnInf), 'form', $frmFtrs)
-                . $this->setFormJavascriptFinal($feat['id']);
-    }
-
-    /**
      * Analyse the field and returns the proper line 2 use in forms
      *
      * @param string $tableSource
@@ -447,7 +383,7 @@ trait MySQLiAdvancedOutput
      * @param array $features
      * @return string|array
      */
-    private function setNeededField($tableSource, $details, $features)
+    protected function setNeededField($tableSource, $details, $features)
     {
         if (isset($features['hidden'])) {
             if (in_array($details['COLUMN_NAME'], $features['hidden'])) {
@@ -531,7 +467,7 @@ trait MySQLiAdvancedOutput
      *
      * @param string $tblSrc
      */
-    private function setTableCache($tblSrc)
+    protected function setTableCache($tblSrc)
     {
         $dat = $this->establishDatabaseAndTable($tblSrc);
         if (!isset($this->advCache['tableStructureCache'][$dat[0]][$dat[1]])) {

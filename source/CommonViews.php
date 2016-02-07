@@ -38,6 +38,33 @@ trait CommonViews
 
     use MySQLiAdvancedOutput;
 
+    /**
+     * Returns a generic form based on a given table
+     *
+     * @param string $tblSrc
+     * @param array $feat
+     * @param array $hdnInf
+     *
+     * @return string Form to add/modify detail for a single row within a table
+     */
+    protected function setFormGenericSingleRecord($tblSrc, $feat, $hdnInf = [])
+    {
+        echo $this->setStringIntoTag('', 'div', ['id' => 'loading']);
+        $this->setTableCache($tblSrc);
+        if (strpos($tblSrc, '.') !== false) {
+            $tblSrc = explode('.', str_replace('`', '', $tblSrc))[1];
+        }
+        $sReturn = [];
+        if (count($this->advCache['tableStructureCache'][$this->advCache['workingDatabase']][$tblSrc]) != 0) {
+            foreach ($this->advCache['tableStructureCache'][$this->advCache['workingDatabase']][$tblSrc] as $value) {
+                $sReturn[] = $this->setNeededField($tblSrc, $value, $feat);
+            }
+        }
+        $frmFtrs = ['id' => $feat['id'], 'action' => $feat['action'], 'method' => $feat['method']];
+        return $this->setStringIntoTag(implode('', $sReturn) . $this->setFormButtons($feat, $hdnInf), 'form', $frmFtrs)
+                . $this->setFormJavascriptFinal($feat['id']);
+    }
+
     protected function setTableLocaleFields($localizationStrings)
     {
         $this->advCache['tableStructureLocales'] = $localizationStrings;
