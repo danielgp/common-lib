@@ -96,21 +96,6 @@ trait MySQLiMultipleExecution
     }
 
     /**
-     * Creates a mask to differentiate between Mandatory and Optional fields
-     *
-     * @param array $details
-     * @return string
-     */
-    protected function getFieldCompletionType($details)
-    {
-        $inputFeatures = ['display' => '***', 'ftrs' => ['title' => 'Mandatory', 'class' => 'inputMandatory']];
-        if ($details['IS_NULLABLE'] == 'YES') {
-            $inputFeatures = ['display' => '~', 'ftrs' => ['title' => 'Optional', 'class' => 'inputOptional']];
-        }
-        return $this->setStringIntoTag($inputFeatures['display'], 'span', $inputFeatures['ftrs']);
-    }
-
-    /**
      * returns the list of all MySQL generic informations
      *
      * @return array

@@ -75,33 +75,6 @@ trait MySQLiAdvancedOutput
     }
 
     /**
-     * Returns a Date field 2 use in a form
-     *
-     * @param array $value
-     * @return string
-     */
-    private function getFieldOutputDate($value)
-    {
-        $defaultValue = $this->getFieldValue($value);
-        if (is_null($defaultValue)) {
-            $defaultValue = date('Y-m-d');
-        }
-        $inA = [
-            'type'      => 'text',
-            'name'      => $value['Field'],
-            'id'        => $value['Field'],
-            'value'     => $defaultValue,
-            'size'      => 10,
-            'maxlength' => 10,
-            'onfocus'   => implode('', [
-                'javascript:NewCssCal(\'' . $value['Field'],
-                '\',\'yyyyMMdd\',\'dropdown\',false,\'24\',false);',
-            ]),
-        ];
-        return $this->setStringIntoShortTag('input', $inA) . $this->setCalendarControl($value['Field']);
-    }
-
-    /**
      * Returns a Enum or Set field to use in form
      *
      * @param string $tblSrc

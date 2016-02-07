@@ -69,6 +69,33 @@ trait MySQLiByDanielGP
     }
 
     /**
+     * Returns a Date field 2 use in a form
+     *
+     * @param array $value
+     * @return string
+     */
+    protected function getFieldOutputDate($value)
+    {
+        $defaultValue = $this->getFieldValue($value);
+        if (is_null($defaultValue)) {
+            $defaultValue = date('Y-m-d');
+        }
+        $inA = [
+            'type'      => 'text',
+            'name'      => $value['Field'],
+            'id'        => $value['Field'],
+            'value'     => $defaultValue,
+            'size'      => 10,
+            'maxlength' => 10,
+            'onfocus'   => implode('', [
+                'javascript:NewCssCal(\'' . $value['Field'],
+                '\',\'yyyyMMdd\',\'dropdown\',false,\'24\',false);',
+            ]),
+        ];
+        return $this->setStringIntoShortTag('input', $inA) . $this->setCalendarControl($value['Field']);
+    }
+
+    /**
      * Provides a detection if given Query does contain a Parameter
      * that may require statement processing later on
      *
