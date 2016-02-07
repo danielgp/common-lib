@@ -58,23 +58,6 @@ trait MySQLiAdvancedOutput
     }
 
     /**
-     * Returns the name of a field for displaying
-     *
-     * @param array $details
-     * @return string
-     */
-    private function getFieldNameForDisplay($details)
-    {
-        $tableUniqueId = $details['TABLE_SCHEMA'] . '.' . $details['TABLE_NAME'];
-        if ($details['COLUMN_COMMENT'] != '') {
-            return $details['COLUMN_COMMENT'];
-        } elseif (isset($this->advCache['tableStructureLocales'][$tableUniqueId][$details['COLUMN_NAME']])) {
-            return $this->advCache['tableStructureLocales'][$tableUniqueId][$details['COLUMN_NAME']];
-        }
-        return $details['COLUMN_NAME'];
-    }
-
-    /**
      * Returns a Enum or Set field to use in form
      *
      * @param string $tblSrc
@@ -190,6 +173,31 @@ trait MySQLiAdvancedOutput
             return $this->getFieldOutputTextFK($foreignKeysArray, $value, $iar);
         }
         return $this->getFieldOutputTextNonFK($value, $iar);
+    }
+
+    /**
+     * Returns a Text field 2 use in a form
+     *
+     * @param string $fieldType
+     * @param array $value
+     * @param array $iar
+     * @return string
+     */
+    protected function getFieldOutputTextLarge($fieldType, $value, $iar = [])
+    {
+        if (!in_array($fieldType, ['blob', 'text'])) {
+            return '';
+        }
+        $inAdtnl = [
+            'name' => $value['COLUMN_NAME'],
+            'id'   => $value['COLUMN_NAME'],
+            'rows' => 4,
+            'cols' => 55,
+        ];
+        if ($iar !== []) {
+            $inAdtnl = array_merge($inAdtnl, $iar);
+        }
+        return $this->setStringIntoTag($this->getFieldValue($value), 'textarea', $inAdtnl);
     }
 
     /**
@@ -336,85 +344,7 @@ trait MySQLiAdvancedOutput
         return ['label' => $this->getLabel($dtl), 'input' => $inM];
     }
 
-    /**
-     * Builds field output w. special column name
-     *
-     * @param string $tableSource
-     * @param array $dtl
-     * @param array $features
-     * @param string $fieldLabel
-     * @return array
-     */
-    private function setField($tableSource, $dtl, $features, $fieldLabel)
-    {
-        if ($dtl['COLUMN_NAME'] == 'host') {
-            $inVl = gethostbyaddr($this->tCmnRequest->server->get('REMOTE_ADDR'));
-            return [
-                'label' => '<label for="' . $dtl['COLUMN_NAME'] . '">Numele calculatorului</label>',
-                'input' => '<input type="text" name="host" size="15" readonly value="' . $inVl . '" />',
-            ];
-        }
-        $result = $this->setFieldInput($tableSource, $dtl, $features);
-        return ['label' => $this->setFieldLabel($dtl, $features, $fieldLabel), 'input' => $result];
-    }
-
-    /**
-     * Builds field output w. another special column name
-     *
-     * @param string $tableSource
-     * @param array $dtl
-     * @param array $features
-     * @return string
-     */
-    private function setFieldInput($tableSource, $dtl, $features)
-    {
-        if ($dtl['COLUMN_NAME'] == 'ChoiceId') {
-            return '<input type="text" name="ChoiceId" value="'
-                    . $this->tCmnRequest->request->get($dtl['COLUMN_NAME']) . '" />';
-        }
-        return $this->setNeededFieldByType($tableSource, $dtl, $features);
-    }
-
-    /**
-     * Analyse the field and returns the proper line 2 use in forms
-     *
-     * @param string $tableSource
-     * @param array $details
-     * @param array $features
-     * @return string|array
-     */
-    protected function setNeededField($tableSource, $details, $features)
-    {
-        if (isset($features['hidden'])) {
-            if (in_array($details['COLUMN_NAME'], $features['hidden'])) {
-                return null;
-            }
-        }
-        $fieldLabel = $this->getFieldNameForDisplay($details);
-        if ($fieldLabel == 'hidden') {
-            return null;
-        }
-        return $this->setNeededFieldFinal($tableSource, $details, $features, $fieldLabel);
-    }
-
-    /**
-     * Analyse the field type and returns the proper lines 2 use in forms
-     *
-     * @param string $tblName
-     * @param array $dtls
-     * @param array $features
-     * @return string|array
-     */
-    private function setNeededFieldByType($tblName, $dtls, $features)
-    {
-        if (isset($features['special']) && isset($features['special'][$dtls['COLUMN_NAME']])) {
-            $sOpt = $this->setMySQLquery2Server($features['special'][$dtls['COLUMN_NAME']], 'array_key_value');
-            return $this->setArrayToSelect($sOpt, $this->getFieldValue($dtls), $dtls['COLUMN_NAME'], ['size' => 1]);
-        }
-        return $this->setNeededFieldKnown($tblName, $dtls, $features);
-    }
-
-    private function setNeededFieldKnown($tblName, $dtls, $features)
+    protected function setNeededFieldKnown($tblName, $dtls, $features)
     {
         $iar      = $this->handleFeatures($dtls['COLUMN_NAME'], $features);
         $sReturn  = '';
@@ -427,17 +357,6 @@ trait MySQLiAdvancedOutput
             $sReturn = $this->setNeededFieldSingleType($tblName, $dtls, $iar);
         }
         return $this->getFieldCompletionType($dtls) . $sReturn;
-    }
-
-    private function setNeededFieldFinal($tableSource, $details, $features, $fieldLabel)
-    {
-        $sReturn = $this->setField($tableSource, $details, $features, $fieldLabel);
-        $lmts    = $this->setFieldNumbers($details);
-        return '<div>' . $sReturn['label']
-                . $this->setStringIntoTag($sReturn['input'], 'span', ['class' => 'labell'])
-                . '<span style="font-size:x-small;font-style:italic;">&nbsp;(max. '
-                . $lmts['M'] . (isset($lmts['d']) ? ' w. ' . $lmts['d'] . ' decimals' : '') . ')</span>'
-                . '</div>';
     }
 
     private function setNeededFieldSingleType($tblName, $dtls, $iar)
