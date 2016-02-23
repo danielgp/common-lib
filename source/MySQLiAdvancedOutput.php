@@ -314,17 +314,17 @@ trait MySQLiAdvancedOutput
     protected function getSetOrEnum2Array($refTbl, $refCol)
     {
         $dat = $this->establishDatabaseAndTable($refTbl);
-        foreach ($this->advCache['tableStructureCache'][$dat[0]][$dat[1]] as $value) {
-            if ($value['COLUMN_NAME'] == $refCol) {
-                $clndVls = explode(',', str_replace([$value['DATA_TYPE'], '(', "'", ')'], '', $value['COLUMN_TYPE']));
-                $enmVls  = array_combine($clndVls, $clndVls);
-                if ($value['IS_NULLABLE'] === 'YES') {
-                    $enmVls['NULL'] = '';
+        foreach ($this->advCache['tableStructureCache'][$dat[0]][$dat[1]] as $vle) {
+            if ($vle['COLUMN_NAME'] == $refCol) {
+                $kVl = explode('\',\'', substr($vle['COLUMN_TYPE'], strlen($vle['DATA_TYPE']) + 2, -2));
+                $fVl = array_combine($kVl, $kVl);
+                if ($vle['IS_NULLABLE'] === 'YES') {
+                    $fVl['NULL'] = '';
                 }
             }
         }
-        ksort($enmVls);
-        return $enmVls;
+        ksort($fVl);
+        return $fVl;
     }
 
     /**
