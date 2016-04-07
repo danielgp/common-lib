@@ -340,8 +340,16 @@ trait DomComponentsByDanielGP
                                     . '" id="n' . $aElements[$rCntr][$value] . '" value="'
                                     . $aElements[$rCntr][$value] . '"/>';
                             break;
+                        case 'delete':
+                            $sReturn .= '<a href="javascript:setQuest(\'' . $value[0] . '\',\'';
+                            $iActArgs      = count($value[1]);
+                            for ($cntr2 = 0; $cntr2 < $iActArgs; $cntr2++) {
+                                $sReturn .= $value[1][$cntr2] . '=' . $aElements[$rCntr][$value[1][$cntr2]];
+                            }
+                            $sReturn .= '\');"><i class="fa fa-times">&nbsp;</i></a>';
+                            break;
                         case 'edit':
-                            $edt           = '';
+                            $edt = '';
                             if (isset($ftrs['NoAjaxEditing'])) {
                                 $edt .= $this->tCmnRequest->server->get('PHP_SELF') . '?' . $actPrfx
                                         . $action_key . '=' . $value[0] . '&amp;';
@@ -383,13 +391,26 @@ trait DomComponentsByDanielGP
                                         . '<i class="fa fa-list">&nbsp;</i></a>';
                             }
                             break;
-                        case 'delete':
-                            $sReturn .= '<a href="javascript:setQuest(\'' . $value[0] . '\',\'';
-                            $iActArgs = count($value[1]);
-                            for ($cntr2 = 0; $cntr2 < $iActArgs; $cntr2++) {
-                                $sReturn .= $value[1][$cntr2] . '=' . $aElements[$rCntr][$value[1][$cntr2]];
+                        case 'schedule':
+                            $edt = '';
+                            if (isset($ftrs['NoAjaxEditing'])) {
+                                $sReturn .= '<a href="?' . $actPrfx . $action_key . '=' . $value[0] . '&amp;';
+                                $iActArgs = count($value[1]);
+                                for ($cntr2 = 0; $cntr2 < $iActArgs; $cntr2++) {
+                                    $sReturn .= $value[1][$cntr2] . '=' . $aElements[$rCntr][$value[1][$cntr2]];
+                                }
+                                $sReturn .= '"><i class="fa fa-hourglass-half">&nbsp;</i></a>';
+                            } else {
+                                $edt .= 'javascript:loadAE(\'' . $this->tCmnRequest->server->get('PHP_SELF') . '?'
+                                        . $actPrfx . $action_key . '=' . $value[0] . '&amp;';
+                                $iActArgs = count($value[1]);
+                                for ($cntr2 = 0; $cntr2 < $iActArgs; $cntr2++) {
+                                    $edt .= $value[1][$cntr2] . '=' . $aElements[$rCntr][$value[1][$cntr2]];
+                                }
+                                $edt .= '\');';
+                                $sReturn .= '<a href="#" onclick="' . $edt . '">'
+                                        . '<i class="fa fa-hourglass-half">&nbsp;</i></a>';
                             }
-                            $sReturn .= '\');"><i class="fa fa-times">&nbsp;</i></a>';
                             break;
                     }
                     $action_argument += 1;
