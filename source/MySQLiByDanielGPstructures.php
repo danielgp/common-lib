@@ -77,7 +77,7 @@ trait MySQLiByDanielGPstructures
             $inAdtnl = array_merge($inAdtnl, $iar);
         }
         $slct = [
-            'Options' => $this->setMySQLquery2Server($query, 'array_key_value'),
+            'Options' => $this->setMySQLquery2Server($query, 'array_key_value')['result'],
             'Value'   => $this->getFieldValue($value),
         ];
         return $this->setArrayToSelect($slct['Options'], $slct['Value'], $value['COLUMN_NAME'], $inAdtnl);
