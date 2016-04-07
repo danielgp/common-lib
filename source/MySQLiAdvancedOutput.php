@@ -281,27 +281,24 @@ trait MySQLiAdvancedOutput
      *
      * @param string $database
      * @param string $tblName
-     * @param string|array $onlyCol
+     * @param string|array $oCol Only column(s) considered
      * @return array
      */
-    private function getForeignKeysToArray($database, $tblName, $onlyCol = '')
+    private function getForeignKeysToArray($database, $tblName, $oCol = '')
     {
         $this->setTableForeignKeyCache($database, $this->fixTableSource($tblName));
-        $array2return = null;
+        $aRt = null;
+        $cnm = ['COLUMN_NAME', 'full_array_key_numbered', 'REFERENCED_TABLE_SCHEMA'];
         if (isset($this->advCache['tableFKs'][$database][$tblName])) {
-            foreach ($this->advCache['tableFKs'][$database][$tblName] as $value) {
-                if ($value['COLUMN_NAME'] == $onlyCol) {
-                    $query                  = $this->getForeignKeysQuery($value);
-                    $targetTblTxtFlds       = $this->setMySQLquery2Server($query, 'full_array_key_numbered')['result'];
-                    $array2return[$onlyCol] = [
-                        $this->glueDbTb($value['REFERENCED_TABLE_SCHEMA'], $value['REFERENCED_TABLE_NAME']),
-                        $value['REFERENCED_COLUMN_NAME'],
-                        '`' . $targetTblTxtFlds[0]['COLUMN_NAME'] . '`',
-                    ];
+            foreach ($this->advCache['tableFKs'][$database][$tblName] as $val) {
+                if ($val[$cnm[0]] == $oCol) {
+                    $tFd        = $this->setMySQLquery2Server($this->getForeignKeysQuery($val), $cmn[1])['result'];
+                    $tgtFld     = '`' . ($tFd[0][$cnm[0]] == $val[$cnm[0]] ? $tFd[1][$cnm[0]] : $tFd[0][$cnm[0]]) . '`';
+                    $aRt[$oCol] = [$this->glueDbTb($val[$cnm[2]], $val[$cnm[2]]), $val[$cnm[2]], $tgtFld];
                 }
             }
         }
-        return $array2return;
+        return $aRt;
     }
 
     /**
