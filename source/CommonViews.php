@@ -192,7 +192,8 @@ trait CommonViews
         if ($tbl == '') {
             $sReturn = $this->setFeedbackModern('error', $tMsg['Confirmation'], $tMsg['Impossible']);
         } else {
-            $idFldVal = $this->tCmnRequest->request->get($idn);
+            $this->initializeSprGlbAndSession();
+            $idFldVal = $this->tCmnSuperGlobals->query->get($idn);
             $this->setMySQLquery2Server($this->sQueryToDeleteSingleIdentifier([$tbl, $idn, $idFldVal]));
             $sReturn  = $this->setFeedbackModern('error', $tMsg['Confirmation'], $tMsg['Failed'])
                     . '(' . $this->mySQLconnection->error . ')';
