@@ -33,7 +33,7 @@ var CalWidth = 208;// calendar width
 var CellWidth = 30;// width of day cell.
 var TimeMode = 24;// TimeMode value. 12 or 24
 var StartYear = 1940; //First Year in drop down year selection
-var EndYear = 5; // The last year of pickable date. if current year is 2011, the last year that still picker will be 2016 (2011+5)
+var EndYear = (2037 - new Date().getFullYear()); // The last year of pickable date. if current year is 2011, the last year that still picker will be 2016 (2011+5)
 var CalPosOffsetX = -1; //X position offset relative to calendar icon, can be negative value
 var CalPosOffsetY = 0; //Y position offset relative to calendar icon, can be negative value
 
