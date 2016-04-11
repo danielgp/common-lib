@@ -149,11 +149,13 @@ trait DomComponentsByDanielGP
         } else {
             $hdClmns = [''];
         }
+        $checkboxFormId = '';
         if ((isset($ftrs['actions']['checkbox_inlineEdit'])) || (isset($ftrs['actions']['checkbox']))) {
             $checkboxFormId = 'frm' . date('YmdHis');
             $sReturn .= '<form id="' . $checkboxFormId . '" ' . 'name="' . $checkboxFormId
                     . '" method="post" ' . ' action="' . $this->tCmnRequest->server->get('PHP_SELF') . '" >';
         }
+        $tbl        = [];
         $tbl['Def'] = '<table'
                 . (isset($ftrs['table_style']) ? ' style="' . $ftrs['table_style'] . '"' : '')
                 . (isset($ftrs['table_class']) ? ' class="' . $ftrs['table_class'] . '"' : '')
@@ -292,17 +294,19 @@ trait DomComponentsByDanielGP
             }
             $sReturn .= $tbl['tr_Color'];
 // Action column
+            $checkboxName  = '';
+            $checkboxNameS = '';
             if (isset($ftrs['actions'])) {
                 $sReturn .= '<td style="white-space:nowrap;">';
                 $action_argument = 0;
                 if (isset($ftrs['actions']['key'])) {
-                    $action_key = $ftrs['actions']['key'];
+                    $actionKey = $ftrs['actions']['key'];
                 } else {
-                    $action_key = 'view';
+                    $actionKey = 'view';
                 }
                 if (isset($ftrs['action_prefix'])) {
-                    $actPrfx    = $ftrs['action_prefix'] . '&amp;';
-                    $action_key = 'view2';
+                    $actPrfx   = $ftrs['action_prefix'] . '&amp;';
+                    $actionKey = 'view2';
                 } else {
                     $actPrfx = '';
                 }
@@ -349,28 +353,13 @@ trait DomComponentsByDanielGP
                             $sReturn .= '\');"><i class="fa fa-times">&nbsp;</i></a>';
                             break;
                         case 'edit':
-                            $sReturn .= $this->setDynamicActionToSpecialCell($value, $aElements, [
-                                'vIcon'    => 'fa fa-pencil',
-                                'aPrefix'  => $actPrfx,
-                                'aKey'     => $action_key,
-                                'rCounter' => $rCntr,
-                                'Features' => $ftrs,
-                            ]);
-                            break;
                         case 'list2':
-                            $sReturn .= $this->setDynamicActionToSpecialCell($value, $aElements, [
-                                'vIcon'    => 'fa fa-list',
-                                'aPrefix'  => $actPrfx,
-                                'aKey'     => $action_key,
-                                'rCounter' => $rCntr,
-                                'Features' => $ftrs,
-                            ]);
-                            break;
                         case 'schedule':
+                            $vIc = ($key == 'edit' ? 'pencil' : ($key == 'list2' ? 'list' : 'hourglass-half'));
                             $sReturn .= $this->setDynamicActionToSpecialCell($value, $aElements, [
-                                'vIcon'    => 'fa fa-hourglass-half',
+                                'vIcon'    => 'fa fa-' . $vIc,
                                 'aPrefix'  => $actPrfx,
-                                'aKey'     => $action_key,
+                                'aKey'     => $actionKey,
                                 'rCounter' => $rCntr,
                                 'Features' => $ftrs,
                             ]);
@@ -384,6 +373,8 @@ trait DomComponentsByDanielGP
             $sReturn .= $this->setTableCell($row_current, $ftrs);
 // Computed columns
             if (isset($ftrs['computed_columns'])) {
+                $rowComputed = [];
+                $decimals    = [];
                 foreach ($ftrs['computed_columns'] as $key => $value) {
                     if ($value[0] == '%') {
                         $dec = $value[2] + 2;
@@ -413,19 +404,19 @@ trait DomComponentsByDanielGP
                             }
                             break;
                         default:
-                            $row_computed[$key] = '';
+                            $rowComputed[$key] = '';
                             break;
                     }
                     if ($value[0] == '%') {
-                        $row_computed[$key] = ($aElements[$rCntr][$key] * 100);
+                        $rowComputed[$key] = ($aElements[$rCntr][$key] * 100);
                         $dec -= 2;
                     } else {
-                        $row_computed[$key] = $aElements[$rCntr][$key];
+                        $rowComputed[$key] = $aElements[$rCntr][$key];
                     }
                     $decimals[$key] = $dec;
                 }
 // displaying them
-                $sReturn .= $this->setTableCell($row_computed, ['decimals' => $decimals]);
+                $sReturn .= $this->setTableCell($rowComputed, ['decimals' => $decimals]);
             }
             $sReturn .= '</tr>';
         }
