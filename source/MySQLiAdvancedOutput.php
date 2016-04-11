@@ -292,7 +292,7 @@ trait MySQLiAdvancedOutput
         if (isset($this->advCache['tableFKs'][$database][$tblName])) {
             foreach ($this->advCache['tableFKs'][$database][$tblName] as $val) {
                 if ($val[$cnm[0]] == $oCol) {
-                    $tFd        = $this->setMySQLquery2Server($this->getForeignKeysQuery($val), $cmn[1])['result'];
+                    $tFd        = $this->setMySQLquery2Server($this->getForeignKeysQuery($val), $cnm[1])['result'];
                     $tgtFld     = '`' . ($tFd[0][$cnm[0]] == $val[$cnm[0]] ? $tFd[1][$cnm[0]] : $tFd[0][$cnm[0]]) . '`';
                     $aRt[$oCol] = [$this->glueDbTb($val[$cnm[2]], $val[$cnm[2]]), $val[$cnm[2]], $tgtFld];
                 }
