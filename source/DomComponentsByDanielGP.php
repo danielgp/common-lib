@@ -371,27 +371,12 @@ trait DomComponentsByDanielGP
                             }
                             break;
                         case 'list2':
-                            $edt = '';
-                            if (isset($ftrs['NoAjaxEditing'])) {
-                                $sReturn .= '<a href="?' . $actPrfx . $action_key . '=' . $value[0] . '&amp;';
-                                $iActArgs = count($value[1]);
-                                for ($cntr2 = 0; $cntr2 < $iActArgs; $cntr2++) {
-                                    $sReturn .= $value[1][$cntr2] . '=' . $aElements[$rCntr][$value[1][$cntr2]];
-                                }
-                                $sReturn .= '"><i class="fa fa-list">&nbsp;</i></a>';
-                            } else {
-                                $edt .= 'javascript:loadAE(\'' . $this->tCmnRequest->server->get('PHP_SELF') . '?'
-                                        . $actPrfx . $action_key . '=' . $value[0] . '&amp;';
-                                $iActArgs = count($value[1]);
-                                for ($cntr2 = 0; $cntr2 < $iActArgs; $cntr2++) {
-                                    $edt .= $value[1][$cntr2] . '=' . $aElements[$rCntr][$value[1][$cntr2]];
-                                }
-                                $edt .= '\');';
-                                $sReturn .= '<a href="#" onclick="' . $edt . '">'
-                                        . '<i class="fa fa-list">&nbsp;</i></a>';
-                            }
+                            $vIcon = 'fa fa-list';
                             break;
                         case 'schedule':
+                            if (!isset($vIcon)) {
+                                $vIcon = 'fa fa-hourglass-half';
+                            }
                             $edt = '';
                             if (isset($ftrs['NoAjaxEditing'])) {
                                 $sReturn .= '<a href="?' . $actPrfx . $action_key . '=' . $value[0] . '&amp;';
@@ -399,7 +384,7 @@ trait DomComponentsByDanielGP
                                 for ($cntr2 = 0; $cntr2 < $iActArgs; $cntr2++) {
                                     $sReturn .= $value[1][$cntr2] . '=' . $aElements[$rCntr][$value[1][$cntr2]];
                                 }
-                                $sReturn .= '"><i class="fa fa-hourglass-half">&nbsp;</i></a>';
+                                $sReturn .= '"><i class="' . $vIcon . '">&nbsp;</i></a>';
                             } else {
                                 $edt .= 'javascript:loadAE(\'' . $this->tCmnRequest->server->get('PHP_SELF') . '?'
                                         . $actPrfx . $action_key . '=' . $value[0] . '&amp;';
@@ -409,7 +394,7 @@ trait DomComponentsByDanielGP
                                 }
                                 $edt .= '\');';
                                 $sReturn .= '<a href="#" onclick="' . $edt . '">'
-                                        . '<i class="fa fa-hourglass-half">&nbsp;</i></a>';
+                                        . '<i class="' . $vIcon . '">&nbsp;</i></a>';
                             }
                             break;
                     }
