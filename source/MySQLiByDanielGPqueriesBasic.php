@@ -54,10 +54,12 @@ trait MySQLiByDanielGPqueriesBasic
         $this->sCleanParameters($parameters);
         return implode(' ', [
             'SELECT',
-            $parameters[0] . ',' . $parameters[1],
+            $parameters[0] . ', ' . $parameters[1],
             'FROM',
             $parameters[2],
             'GROUP BY',
+            $parameters[0],
+            'ORDER BY',
             $parameters[1] . ';'
         ]);
     }

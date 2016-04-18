@@ -51,6 +51,9 @@ trait MySQLiByDanielGPqueries
             'TABLE_NAME'   => $value['REFERENCED_TABLE_NAME'],
             'DATA_TYPE'    => ['char', 'varchar', 'text'],
         ];
+        if (array_key_exists('LIMIT', $value)) {
+            $flt['LIMIT'] = $value['LIMIT'];
+        }
         return $this->sQueryMySqlColumns($flt);
     }
 
@@ -60,7 +63,7 @@ trait MySQLiByDanielGPqueries
      * @param type $filterValue
      * @return string
      */
-    private function sGlueFilterValueIntoWhereString($filterValue)
+    private function sGlueFilterValIntoWhereStr($filterValue)
     {
         if (is_array($filterValue)) {
             return 'IN ("' . implode('", "', $filterValue) . '")';
@@ -108,14 +111,14 @@ trait MySQLiByDanielGPqueries
         if (is_null($filterArray)) {
             return '';
         }
-        $filters = [];
+        $fltr = [];
         if (is_array($filterArray)) {
+            unset($filterArray['LIMIT']);
             foreach ($filterArray as $key => $value) {
-                $filters[] = '`' . $tableToApplyFilterTo . '`.`' . $key . '` '
-                        . $this->sGlueFilterValueIntoWhereString($value);
+                $fltr[] = '`' . $tableToApplyFilterTo . '`.`' . $key . '` ' . $this->sGlueFilterValIntoWhereStr($value);
             }
         }
-        return $this->sManageDynamicFiltersFinal($filters);
+        return $this->sManageDynamicFiltersFinal($fltr);
     }
 
     private function sManageDynamicFiltersFinal($filters)
@@ -123,6 +126,14 @@ trait MySQLiByDanielGPqueries
         if (count($filters) > 0) {
             $sReturn = ['WHERE', $this->sGlueFiltersIntoWhereArrayFilter($filters)];
             return implode(' ', $sReturn) . ' ';
+        }
+        return '';
+    }
+
+    private function sManageLimit($filters)
+    {
+        if (array_key_exists('LIMIT', $filters)) {
+            return 'LIMIT ' . $filters['LIMIT'];
         }
         return '';
     }
@@ -140,7 +151,9 @@ trait MySQLiByDanielGPqueries
                 ]) . ')) '
                 . $this->sManageDynamicFilters($filterArray, 'C')
                 . 'GROUP BY `C`.`TABLE_SCHEMA`, `C`.`TABLE_NAME`, `C`.`COLUMN_NAME` '
-                . 'ORDER BY `C`.`TABLE_SCHEMA`, `C`.`TABLE_NAME`, `C`.`ORDINAL_POSITION`;';
+                . 'ORDER BY `C`.`TABLE_SCHEMA`, `C`.`TABLE_NAME`, `C`.`ORDINAL_POSITION` '
+                . $this->sManageLimit($filterArray)
+                . ';';
     }
 
     private function sQueryMySqlColumnsColumns()

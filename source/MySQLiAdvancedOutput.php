@@ -155,7 +155,7 @@ trait MySQLiAdvancedOutput
     private function getFieldOutputNumericNonFK($fkArray, $value, $iar = [])
     {
         $query         = $this->sQueryGenericSelectKeyValue([
-            $fkArray[$value['COLUMN_NAME']][1],
+            '`' . $value['COLUMN_NAME'] . '`',
             $fkArray[$value['COLUMN_NAME']][2],
             $fkArray[$value['COLUMN_NAME']][0],
         ]);
@@ -286,15 +286,18 @@ trait MySQLiAdvancedOutput
      */
     private function getForeignKeysToArray($database, $tblName, $oCol = '')
     {
-        $this->setTableForeignKeyCache($database, $this->fixTableSource($tblName));
+        if (!isset($this->advCache['tableFKs'][$database][$tblName])) {
+            $this->setTableForeignKeyCache($database, $this->fixTableSource($tblName));
+        }
         $aRt = null;
-        $cnm = ['COLUMN_NAME', 'full_array_key_numbered', 'REFERENCED_TABLE_SCHEMA'];
         if (isset($this->advCache['tableFKs'][$database][$tblName])) {
+            $cnm = ['COLUMN_NAME', 'full_array_key_numbered', 'REFERENCED_TABLE_SCHEMA', 'REFERENCED_TABLE_NAME'];
             foreach ($this->advCache['tableFKs'][$database][$tblName] as $val) {
                 if ($val[$cnm[0]] == $oCol) {
-                    $tFd        = $this->setMySQLquery2Server($this->getForeignKeysQuery($val), $cnm[1])['result'];
+                    $vlQ        = array_merge($val, ['LIMIT' => 2]);
+                    $tFd        = $this->setMySQLquery2Server($this->getForeignKeysQuery($vlQ), $cnm[1])['result'];
                     $tgtFld     = '`' . ($tFd[0][$cnm[0]] == $val[$cnm[0]] ? $tFd[1][$cnm[0]] : $tFd[0][$cnm[0]]) . '`';
-                    $aRt[$oCol] = [$this->glueDbTb($val[$cnm[2]], $val[$cnm[2]]), $val[$cnm[2]], $tgtFld];
+                    $aRt[$oCol] = [$this->glueDbTb($val[$cnm[2]], $val[$cnm[3]]), $val[$cnm[2]], $tgtFld];
                 }
             }
         }
