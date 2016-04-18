@@ -133,7 +133,10 @@ trait MySQLiByDanielGPqueries
     private function sManageLimit($filters)
     {
         if (array_key_exists('LIMIT', $filters)) {
-            return 'LIMIT ' . $filters['LIMIT'];
+            return implode(' ', [
+                'LIMIT',
+                $filters['LIMIT'],
+            ]);
         }
         return '';
     }
