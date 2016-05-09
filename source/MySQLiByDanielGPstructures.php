@@ -65,7 +65,7 @@ trait MySQLiByDanielGPstructures
     protected function getFieldOutputTextFK($foreignKeysArray, $value, $iar)
     {
         $query   = $this->sQueryGenericSelectKeyValue([
-            $foreignKeysArray[$value['COLUMN_NAME']][1],
+            $foreignKeysArray[$value['COLUMN_NAME']][2],
             $foreignKeysArray[$value['COLUMN_NAME']][2],
             $foreignKeysArray[$value['COLUMN_NAME']][0]
         ]);
