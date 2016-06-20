@@ -56,13 +56,13 @@ class CommonCodeTest extends PHPUnit_Framework_TestCase
 
     public function testGetContentFromUrlThroughCurl()
     {
-        $actual = $this->getContentFromUrlThroughCurl('http://127.0.0.1/informator/source/info/?Label=ClientInfo');
+        $actual = $this->getContentFromUrlThroughCurl('http://127.0.0.1/informator/?Label=Client+Info');
         $this->assertJson($actual);
     }
 
     public function testGetContentFromUrlThroughCurlAsArrayIfJson()
     {
-        $actual = $this->getContentFromUrlThroughCurlAsArrayIfJson('http://127.0.0.1/informator/source/info/?Label=ClientInfo')['response'];
+        $actual = $this->getContentFromUrlThroughCurlAsArrayIfJson('http://127.0.0.1/informator/?Label=Client+Info')['response'];
         $this->assertArrayHasKey('Browser', $actual);
     }
 
@@ -74,25 +74,10 @@ class CommonCodeTest extends PHPUnit_Framework_TestCase
 
     public function testGetContentFromUrlThroughCurlSecure()
     {
-        $actual = $this->getContentFromUrlThroughCurl('https://127.0.0.1/informator/source/info/?Label=ClientInfo', [
+        $actual = $this->getContentFromUrlThroughCurl('http://127.0.0.1/informator/?Label=Client+Info', [
             'forceSSLverification'
         ]);
         $this->assertJson($actual);
-    }
-
-    public function testGetPackageDetailsFromGivenComposerLockFile()
-    {
-        $pathParts = explode(DIRECTORY_SEPARATOR, __DIR__);
-        $file      = implode(DIRECTORY_SEPARATOR, array_diff($pathParts, ['tests', 'php-unit']))
-                . DIRECTORY_SEPARATOR . 'composer.lock';
-        $actual    = $this->getPackageDetailsFromGivenComposerLockFile($file);
-        $this->assertArrayHasKey('Aging', $actual['gettext/gettext']);
-    }
-
-    public function testGetPackageDetailsFromGivenComposerLockFileError()
-    {
-        $actual = $this->getPackageDetailsFromGivenComposerLockFile('composer.not');
-        $this->assertArrayHasKey('error', $actual);
     }
 
     public function testListOfFilesExisting()
@@ -145,7 +130,7 @@ class CommonCodeTest extends PHPUnit_Framework_TestCase
 
     public function testRemoveFilesOlderThanGivenRule()
     {
-        $actual = $this->removeFilesOlderThanGivenRule([
+        $this->removeFilesOlderThanGivenRule([
             'path'     => 'D:\\www\\other\\logs\\PHP\\PHP56\\',
             'dateRule' => strtotime('now'),
         ]);
@@ -170,8 +155,8 @@ class CommonCodeTest extends PHPUnit_Framework_TestCase
 
     public function testSetArrayToJsonInvalid()
     {
-        $actual = $this->setArrayToJson('string');
-        $this->assertEquals($this->lclMsgCmn('i18n_Error_GivenInputIsNotArray'), $actual);
+        $actual = $this->setArrayToJson(['string']);
+        $this->assertEquals('{ "0": "string" }', $actual);
     }
 
     public function testSetArrayValuesAsKey()
@@ -184,5 +169,15 @@ class CommonCodeTest extends PHPUnit_Framework_TestCase
     {
         $actual = $this->setJsonToArray('one');
         $this->assertArrayHasKey('error', $actual);
+    }
+
+    public function testUpperRightBoxLanguages()
+    {
+        $actual = $this->setUpperRightBoxLanguages([
+            'en_US' => 'US English',
+            'ro_RO' => 'Română',
+            'it_IT' => 'Italiano',
+        ]);
+        $this->assertContains('Română', $actual);
     }
 }

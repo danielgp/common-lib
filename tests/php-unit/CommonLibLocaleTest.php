@@ -28,8 +28,7 @@
 class CommonLibLocaleTest extends PHPUnit_Framework_TestCase
 {
 
-    use \danielgp\common_lib\DomComponentsByDanielGP,
-        \danielgp\common_lib\CommonLibLocale;
+    use \danielgp\common_lib\CommonLibLocale;
 
     public function testLocalMessage()
     {
@@ -37,13 +36,45 @@ class CommonLibLocaleTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('unknown', $actual);
     }
 
-    public function testUppeRightBoxLanguages()
+    public function testlclMsgCmnNumber()
     {
-        $actual = $this->setUppeRightBoxLanguages([
-            'en_US' => 'US English',
-            'ro_RO' => 'Română',
-            'it_IT' => 'Italiano',
-        ]);
-        $this->assertContains('Română', $actual);
+        $this->initializeSprGlbAndSession();
+        $this->tCmnSuperGlobals->request->set('lang', 'ro_RO');
+        $numberZero = $this->lclMsgCmnNumber($this->lclMsgCmn('i18n_Record'), $this->lclMsgCmn('i18n_Records'), 0);
+        $this->assertEquals(str_replace('%d', 0, $this->lclMsgCmn('i18n_Records')), $numberZero);
+        $numberOne  = $this->lclMsgCmnNumber($this->lclMsgCmn('i18n_Record'), $this->lclMsgCmn('i18n_Records'), 1);
+        $this->assertEquals(str_replace('%d', 1, $this->lclMsgCmn('i18n_Record')), $numberOne);
+        $numberNine = $this->lclMsgCmnNumber($this->lclMsgCmn('i18n_Record'), $this->lclMsgCmn('i18n_Records'), 9);
+        $this->assertEquals(str_replace('%d', 9, $this->lclMsgCmn('i18n_Records')), $numberNine);
+    }
+
+    public function testhandleLanguageIntoSessionGet()
+    {
+        $this->initializeSprGlbAndSession();
+        $this->tCmnSuperGlobals->request->set('lang', 'en_US');
+        $this->handleLanguageIntoSession();
+        $this->assertEquals('en_US', $this->tCmnSession->get('lang'));
+    }
+
+    public function testhandleLanguageIntoSessionNormalize()
+    {
+        $this->initializeSprGlbAndSession();
+        $this->tCmnSuperGlobals->request->set('lang', 'en_UK');
+        $this->handleLanguageIntoSession();
+        $this->assertEquals('en_US', $this->tCmnSession->get('lang'));
+    }
+
+    public function testsetDividedResult()
+    {
+        $this->initializeSprGlbAndSession();
+        $this->tCmnSuperGlobals->request->set('lang', 'en_US');
+        $numberZero                   = $this->setDividedResult(0, 1);
+        $this->assertEquals(0, $numberZero);
+        $numberDivisionZero           = $this->setDividedResult(1, 0);
+        $this->assertEquals(0, $numberDivisionZero);
+        $numberOneThousandNineHundred = $this->setDividedResult(1900, 1, null);
+        $this->assertEquals('1,900', $numberOneThousandNineHundred);
+        $numberPi                     = $this->setDividedResult(3.1459, 1, 2);
+        $this->assertEquals('3.15', $numberPi);
     }
 }

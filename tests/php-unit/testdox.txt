@@ -1,0 +1,31 @@
+CommonCode
+ [x] Explain permissions
+ [x] File details existing
+ [x] File detai not existing
+ [x] Get content from url through curl
+ [x] Get content from url through curl as array if json
+ [x] Get content from url through curl invalid
+ [x] Get content from url through curl secure
+ [x] List of files existing
+ [x] List of files not existing
+ [x] List of files not folder
+ [x] Get timestamp array
+ [x] Get timestamp float
+ [x] Get timestamp string
+ [x] Get timestamp unknown return type
+ [x] Is json by daniel g p
+ [x] Remove files older than given rule
+ [ ] Remove files older than given rule no date rule
+ [ ] Remove files older than given rule no path
+ [ ] Set array to json invalid
+ [x] Set array values as key
+ [x] Set json to array invalid
+ [x] Upper right box languages
+
+CommonLibLocale
+ [x] Local message
+ [x] Lcl msg cmn number
+ [x] Handle language into session get
+ [x] Handle language into session normalize
+ [x] Set divided result
+
