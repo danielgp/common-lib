@@ -11,11 +11,11 @@
         }
     ],
     "require": {
-        "php": ">=5.5",
+        "php": "^5.6 || ^7.0",
         "ext-curl": "*",
         "ext-mysqli": "*",
         "components/flag-icon-css": ">=1.0",
-        "components/jquery": "2.2.0",
+        "components/jquery": ">=3.0",
         "danielgp/browser-agent-info": ">=1.2",
         "danielgp/network-components": ">=1.2",
         "gettext/gettext": ">=3.4",
@@ -24,7 +24,8 @@
         "symfony/http-foundation": ">3.0"
     },
     "require-dev": {
-        "phpunit/phpunit": "*"
+        "phpunit/phpunit": ">=5.4",
+        "phpunit/php-code-coverage": ">=4.0"
     },
     "autoload": {
         "classmap": [
