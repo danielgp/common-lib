@@ -112,8 +112,8 @@ trait CommonLibLocale
                 . $this->tCmnSession->get('lang') . '/LC_MESSAGES/'
                 . $this->commonLibFlags['localization_domain']
                 . '.mo';
-        $extrClass        = new \Gettext\Extractors\Mo();
-        $translations     = $extrClass->fromFile($localizationFile);
+        $translations     = new \Gettext\Translations;
+        $translations->addFromMoFile($localizationFile);
         $this->tCmnLb     = new \Gettext\Translator();
         $this->tCmnLb->loadTranslations($translations);
     }
@@ -131,6 +131,14 @@ trait CommonLibLocale
         }
     }
 
+    private function lclManagePrerequisites()
+    {
+        if (is_null($this->tCmnLb)) {
+            $this->settingsCommonLib();
+            $this->handleLocalizationCommon();
+        }
+    }
+
     /**
      * Central function to deal with multi-language messages
      *
@@ -139,20 +147,14 @@ trait CommonLibLocale
      */
     protected function lclMsgCmn($localizedStringCode)
     {
-        if (is_null($this->tCmnLb)) {
-            $this->settingsCommonLib();
-            $this->handleLocalizationCommon();
-        }
+        $this->lclManagePrerequisites();
         return $this->tCmnLb->gettext($localizedStringCode);
     }
 
     protected function lclMsgCmnNumber($singularString, $pluralString, $numberToEvaluate)
     {
-        if (is_null($this->tCmnLb)) {
-            $this->settingsCommonLib();
-            $this->handleLocalizationCommon();
-        }
-        return $this->tCmnLb->ngettext($singularString, $pluralString, $numberToEvaluate);
+        $this->lclManagePrerequisites();
+        return sprintf($this->tCmnLb->ngettext($singularString, $pluralString, $numberToEvaluate), 1);
     }
 
     private function normalizeLocalizationIntoSession()
@@ -171,15 +173,15 @@ trait CommonLibLocale
      * @param mixed $mArguments
      * @return decimal
      */
-    protected function setDividedResult($fAbove, $fBelow, $mArguments = 0)
+    protected function setDividedResult($fAbove, $fBelow, $mArguments = null)
     {
         if (($fAbove == 0) || ($fBelow == 0)) { // prevent infinite result AND division by 0
             return 0;
         }
-        if (is_array($mArguments)) {
+        if (is_numeric($mArguments)) {
             $frMinMax = [
-                'MinFractionDigits' => $mArguments[1],
-                'MaxFractionDigits' => $mArguments[1],
+                'MinFractionDigits' => $mArguments,
+                'MaxFractionDigits' => $mArguments,
             ];
             return $this->setNumberFormat(($fAbove / $fBelow), $frMinMax);
         }
