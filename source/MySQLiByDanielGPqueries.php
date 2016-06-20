@@ -155,7 +155,7 @@ trait MySQLiByDanielGPqueries
                 . $this->sManageDynamicFilters($filterArray, 'C')
                 . 'GROUP BY `C`.`TABLE_SCHEMA`, `C`.`TABLE_NAME`, `C`.`COLUMN_NAME` '
                 . 'ORDER BY `C`.`TABLE_SCHEMA`, `C`.`TABLE_NAME`, `C`.`ORDINAL_POSITION` '
-                . $this->sManageLimit($filterArray)
+                . $this->sManageLimit((is_array($filterArray) ? $filterArray : ['' => '']))
                 . ';';
     }
 

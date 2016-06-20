@@ -206,22 +206,25 @@ trait MySQLiByDanielGPstructures
     /**
      * Return various informations (from predefined list) from the MySQL server
      *
+     * @param string $rChoice
+     * @param string $returnType
+     * @param array $additionalFeatures
      * @return array
      */
-    private function getMySQLlistMultipleFinal($returnChoice, $returnType, $additionalFeatures = null)
+    private function getMySQLlistMultipleFinal($rChoice, $returnType, $additionalFeatures = null)
     {
-        $queryByChoice = [
-            'Columns'         => $this->sQueryMySqlColumns($additionalFeatures),
-            'Databases'       => $this->sQueryMySqlActiveDatabases($additionalFeatures),
-            'Engines'         => $this->sQueryMySqlActiveEngines($additionalFeatures),
-            'Indexes'         => $this->sQueryMySqlIndexes($additionalFeatures),
-            'ServerTime'      => $this->sQueryMySqlServerTime(),
-            'Statistics'      => $this->sQueryMySqlStatistics($additionalFeatures),
-            'Tables'          => $this->sQueryMySqlTables($additionalFeatures),
-            'VariablesGlobal' => $this->sQueryMySqlGlobalVariables(),
+        $qByChoice = [
+            'Columns'         => ['sQueryMySqlColumns', $additionalFeatures],
+            'Databases'       => ['sQueryMySqlActiveDatabases', $additionalFeatures],
+            'Engines'         => ['sQueryMySqlActiveEngines', $additionalFeatures],
+            'Indexes'         => ['sQueryMySqlIndexes', $additionalFeatures],
+            'ServerTime'      => ['sQueryMySqlServerTime'],
+            'Statistics'      => ['sQueryMySqlStatistics', $additionalFeatures],
+            'Tables'          => ['sQueryMySqlTables', $additionalFeatures],
+            'VariablesGlobal' => ['sQueryMySqlGlobalVariables'],
         ];
-        if (array_key_exists($returnChoice, $queryByChoice)) {
-            return $this->setMySQLquery2Server($queryByChoice[$returnChoice], $returnType)['result'];
+        if (array_key_exists($rChoice, $qByChoice)) {
+            return $this->setMySQLquery2Server($this->transformStrIntoFn($qByChoice, $rChoice), $returnType)['result'];
         }
         return [];
     }
@@ -318,5 +321,19 @@ trait MySQLiByDanielGPstructures
             }
         }
         return implode(' AND ', array_diff($filters, ['']));
+    }
+
+    private function transformStrIntoFn($queryByChoice, $rChoice)
+    {
+        $query = null;
+        switch (count($queryByChoice[$rChoice])) {
+            case 1:
+                $query = call_user_func([$this, $queryByChoice[$rChoice][0]]);
+                break;
+            case 2:
+                $query = call_user_func([$this, $queryByChoice[$rChoice][0]], $queryByChoice[$rChoice][1]);
+                break;
+        }
+        return $query;
     }
 }

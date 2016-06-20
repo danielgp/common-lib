@@ -114,7 +114,7 @@ trait MySQLiAdvancedOutput
         $fkArray = $this->getForeignKeysToArray($this->advCache['workingDatabase'], $tblSrc, $value['COLUMN_NAME']);
         if (is_null($fkArray)) {
             $fldNos = $this->setFieldNumbers($value);
-            return $this->getFieldOutputTT($value, min(50, $fldNos['l']), $iar);
+            return $this->getFieldOutputTT($value, min(50, (array_key_exists('l', $fldNos) ? $fldNos['l'] : 99)), $iar);
         }
         return $this->getFieldOutputNumericNonFK($fkArray, $value, $iar);
     }
