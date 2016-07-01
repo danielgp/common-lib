@@ -143,6 +143,7 @@ trait MySQLiByDanielGPqueries
 
     protected function sQueryMySqlColumns($filterArray = null)
     {
+        $filterArray = (is_array($filterArray) ? $filterArray : ['' => '']);
         return 'SELECT '
                 . '`C`.`TABLE_SCHEMA`, '
                 . $this->sQueryMySqlColumnsColumns() . ' '
@@ -155,7 +156,7 @@ trait MySQLiByDanielGPqueries
                 . $this->sManageDynamicFilters($filterArray, 'C')
                 . 'GROUP BY `C`.`TABLE_SCHEMA`, `C`.`TABLE_NAME`, `C`.`COLUMN_NAME` '
                 . 'ORDER BY `C`.`TABLE_SCHEMA`, `C`.`TABLE_NAME`, `C`.`ORDINAL_POSITION` '
-                . $this->sManageLimit((is_array($filterArray) ? $filterArray : ['' => '']))
+                . $this->sManageLimit($filterArray)
                 . ';';
     }
 
@@ -205,11 +206,12 @@ trait MySQLiByDanielGPqueries
 
     private function sQueryMySqlStatisticPattern($tblName, $lnkDbCol, $adtnlCol = null, $adtnlFltr = null)
     {
-        $tblAls = substr($tblName, 0, 1);
+        $tblAls  = substr($tblName, 0, 1);
+        $colName = (is_null($adtnlCol) ? $tblName : $adtnlFltr);
         return '(SELECT COUNT(*) AS `No. of records` FROM `information_schema`.`' . $tblName . '` `' . $tblAls . '` '
                 . 'WHERE (`' . $tblAls . '`.`' . $lnkDbCol . '` = `S`.`SCHEMA_NAME`)'
                 . (!is_null($adtnlCol) ? ' AND (`' . $tblAls . '`.`' . $adtnlCol . '` = "' . $adtnlFltr . '")' : '')
-                . ') AS `' . ucwords(strtolower((is_null($adtnlCol) ? $tblName : $adtnlFltr))) . '`';
+                . ') AS `' . ucwords(strtolower($colName)) . '`';
     }
 
     protected function sQueryMySqlStatistics($filterArray = null)

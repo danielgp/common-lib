@@ -178,14 +178,15 @@ trait CommonLibLocale
         if (($fAbove == 0) || ($fBelow == 0)) { // prevent infinite result AND division by 0
             return 0;
         }
+        $numberToFormat = ($fAbove / $fBelow);
         if (is_numeric($mArguments)) {
             $frMinMax = [
                 'MinFractionDigits' => $mArguments,
                 'MaxFractionDigits' => $mArguments,
             ];
-            return $this->setNumberFormat(($fAbove / $fBelow), $frMinMax);
+            return $this->setNumberFormat($numberToFormat, $frMinMax);
         }
-        return $this->setNumberFormat(round(($fAbove / $fBelow), $mArguments));
+        return $this->setNumberFormat(round($numberToFormat, $mArguments));
     }
 
     protected function setNumberFormat($content, $ftrs = null)
