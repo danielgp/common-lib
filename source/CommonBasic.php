@@ -137,11 +137,12 @@ trait CommonBasic
     protected function removeFilesDecision($inputArray)
     {
         if (is_array($inputArray)) {
-            if (!isset($inputArray['path'])) {
+            if (!array_key_exists('path', $inputArray)) {
                 return '`path` has not been provided';
-            } elseif (!isset($inputArray['dateRule'])) {
+            } elseif (!array_key_exists('dateRule', $inputArray)) {
                 return '`dateRule` has not been provided';
             }
+            return true;
         }
         return false;
     }
@@ -157,7 +158,7 @@ trait CommonBasic
     protected function removeFilesOlderThanGivenRule($inputArray)
     {
         $aFiles = $this->retrieveFilesOlderThanGivenRule($inputArray);
-        if (!is_null($aFiles)) {
+        if (is_array($aFiles)) {
             $filesystem = new \Symfony\Component\Filesystem\Filesystem();
             $filesystem->remove($aFiles);
             return $this->setArrayToJson($aFiles);
@@ -168,18 +169,18 @@ trait CommonBasic
     protected function retrieveFilesOlderThanGivenRule($inputArray)
     {
         $proceedRetrieving = $this->removeFilesDecision($inputArray);
-        if ($proceedRetrieving !== false) {
+        if ($proceedRetrieving === true) {
             $finder   = new \Symfony\Component\Finder\Finder();
             $iterator = $finder->files()->ignoreUnreadableDirs(true)->followLinks()->in($inputArray['path']);
             $aFiles   = [];
             foreach ($iterator as $file) {
-                if ($file->getATime() < strtotime($inputArray['dateRule'])) {
+                if ($file->getATime() <= strtotime($inputArray['dateRule'])) {
                     $aFiles[] = $file->getRealPath();
                 }
             }
             return $aFiles;
         }
-        return null;
+        return $proceedRetrieving;
     }
 
     /**
@@ -233,7 +234,7 @@ trait CommonBasic
      */
     protected function setJsonErrorInPlainEnglish()
     {
-        $knownErrors  = [
+        $knownErrors = [
             JSON_ERROR_NONE           => null,
             JSON_ERROR_DEPTH          => 'Maximum stack depth exceeded',
             JSON_ERROR_STATE_MISMATCH => 'Underflow or the modes mismatch',
@@ -241,11 +242,6 @@ trait CommonBasic
             JSON_ERROR_SYNTAX         => 'Syntax error, malformed JSON',
             JSON_ERROR_UTF8           => 'Malformed UTF-8 characters, possibly incorrectly encoded',
         ];
-        $currentError = json_last_error();
-        $sReturn      = null;
-        if (in_array($currentError, $knownErrors)) {
-            $sReturn = $knownErrors[$currentError];
-        }
-        return $sReturn;
+        return $knownErrors[json_last_error()];
     }
 }
