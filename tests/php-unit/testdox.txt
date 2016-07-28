@@ -14,12 +14,15 @@ CommonCode
  [x] Get timestamp string
  [x] Get timestamp unknown return type
  [x] Is json by daniel g p
- [x] Remove files older than given rule
- [ ] Remove files older than given rule no date rule
- [ ] Remove files older than given rule no path
- [ ] Set array to json invalid
+ [ ] Remove files older than given rule
+ [x] Remove files older than given rule no date rule
+ [x] Remove files older than given rule no path
+ [x] Remove files older than given rule string inputs
+ [x] Set array to json invalid
  [x] Set array values as key
- [x] Set json to array invalid
+ [x] Set json to array invalid json
+ [x] Set json to array string
+ [x] Set json to array valid
  [x] Upper right box languages
 
 CommonLibLocale

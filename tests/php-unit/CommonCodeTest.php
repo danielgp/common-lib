@@ -131,16 +131,20 @@ class CommonCodeTest extends PHPUnit_Framework_TestCase
     public function testRemoveFilesOlderThanGivenRule()
     {
         $this->removeFilesOlderThanGivenRule([
-            'path'     => 'D:\\www\\other\\logs\\PHP\\PHP56\\',
+            'path'     => pathinfo(ini_get('error_log'))['dirname'],
             'dateRule' => strtotime('now'),
         ]);
-        $this->assertFileNotExists('D:\\www\\other\\logs\\PHP\\PHP56\\errors.log');
+        $fileToCheck = str_replace('/', DIRECTORY_SEPARATOR, implode(DIRECTORY_SEPARATOR, [
+            pathinfo(ini_get('error_log'))['dirname'],
+            'errors.log'
+        ]));
+        $this->assertFileNotExists($fileToCheck);
     }
 
     public function testRemoveFilesOlderThanGivenRuleNoDateRule()
     {
         $actual = $this->removeFilesOlderThanGivenRule([
-            'path' => 'D:\\www\\other\\logs\\PHP\\PHP56\\',
+            'path' => pathinfo(ini_get('error_log'))['dirname'],
         ]);
         $this->assertEquals('`dateRule` has not been provided', $actual);
     }
@@ -153,10 +157,18 @@ class CommonCodeTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('`path` has not been provided', $actual);
     }
 
+    public function testRemoveFilesOlderThanGivenRuleStringInputs()
+    {
+        $actual = $this->removeFilesOlderThanGivenRule('given rule');
+        $this->assertEquals(false, $actual);
+    }
+
     public function testSetArrayToJsonInvalid()
     {
-        $actual = $this->setArrayToJson(['string']);
-        $this->assertEquals('{ "0": "string" }', $actual);
+        $actual        = $this->setArrayToJson(['string']);
+        $jsn           = ['string'];
+        $valueToReturn = utf8_encode(json_encode($jsn, JSON_FORCE_OBJECT | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+        $this->assertEquals($valueToReturn, $actual);
     }
 
     public function testSetArrayValuesAsKey()
@@ -165,10 +177,22 @@ class CommonCodeTest extends PHPUnit_Framework_TestCase
         $this->assertArrayHasKey('one', $actual);
     }
 
-    public function testSetJsonToArrayInvalid()
+    public function testSetJsonToArrayInvalidJson()
+    {
+        $actual = $this->setJsonToArray("['Item']['systemSku']");
+        $this->assertArrayHasKey('error', $actual);
+    }
+
+    public function testSetJsonToArrayString()
     {
         $actual = $this->setJsonToArray('one');
         $this->assertArrayHasKey('error', $actual);
+    }
+
+    public function testSetJsonToArrayValid()
+    {
+        $actual = $this->setJsonToArray('{ "minion": "banana" }');
+        $this->assertArrayHasKey('minion', $actual);
     }
 
     public function testUpperRightBoxLanguages()

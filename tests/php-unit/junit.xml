@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+  <testsuite name="" tests="30" assertions="41" failures="1" errors="0" time="1.965456">
+    <testsuite name="CommonCodeTest" file="D:\Git\GitHub\danielgp.GitHub\common-lib\tests\php-unit\CommonCodeTest.php" tests="25" assertions="31" failures="1" errors="0" time="1.794846">
+      <testcase name="testExplainPermissions" class="CommonCodeTest" file="D:\Git\GitHub\danielgp.GitHub\common-lib\tests\php-unit\CommonCodeTest.php" line="33" assertions="5" time="0.011370"/>
+      <testcase name="testFileDetailsExisting" class="CommonCodeTest" file="D:\Git\GitHub\danielgp.GitHub\common-lib\tests\php-unit\CommonCodeTest.php" line="43" assertions="3" time="0.009668"/>
+      <testcase name="testFileDetaiNotExisting" class="CommonCodeTest" file="D:\Git\GitHub\danielgp.GitHub\common-lib\tests\php-unit\CommonCodeTest.php" line="51" assertions="1" time="0.066815"/>
+      <testcase name="testGetContentFromUrlThroughCurl" class="CommonCodeTest" file="D:\Git\GitHub\danielgp.GitHub\common-lib\tests\php-unit\CommonCodeTest.php" line="57" assertions="1" time="0.853135"/>
+      <testcase name="testGetContentFromUrlThroughCurlAsArrayIfJson" class="CommonCodeTest" file="D:\Git\GitHub\danielgp.GitHub\common-lib\tests\php-unit\CommonCodeTest.php" line="63" assertions="1" time="0.205960"/>
+      <testcase name="testGetContentFromUrlThroughCurlInvalid" class="CommonCodeTest" file="D:\Git\GitHub\danielgp.GitHub\common-lib\tests\php-unit\CommonCodeTest.php" line="69" assertions="1" time="0.052724"/>
+      <testcase name="testGetContentFromUrlThroughCurlSecure" class="CommonCodeTest" file="D:\Git\GitHub\danielgp.GitHub\common-lib\tests\php-unit\CommonCodeTest.php" line="75" assertions="1" time="0.108939"/>
+      <testcase name="testListOfFilesExisting" class="CommonCodeTest" file="D:\Git\GitHub\danielgp.GitHub\common-lib\tests\php-unit\CommonCodeTest.php" line="83" assertions="1" time="0.140857"/>
+      <testcase name="testListOfFilesNotExisting" class="CommonCodeTest" file="D:\Git\GitHub\danielgp.GitHub\common-lib\tests\php-unit\CommonCodeTest.php" line="89" assertions="1" time="0.040619"/>
+      <testcase name="testListOfFilesNotFolder" class="CommonCodeTest" file="D:\Git\GitHub\danielgp.GitHub\common-lib\tests\php-unit\CommonCodeTest.php" line="95" assertions="1" time="0.042020"/>
+      <testcase name="testGetTimestampArray" class="CommonCodeTest" file="D:\Git\GitHub\danielgp.GitHub\common-lib\tests\php-unit\CommonCodeTest.php" line="101" assertions="1" time="0.005958"/>
+      <testcase name="testGetTimestampFloat" class="CommonCodeTest" file="D:\Git\GitHub\danielgp.GitHub\common-lib\tests\php-unit\CommonCodeTest.php" line="107" assertions="1" time="0.007106"/>
+      <testcase name="testGetTimestampString" class="CommonCodeTest" file="D:\Git\GitHub\danielgp.GitHub\common-lib\tests\php-unit\CommonCodeTest.php" line="113" assertions="1" time="0.006874"/>
+      <testcase name="testGetTimestampUnknownReturnType" class="CommonCodeTest" file="D:\Git\GitHub\danielgp.GitHub\common-lib\tests\php-unit\CommonCodeTest.php" line="119" assertions="1" time="0.048528"/>
+      <testcase name="testIsJsonByDanielGP" class="CommonCodeTest" file="D:\Git\GitHub\danielgp.GitHub\common-lib\tests\php-unit\CommonCodeTest.php" line="125" assertions="1" time="0.039825"/>
+      <testcase name="testRemoveFilesOlderThanGivenRule" class="CommonCodeTest" file="D:\Git\GitHub\danielgp.GitHub\common-lib\tests\php-unit\CommonCodeTest.php" line="131" assertions="1" time="0.018398">
+        <failure type="PHPUnit_Framework_ExpectationFailedException">CommonCodeTest::testRemoveFilesOlderThanGivenRule
+Failed asserting that file "D:\www\other\logs\PHP\PHP70ssl\errors.log" does not exist.
+
+D:\Git\GitHub\danielgp.GitHub\common-lib\tests\php-unit\CommonCodeTest.php:141
+</failure>
+      </testcase>
+      <testcase name="testRemoveFilesOlderThanGivenRuleNoDateRule" class="CommonCodeTest" file="D:\Git\GitHub\danielgp.GitHub\common-lib\tests\php-unit\CommonCodeTest.php" line="144" assertions="1" time="0.006282"/>
+      <testcase name="testRemoveFilesOlderThanGivenRuleNoPath" class="CommonCodeTest" file="D:\Git\GitHub\danielgp.GitHub\common-lib\tests\php-unit\CommonCodeTest.php" line="152" assertions="1" time="0.006062"/>
+      <testcase name="testRemoveFilesOlderThanGivenRuleStringInputs" class="CommonCodeTest" file="D:\Git\GitHub\danielgp.GitHub\common-lib\tests\php-unit\CommonCodeTest.php" line="160" assertions="1" time="0.005980"/>
+      <testcase name="testSetArrayToJsonInvalid" class="CommonCodeTest" file="D:\Git\GitHub\danielgp.GitHub\common-lib\tests\php-unit\CommonCodeTest.php" line="166" assertions="1" time="0.006331"/>
+      <testcase name="testSetArrayValuesAsKey" class="CommonCodeTest" file="D:\Git\GitHub\danielgp.GitHub\common-lib\tests\php-unit\CommonCodeTest.php" line="174" assertions="1" time="0.006402"/>
+      <testcase name="testSetJsonToArrayInvalidJson" class="CommonCodeTest" file="D:\Git\GitHub\danielgp.GitHub\common-lib\tests\php-unit\CommonCodeTest.php" line="180" assertions="1" time="0.040579"/>
+      <testcase name="testSetJsonToArrayString" class="CommonCodeTest" file="D:\Git\GitHub\danielgp.GitHub\common-lib\tests\php-unit\CommonCodeTest.php" line="186" assertions="1" time="0.042210"/>
+      <testcase name="testSetJsonToArrayValid" class="CommonCodeTest" file="D:\Git\GitHub\danielgp.GitHub\common-lib\tests\php-unit\CommonCodeTest.php" line="192" assertions="1" time="0.011279"/>
+      <testcase name="testUpperRightBoxLanguages" class="CommonCodeTest" file="D:\Git\GitHub\danielgp.GitHub\common-lib\tests\php-unit\CommonCodeTest.php" line="198" assertions="1" time="0.010925"/>
+    </testsuite>
+    <testsuite name="CommonLibLocaleTest" file="D:\Git\GitHub\danielgp.GitHub\common-lib\tests\php-unit\CommonLibLocaleTest.php" tests="5" assertions="10" failures="0" errors="0" time="0.170610">
+      <testcase name="testLocalMessage" class="CommonLibLocaleTest" file="D:\Git\GitHub\danielgp.GitHub\common-lib\tests\php-unit\CommonLibLocaleTest.php" line="33" assertions="1" time="0.039751"/>
+      <testcase name="testlclMsgCmnNumber" class="CommonLibLocaleTest" file="D:\Git\GitHub\danielgp.GitHub\common-lib\tests\php-unit\CommonLibLocaleTest.php" line="39" assertions="3" time="0.052278"/>
+      <testcase name="testhandleLanguageIntoSessionGet" class="CommonLibLocaleTest" file="D:\Git\GitHub\danielgp.GitHub\common-lib\tests\php-unit\CommonLibLocaleTest.php" line="51" assertions="1" time="0.010847"/>
+      <testcase name="testhandleLanguageIntoSessionNormalize" class="CommonLibLocaleTest" file="D:\Git\GitHub\danielgp.GitHub\common-lib\tests\php-unit\CommonLibLocaleTest.php" line="59" assertions="1" time="0.011092"/>
+      <testcase name="testsetDividedResult" class="CommonLibLocaleTest" file="D:\Git\GitHub\danielgp.GitHub\common-lib\tests\php-unit\CommonLibLocaleTest.php" line="67" assertions="4" time="0.056642"/>
+    </testsuite>
+  </testsuite>
+</testsuites>
