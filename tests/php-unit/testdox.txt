@@ -3,7 +3,7 @@ CommonCode
  [x] File details existing
  [x] File detai not existing
  [x] Get content from url through curl
- [x] Get content from url through curl as array if json
+ [ ] Get content from url through curl as array if json
  [x] Get content from url through curl invalid
  [x] Get content from url through curl secure
  [x] List of files existing
