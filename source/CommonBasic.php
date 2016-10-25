@@ -222,7 +222,7 @@ trait CommonBasic
         $rtrn      = utf8_encode(json_encode($inArray, JSON_FORCE_OBJECT | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
         $jsonError = $this->setJsonErrorInPlainEnglish();
         if (is_null($jsonError)) {
-            return $rtrn;
+            $jsonError = $rtrn;
         }
         return $jsonError;
     }
