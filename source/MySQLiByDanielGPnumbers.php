@@ -170,7 +170,7 @@ trait MySQLiByDanielGPnumbers
         } elseif (in_array($fieldDetails['DATA_TYPE'], ['decimal', 'numeric'])) {
             return ['M' => $fieldDetails['NUMERIC_PRECISION'], 'd' => $fieldDetails['NUMERIC_SCALE']];
         } elseif (in_array($fieldDetails['DATA_TYPE'], ['bigint', 'int', 'mediumint', 'smallint', 'tinyint'])) {
-            return $this->setFldLmtsExact($fieldDetails['DATA_TYPE']);
+            return $this->setFldLmtsExact($fieldDetails['DATA_TYPE'], $fieldDetails['COLUMN_TYPE']);
         }
         return $this->setFieldSpecificElse($fieldDetails);
     }
@@ -184,7 +184,7 @@ trait MySQLiByDanielGPnumbers
         return ['M' => '???'];
     }
 
-    private function setFldLmtsExact($cTp)
+    private function setFldLmtsExact($dTp, $cTp)
     {
         $xct     = [
             'bigint'    => ['l' => -9223372036854775808, 'L' => 9223372036854775807, 's' => 21, 'sUS' => 20],
@@ -194,10 +194,10 @@ trait MySQLiByDanielGPnumbers
             'tinyint'   => ['l' => -128, 'L' => 127, 's' => 4, 'sUS' => 3],
         ];
         $aReturn = null;
-        if (array_key_exists($cTp, $xct)) {
-            $aReturn = ['m' => $xct[$cTp]['l'], 'M' => $xct[$cTp]['L'], 'l' => $xct[$cTp]['s']];
+        if (array_key_exists($dTp, $xct)) {
+            $aReturn = ['m' => $xct[$dTp]['l'], 'M' => $xct[$dTp]['L'], 'l' => $xct[$dTp]['s']];
             if (strpos($cTp, 'unsigned') !== false) {
-                $aReturn = ['m' => 0, 'M' => ($xct[$cTp]['L'] - $xct[$cTp]['l']), 'l' => $xct[$cTp]['sUS']];
+                $aReturn = ['m' => 0, 'M' => ($xct[$dTp]['L'] - $xct[$dTp]['l']), 'l' => $xct[$dTp]['sUS']];
             }
         }
         return $aReturn;
@@ -214,7 +214,7 @@ trait MySQLiByDanielGPnumbers
     {
         $btn   = [];
         $btn[] = '<input type="submit" id="submit" style="margin-left:220px;" value="'
-                . $this->lclMsgCmn('i18n_Form_ButtonSave') . '" />';
+            . $this->lclMsgCmn('i18n_Form_ButtonSave') . '" />';
         if (isset($feat['insertAndUpdate'])) {
             $btn[] = '<input type="hidden" id="insertAndUpdate" name="insertAndUpdate" value="insertAndUpdate" />';
         }
