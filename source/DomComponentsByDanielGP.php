@@ -549,7 +549,7 @@ trait DomComponentsByDanielGP
     protected function setFooterCommon($footerInjected = null)
     {
         $sHK = $this->tCmnSuperGlobals->get('specialHook');
-        if (is_null($sHK) && (in_array('noHeader', $sHK))) {
+        if (!is_null($sHK) && (in_array('noHeader', $sHK))) {
             return '';
         }
         return $this->setFooterCommonInjected($footerInjected) . '</body></html>';
@@ -577,7 +577,7 @@ trait DomComponentsByDanielGP
     {
         $sReturn = [];
         $sHK     = $this->tCmnSuperGlobals->get('specialHook');
-        if (is_null($sHK) && (in_array('noHeader', $sHK))) {
+        if (!is_null($sHK) && (in_array('noHeader', $sHK))) {
             $sReturn[] = ''; // no Header
         } else {
             $fixedHeaderElements = [
