@@ -15,7 +15,7 @@
         "ext-curl": "*",
         "ext-mysqli": "*",
         "components/flag-icon-css": "^3",
-        "components/jquery": "^3.3",
+        "components/jquery": "^2.4",
         "danielgp/browser-agent-info": "^1.3",
         "danielgp/network-components": "^1.2",
         "gettext/gettext": "^4",
