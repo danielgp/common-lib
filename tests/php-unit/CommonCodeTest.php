@@ -25,13 +25,12 @@
  * SOFTWARE.
  *
  */
-class CommonCodeTest extends PHPUnit_Framework_TestCase
+class CommonCodeTest extends \PHPUnit\Framework\TestCase
 {
 
     use \danielgp\common_lib\CommonCode;
 
-    public function testExplainPermissions()
-    {
+    public function testExplainPermissions() {
         $actual = $this->explainPerms('0666');
         $this->assertArrayHasKey('Code', $actual);
         $this->assertArrayHasKey('Overall', $actual);
@@ -40,96 +39,81 @@ class CommonCodeTest extends PHPUnit_Framework_TestCase
         $this->assertArrayHasKey('Group', $actual);
     }
 
-    public function testFileDetailsExisting()
-    {
+    public function testFileDetailsExisting() {
         $actual = $this->getFileDetails(__FILE__);
         $this->assertArrayHasKey('File Name w. Extension', $actual);
         $this->assertArrayHasKey('Timestamp Modified', $actual);
         $this->assertArrayHasKey('Type', $actual);
     }
 
-    public function testFileDetaiNotExisting()
-    {
+    public function testFileDetaiNotExisting() {
         $actual = $this->getFileDetails('not existing file');
         $this->assertArrayHasKey('error', $actual);
     }
 
-    public function testGetContentFromUrlThroughCurl()
-    {
+    public function testGetContentFromUrlThroughCurl() {
         $actual = $this->getContentFromUrlThroughCurl('http://127.0.0.1/informator/?Label=Client+Info');
         $this->assertJson($actual);
     }
 
-    public function testGetContentFromUrlThroughCurlAsArrayIfJson()
-    {
-        $actual = $this->getContentFromUrlThroughCurlAsArrayIfJson('http://127.0.0.1/informator/?Label=Client+Info')['response'];
+    public function testGetContentFromUrlThroughCurlAsArrayIfJson() {
+        $actual = $this->getContentFromUrlThroughCurlAsArrayIfJson('https://127.0.0.1/informator/?Label=Client+Info')['response'];
         $this->assertArrayHasKey('Browser', $actual);
     }
 
-    public function testGetContentFromUrlThroughCurlInvalid()
-    {
+    public function testGetContentFromUrlThroughCurlInvalid() {
         $actual = $this->getContentFromUrlThroughCurl('127.0.0.1/informator/source/info/?Label=ClientInfo');
         $this->assertJson($actual);
     }
 
-    public function testGetContentFromUrlThroughCurlSecure()
-    {
+    public function testGetContentFromUrlThroughCurlSecure() {
         $actual = $this->getContentFromUrlThroughCurl('http://127.0.0.1/informator/?Label=Client+Info', [
             'forceSSLverification'
         ]);
         $this->assertJson($actual);
     }
 
-    public function testListOfFilesExisting()
-    {
+    public function testListOfFilesExisting() {
         $actual = $this->getListOfFiles(__DIR__);
         $this->assertArrayHasKey(__FILE__, $actual);
     }
 
-    public function testListOfFilesNotExisting()
-    {
+    public function testListOfFilesNotExisting() {
         $actual = $this->getListOfFiles('not existing file');
         $this->assertArrayHasKey('error', $actual);
     }
 
-    public function testListOfFilesNotFolder()
-    {
+    public function testListOfFilesNotFolder() {
         $actual = $this->getListOfFiles(__FILE__);
         $this->assertArrayHasKey('error', $actual);
     }
 
-    public function testGetTimestampArray()
-    {
+    public function testGetTimestampArray() {
         $actual = $this->getTimestamp('array');
         $this->assertArrayHasKey('float', $actual);
     }
 
-    public function testGetTimestampFloat()
-    {
+    public function testGetTimestampFloat() {
         $actual = $this->getTimestamp('float');
         $this->assertGreaterThan(strtotime('now'), $actual);
     }
 
-    public function testGetTimestampString()
-    {
+    public function testGetTimestampString() {
         $actual = $this->getTimestamp('string');
         $this->assertEquals(date('[Y-m-d H:i:s', strtotime('now')), substr(strip_tags($actual), 0, 20));
     }
 
-    public function testGetTimestampUnknownReturnType()
-    {
+    public function testGetTimestampUnknownReturnType() {
         $actual = $this->getTimestamp('just time');
         $this->assertEquals(sprintf($this->lclMsgCmn('i18n_Error_UnknownReturnType'), 'just time'), $actual);
     }
 
-    public function testIsJsonByDanielGP()
-    {
+    public function testIsJsonByDanielGP() {
         $actual = $this->isJsonByDanielGP(['array']);
         $this->assertEquals($this->lclMsgCmn('i18n_Error_GivenInputIsNotJson'), $actual);
     }
 
-    public function testRemoveFilesOlderThanGivenRule()
-    {
+    public function testRemoveFilesOlderThanGivenRule() {
         $this->removeFilesOlderThanGivenRule([
             'path'     => pathinfo(ini_get('error_log'))['dirname'],
             'dateRule' => strtotime('now'),
@@ -141,62 +125,53 @@ class CommonCodeTest extends PHPUnit_Framework_TestCase
         $this->assertFileNotExists($fileToCheck);
     }
 
-    public function testRemoveFilesOlderThanGivenRuleNoDateRule()
-    {
+    public function testRemoveFilesOlderThanGivenRuleNoDateRule() {
         $actual = $this->removeFilesOlderThanGivenRule([
             'path' => pathinfo(ini_get('error_log'))['dirname'],
         ]);
         $this->assertEquals('`dateRule` has not been provided', $actual);
     }
 
-    public function testRemoveFilesOlderThanGivenRuleNoPath()
-    {
+    public function testRemoveFilesOlderThanGivenRuleNoPath() {
         $actual = $this->removeFilesOlderThanGivenRule([
             'dateRule' => strtotime('1 sec ago'),
         ]);
         $this->assertEquals('`path` has not been provided', $actual);
     }
 
-    public function testRemoveFilesOlderThanGivenRuleStringInputs()
-    {
+    public function testRemoveFilesOlderThanGivenRuleStringInputs() {
         $actual = $this->removeFilesOlderThanGivenRule('given rule');
         $this->assertEquals(false, $actual);
     }
 
-    public function testSetArrayToJsonInvalid()
-    {
+    public function testSetArrayToJsonInvalid() {
         $actual        = $this->setArrayToJson(['string']);
         $jsn           = ['string'];
         $valueToReturn = utf8_encode(json_encode($jsn, JSON_FORCE_OBJECT | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
         $this->assertEquals($valueToReturn, $actual);
     }
 
-    public function testSetArrayValuesAsKey()
-    {
+    public function testSetArrayValuesAsKey() {
         $actual = $this->setArrayValuesAsKey(['one', 'two']);
         $this->assertArrayHasKey('one', $actual);
     }
 
-    public function testSetJsonToArrayInvalidJson()
-    {
+    public function testSetJsonToArrayInvalidJson() {
         $actual = $this->setJsonToArray("['Item']['systemSku']");
         $this->assertArrayHasKey('error', $actual);
     }
 
-    public function testSetJsonToArrayString()
-    {
+    public function testSetJsonToArrayString() {
         $actual = $this->setJsonToArray('one');
         $this->assertArrayHasKey('error', $actual);
     }
 
-    public function testSetJsonToArrayValid()
-    {
+    public function testSetJsonToArrayValid() {
         $actual = $this->setJsonToArray('{ "minion": "banana" }');
         $this->assertArrayHasKey('minion', $actual);
     }
 
-    public function testUpperRightBoxLanguages()
-    {
+    public function testUpperRightBoxLanguages() {
         $actual = $this->setUpperRightBoxLanguages([
             'en_US' => 'US English',
             'ro_RO' => 'Română',
@@ -204,4 +179,5 @@ class CommonCodeTest extends PHPUnit_Framework_TestCase
         ]);
         $this->assertContains('Română', $actual);
     }
+
 }

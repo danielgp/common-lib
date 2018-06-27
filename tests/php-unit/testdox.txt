@@ -3,7 +3,7 @@ CommonCode
  [x] File details existing
  [x] File detai not existing
  [x] Get content from url through curl
- [ ] Get content from url through curl as array if json
+ [x] Get content from url through curl as array if json
  [x] Get content from url through curl invalid
  [x] Get content from url through curl secure
  [x] List of files existing
@@ -14,7 +14,7 @@ CommonCode
  [x] Get timestamp string
  [x] Get timestamp unknown return type
  [x] Is json by daniel g p
- [ ] Remove files older than given rule
+ [x] Remove files older than given rule
  [x] Remove files older than given rule no date rule
  [x] Remove files older than given rule no path
  [x] Remove files older than given rule string inputs

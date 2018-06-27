@@ -82,17 +82,17 @@ trait MySQLiByDanielGP
         }
         $inA = [
             'type'      => 'text',
-            'name'      => $value['Field'],
-            'id'        => $value['Field'],
+            'name'      => $value['COLUMN_NAME'],
+            'id'        => $value['COLUMN_NAME'],
             'value'     => $defaultValue,
             'size'      => 10,
             'maxlength' => 10,
             'onfocus'   => implode('', [
-                'javascript:NewCssCal(\'' . $value['Field'],
+                'javascript:NewCssCal(\'' . $value['COLUMN_NAME'],
                 '\',\'yyyyMMdd\',\'dropdown\',false,\'24\',false);',
             ]),
         ];
-        return $this->setStringIntoShortTag('input', $inA) . $this->setCalendarControl($value['Field']);
+        return $this->setStringIntoShortTag('input', $inA) . $this->setCalendarControl($value['COLUMN_NAME']);
     }
 
     /**

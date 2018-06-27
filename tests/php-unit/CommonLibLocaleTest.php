@@ -25,7 +25,7 @@
  * SOFTWARE.
  *
  */
-class CommonLibLocaleTest extends PHPUnit_Framework_TestCase
+class CommonLibLocaleTest extends \PHPUnit\Framework\TestCase
 {
 
     use \danielgp\common_lib\CommonLibLocale;
