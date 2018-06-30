@@ -29,7 +29,7 @@
 namespace danielgp\common_lib;
 
 /**
- * Usefull functions to get quick MySQL content
+ * Useful functions to get quick MySQL content
  *
  * @author Daniel Popiniuc
  */
@@ -174,7 +174,7 @@ trait MySQLiMultipleExecution
      * Detects what kind of variable has been transmited
      * to return the identifier needed by MySQL statement preparing
      *
-     * @param string $variabaleValue
+     * @param integer|float|string $variabaleValue
      * @return string
      */
     protected function setVariableTypeForMySqlStatements($variabaleValue)
