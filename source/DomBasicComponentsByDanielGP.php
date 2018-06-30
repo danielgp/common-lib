@@ -79,8 +79,8 @@ trait DomBasicComponentsByDanielGP
     /**
      * Cleans a string for certain internal rules
      *
-     * @param type $urlString
-     * @return stringw
+     * @param string $urlString
+     * @return string
      */
     protected function setCleanUrl($urlString)
     {

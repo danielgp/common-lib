@@ -65,7 +65,7 @@ trait CommonCode
      *
      * @param string $fullURL
      * @param array $features
-     * @return string
+     * @return array
      */
     protected function getContentFromUrlThroughCurlAsArrayIfJson($fullURL, $features = null)
     {
@@ -258,7 +258,7 @@ trait CommonCode
         }
         $sReturn   = (json_decode($inputJson, true));
         $jsonError = $this->setJsonErrorInPlainEnglish();
-        if (is_null($jsonError)) {
+        if ($jsonError == '') {
             return $sReturn;
         }
         return ['error' => $jsonError];

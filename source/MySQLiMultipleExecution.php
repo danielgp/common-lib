@@ -174,7 +174,7 @@ trait MySQLiMultipleExecution
      * Detects what kind of variable has been transmited
      * to return the identifier needed by MySQL statement preparing
      *
-     * @param type $variabaleValue
+     * @param string $variabaleValue
      * @return string
      */
     protected function setVariableTypeForMySqlStatements($variabaleValue)
@@ -198,4 +198,5 @@ trait MySQLiMultipleExecution
         }
         return implode('', $types);
     }
+
 }

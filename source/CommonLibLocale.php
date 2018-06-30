@@ -168,7 +168,7 @@ trait CommonLibLocale
      * @param float $fAbove
      * @param float $fBelow
      * @param mixed $mArguments
-     * @return float
+     * @return string
      */
     protected function setDividedResult($fAbove, $fBelow, $mArguments = null)
     {
@@ -218,6 +218,7 @@ trait CommonLibLocale
     /**
      * Settings
      *
+     * @return array
      */
     private function settingsCommonLib()
     {

@@ -60,7 +60,7 @@ trait MySQLiByDanielGPqueries
     /**
      * Internal function to manage concatenation for filters
      *
-     * @param array $filterValue
+     * @param array|string $filterValue
      * @return string
      */
     private function sGlueFilterValIntoWhereStr($filterValue)

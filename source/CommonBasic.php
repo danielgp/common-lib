@@ -201,7 +201,7 @@ trait CommonBasic
     /**
      * Converts a single-child array into an parent-child one
      *
-     * @param type $inArray
+     * @param array $inArray
      * @return array
      */
     protected function setArrayValuesAsKey(array $inArray)
@@ -221,7 +221,7 @@ trait CommonBasic
     {
         $rtrn      = utf8_encode(json_encode($inArray, JSON_FORCE_OBJECT | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
         $jsonError = $this->setJsonErrorInPlainEnglish();
-        if (is_null($jsonError)) {
+        if ($jsonError == '') {
             $jsonError = $rtrn;
         }
         return $jsonError;
@@ -235,7 +235,7 @@ trait CommonBasic
     protected function setJsonErrorInPlainEnglish()
     {
         $knownErrors = [
-            JSON_ERROR_NONE           => null,
+            JSON_ERROR_NONE           => '',
             JSON_ERROR_DEPTH          => 'Maximum stack depth exceeded',
             JSON_ERROR_STATE_MISMATCH => 'Underflow or the modes mismatch',
             JSON_ERROR_CTRL_CHAR      => 'Unexpected control character found',
