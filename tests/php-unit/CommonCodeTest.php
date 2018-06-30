@@ -130,12 +130,13 @@ class CommonCodeTest extends \PHPUnit\Framework\TestCase
 
     public function testRemoveFilesOlderThanGivenRule()
     {
+        $where       = pathinfo(ini_get('error_log'), PATHINFO_DIRNAME);
         $this->removeFilesOlderThanGivenRule([
-            'path'     => '/fake_folder/',
+            'path'     => $where,
             'dateRule' => strtotime('10 years ago'),
         ]);
         $fileToCheck = str_replace('/', DIRECTORY_SEPARATOR, implode(DIRECTORY_SEPARATOR, [
-            'path' => '/fake_folder/',
+            'path' => $where,
             'php_error_log',
         ]));
         $this->assertFileNotExists($fileToCheck);
