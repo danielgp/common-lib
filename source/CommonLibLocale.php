@@ -29,7 +29,7 @@
 namespace danielgp\common_lib;
 
 /**
- * Usefull functions to support multi-language feedback
+ * Useful functions to support multi-language feedback
  *
  * @author Daniel Popiniuc
  */
@@ -42,7 +42,8 @@ trait CommonLibLocale
     protected $tCmnSession      = null;
     protected $tCmnSuperGlobals = null;
 
-    private function getCommonLocaleFolder() {
+    private function getCommonLocaleFolder()
+    {
         $pathes     = explode(DIRECTORY_SEPARATOR, __DIR__);
         $pathDepth  = count($pathes);
         $localePath = [];
@@ -54,19 +55,23 @@ trait CommonLibLocale
         return implode(DIRECTORY_SEPARATOR, $localePath);
     }
 
-    private function getTimestampArray($crtTime) {
+    private function getTimestampArray($crtTime)
+    {
         return ['float' => $this->getTimestampFloat($crtTime), 'string' => $this->getTimestampString($crtTime)];
     }
 
-    private function getTimestampFloat($crtTime) {
+    private function getTimestampFloat($crtTime)
+    {
         return ($crtTime['sec'] + $crtTime['usec'] / pow(10, 6));
     }
 
-    protected function getTimestampRaw($returnType) {
+    protected function getTimestampRaw($returnType)
+    {
         return call_user_func([$this, 'getTimestamp' . ucfirst($returnType)], gettimeofday());
     }
 
-    private function getTimestampString($crtTime) {
+    private function getTimestampString($crtTime)
+    {
         return implode('', [
             '<span style="color:black!important;font-weight:bold;">[',
             date('Y-m-d H:i:s.', $crtTime['sec']),
@@ -80,9 +85,9 @@ trait CommonLibLocale
      * (In order to avoid potential language injections from other applications session will revert
      * to the default language if application one is not among the one are not supported here)
      *
-     * @return NOTHING
      */
-    private function handleLanguageIntoSession() {
+    private function handleLanguageIntoSession()
+    {
         $this->settingsCommonLib();
         $this->initializeSprGlbAndSession();
         if (is_null($this->tCmnSuperGlobals->get('lang')) && is_null($this->tCmnSession->get('lang'))) {
@@ -97,20 +102,21 @@ trait CommonLibLocale
      * Takes care of instantiation of localization libraries
      * used within current module for multi-languages support
      *
-     * @return NOTHING
      */
-    private function handleLocalizationCommon() {
+    private function handleLocalizationCommon()
+    {
         $this->handleLanguageIntoSession();
         $localizationFile = $this->getCommonLocaleFolder() . '/locale/'
-                . $this->tCmnSession->get('lang') . '/LC_MESSAGES/'
-                . $this->commonLibFlags['localization_domain'] . '.mo';
+            . $this->tCmnSession->get('lang') . '/LC_MESSAGES/'
+            . $this->commonLibFlags['localization_domain'] . '.mo';
         $translations     = new \Gettext\Translations;
         $translations->addFromMoFile($localizationFile);
         $this->tCmnLb     = new \Gettext\Translator();
         $this->tCmnLb->loadTranslations($translations);
     }
 
-    protected function initializeSprGlbAndSession() {
+    protected function initializeSprGlbAndSession()
+    {
         if (is_null($this->tCmnSuperGlobals)) {
             $this->tCmnRequest      = new \Symfony\Component\HttpFoundation\Request;
             $this->tCmnSuperGlobals = $this->tCmnRequest->createFromGlobals();
@@ -122,7 +128,8 @@ trait CommonLibLocale
         }
     }
 
-    private function lclManagePrerequisites() {
+    private function lclManagePrerequisites()
+    {
         if (is_null($this->tCmnLb)) {
             $this->settingsCommonLib();
             $this->handleLocalizationCommon();
@@ -135,17 +142,20 @@ trait CommonLibLocale
      * @param string $localizedStringCode
      * @return string
      */
-    protected function lclMsgCmn($localizedStringCode) {
+    protected function lclMsgCmn($localizedStringCode)
+    {
         $this->lclManagePrerequisites();
         return $this->tCmnLb->gettext($localizedStringCode);
     }
 
-    protected function lclMsgCmnNumber($singularString, $pluralString, $numberToEvaluate) {
+    protected function lclMsgCmnNumber($singularString, $pluralString, $numberToEvaluate)
+    {
         $this->lclManagePrerequisites();
         return sprintf($this->tCmnLb->ngettext($singularString, $pluralString, $numberToEvaluate), 1);
     }
 
-    private function normalizeLocalizationIntoSession() {
+    private function normalizeLocalizationIntoSession()
+    {
         if (!array_key_exists($this->tCmnSession->get('lang'), $this->commonLibFlags['available_languages'])) {
             $this->tCmnSession->set('lang', $this->commonLibFlags['default_language']);
         }
@@ -158,9 +168,10 @@ trait CommonLibLocale
      * @param float $fAbove
      * @param float $fBelow
      * @param mixed $mArguments
-     * @return decimal
+     * @return float
      */
-    protected function setDividedResult($fAbove, $fBelow, $mArguments = null) {
+    protected function setDividedResult($fAbove, $fBelow, $mArguments = null)
+    {
         if (($fAbove == 0) || ($fBelow == 0)) { // prevent infinite result AND division by 0
             return 0;
         }
@@ -175,7 +186,8 @@ trait CommonLibLocale
         return $this->setNumberFormat(round($numberToFormat, $mArguments));
     }
 
-    protected function setNumberFormat($content, $ftrs = null) {
+    protected function setNumberFormat($content, $ftrs = null)
+    {
         $features = $this->setNumberFormatFeatures($ftrs);
         $fmt      = new \NumberFormatter($features['locale'], $features['style']);
         $fmt->setAttribute(\NumberFormatter::MIN_FRACTION_DIGITS, $features['MinFractionDigits']);
@@ -183,7 +195,8 @@ trait CommonLibLocale
         return $fmt->format($content);
     }
 
-    private function setNumberFormatFeatures($features) {
+    private function setNumberFormatFeatures($features)
+    {
         $this->handleLanguageIntoSession();
         if (is_null($features)) {
             $features = [
@@ -205,9 +218,9 @@ trait CommonLibLocale
     /**
      * Settings
      *
-     * @return NOTHING
      */
-    private function settingsCommonLib() {
+    private function settingsCommonLib()
+    {
         $this->commonLibFlags = [
             'available_languages' => [
                 'en_US' => 'US English',

@@ -73,7 +73,7 @@ trait DomCssAndJavascriptByDanielGPwithCDN
      * Manages all known CSS that can be handled through CDNs
      *
      * @param string $cssFileName
-     * @return array
+     * @return array|string
      */
     protected function setCssFileCDN($cssFileName)
     {
@@ -92,7 +92,7 @@ trait DomCssAndJavascriptByDanielGPwithCDN
      * Returns an array with CDN call of a known Font-websome css
      *
      * @param string $cssFileName
-     * @return string
+     * @return array
      */
     private function setCssFileCDNforFontAwesome($cssFileName)
     {
@@ -108,7 +108,7 @@ trait DomCssAndJavascriptByDanielGPwithCDN
      * (if within local network makes no sense to use CDNs)
      *
      * @param string $jsFileName
-     * @return array
+     * @return array|string
      */
     protected function setJavascriptFileCDN($jsFileName)
     {
@@ -179,7 +179,7 @@ trait DomCssAndJavascriptByDanielGPwithCDN
     {
         $jsFN            = $this->sanitizeString($jsFileName);
         $jsVersionlessFN = str_replace([$libName . '-', '.js'], '', pathinfo($jsFileName)['basename'])
-                . ($libName === 'exporting' ? '/modules' : '');
+            . ($libName === 'exporting' ? '/modules' : '');
         if (strpos($jsFileName, $libName) !== false) {
             return [
                 true,
@@ -235,4 +235,5 @@ trait DomCssAndJavascriptByDanielGPwithCDN
         }
         return null;
     }
+
 }

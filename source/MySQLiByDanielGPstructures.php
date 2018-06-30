@@ -29,7 +29,7 @@
 namespace danielgp\common_lib;
 
 /**
- * Usefull functions to get quick MySQL content
+ * Useful functions to get quick MySQL content
  *
  * @author Daniel Popiniuc
  */
@@ -40,7 +40,7 @@ trait MySQLiByDanielGPstructures
         MySQLiByDanielGPqueries;
 
     /**
-     * Ensures table has special quoes and DOT as final char
+     * Ensures table has special quotes and DOT as final char
      * (if not empty, of course)
      *
      * @param string $referenceTable
@@ -110,7 +110,7 @@ trait MySQLiByDanielGPstructures
     /**
      * Return the list of Tables from the MySQL server
      *
-     * @return string
+     * @return array
      */
     protected function getMySQLStatistics($filterArray = null)
     {
@@ -204,7 +204,7 @@ trait MySQLiByDanielGPstructures
     }
 
     /**
-     * Return various informations (from predefined list) from the MySQL server
+     * Return various information (from predefined list) from the MySQL server
      *
      * @param string $rChoice
      * @param string $returnType
@@ -232,7 +232,7 @@ trait MySQLiByDanielGPstructures
     /**
      * Return the list of Tables from the MySQL server
      *
-     * @return string
+     * @return array
      */
     protected function getMySQLlistTables($filterArray = null)
     {
@@ -242,7 +242,7 @@ trait MySQLiByDanielGPstructures
     /**
      * Return the time from the MySQL server
      *
-     * @return string
+     * @return array
      */
     protected function getMySQLserverTime()
     {
@@ -281,7 +281,7 @@ trait MySQLiByDanielGPstructures
         $filters2 = implode(', ', array_diff($value, ['']));
         if ($filters2 != '') {
             return '(' . $referenceTable . '`' . $key . '` IN ("'
-                    . str_replace(',', '","', str_replace(["'", '"'], '', $filters2)) . '"))';
+                . str_replace(',', '","', str_replace(["'", '"'], '', $filters2)) . '"))';
         }
         return '';
     }
@@ -307,7 +307,7 @@ trait MySQLiByDanielGPstructures
      *
      * @param array $entryArray
      * @param string $referenceTable
-     * @return array
+     * @return string
      */
     private function setArrayToFilterValues($entryArray, $referenceTable = '')
     {
@@ -336,4 +336,5 @@ trait MySQLiByDanielGPstructures
         }
         return $query;
     }
+
 }

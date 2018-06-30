@@ -39,7 +39,7 @@ trait MySQLiByDanielGPtypes
     /**
      * Returns the Query language type by scanning the 1st keyword from a given query
      *
-     * @param input $sQuery
+     * @param string $sQuery
      */
     protected function getMySQLqueryType($sQuery)
     {
@@ -103,4 +103,5 @@ trait MySQLiByDanielGPtypes
         fclose($fJson);
         return json_decode($jSonContent, true);
     }
+
 }

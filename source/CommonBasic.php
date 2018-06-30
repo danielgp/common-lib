@@ -29,7 +29,7 @@
 namespace danielgp\common_lib;
 
 /**
- * usefull functions to get quick results
+ * useful functions to get quick results
  *
  * @author Daniel Popiniuc
  */
@@ -114,9 +114,9 @@ trait CommonBasic
     /**
      * Moves files into another folder
      *
-     * @param type $sourcePath
-     * @param type $targetPath
-     * @return type
+     * @param string $sourcePath
+     * @param string $targetPath
+     * @return string
      */
     protected function moveFilesIntoTargetFolder($sourcePath, $targetPath)
     {
@@ -202,7 +202,7 @@ trait CommonBasic
      * Converts a single-child array into an parent-child one
      *
      * @param type $inArray
-     * @return type
+     * @return array
      */
     protected function setArrayValuesAsKey(array $inArray)
     {
@@ -230,7 +230,7 @@ trait CommonBasic
     /**
      * Provides a list of all known JSON errors and their description
      *
-     * @return type
+     * @return string
      */
     protected function setJsonErrorInPlainEnglish()
     {
@@ -244,4 +244,5 @@ trait CommonBasic
         ];
         return $knownErrors[json_last_error()];
     }
+
 }

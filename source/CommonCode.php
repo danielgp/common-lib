@@ -44,7 +44,7 @@ trait CommonCode
      *
      * @param string $fullURL
      * @param array $features
-     * @return blob
+     * @return string
      */
     protected function getContentFromUrlThroughCurl($fullURL, $features = null)
     {
@@ -65,7 +65,7 @@ trait CommonCode
      *
      * @param string $fullURL
      * @param array $features
-     * @return blob
+     * @return string
      */
     protected function getContentFromUrlThroughCurlAsArrayIfJson($fullURL, $features = null)
     {
@@ -263,4 +263,5 @@ trait CommonCode
         }
         return ['error' => $jsonError];
     }
+
 }

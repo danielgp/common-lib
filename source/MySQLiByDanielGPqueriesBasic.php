@@ -67,35 +67,35 @@ trait MySQLiByDanielGPqueriesBasic
     /**
      * Query to list Databases
      *
-     * @param type $excludeSystemDbs
-     * @return type
+     * @param boolean $excludeSystemDbs
+     * @return string
      */
     protected function sQueryMySqlActiveDatabases($excludeSystemDbs = true)
     {
         $sDBs = 'WHERE '
-                . '`SCHEMA_NAME` NOT IN ("'
-                . implode('", "', ['information_schema', 'mysql', 'performance_schema', 'sys']) . '") ';
+            . '`SCHEMA_NAME` NOT IN ("'
+            . implode('", "', ['information_schema', 'mysql', 'performance_schema', 'sys']) . '") ';
         return 'SELECT '
-                . '`SCHEMA_NAME` As `Db`, `DEFAULT_CHARACTER_SET_NAME` AS `DbCharset`, '
-                . '`DEFAULT_COLLATION_NAME` AS `DbCollation` '
-                . 'FROM `information_schema`.`SCHEMATA` '
-                . ($excludeSystemDbs ? $sDBs : '')
-                . 'GROUP BY `SCHEMA_NAME`;';
+            . '`SCHEMA_NAME` As `Db`, `DEFAULT_CHARACTER_SET_NAME` AS `DbCharset`, '
+            . '`DEFAULT_COLLATION_NAME` AS `DbCollation` '
+            . 'FROM `information_schema`.`SCHEMATA` '
+            . ($excludeSystemDbs ? $sDBs : '')
+            . 'GROUP BY `SCHEMA_NAME`;';
     }
 
     /**
      * Query to list MySQL engines
      *
-     * @param string $onlyActiveOnes
-     * @return type
+     * @param boolean $onlyActiveOnes
+     * @return string
      */
     protected function sQueryMySqlActiveEngines($onlyActiveOnes = true)
     {
         return 'SELECT '
-                . '`ENGINE` AS `Engine`, `SUPPORT` AS `Support`, `COMMENT` AS `Comment` '
-                . 'FROM `information_schema`.`ENGINES` '
-                . ($onlyActiveOnes ? 'WHERE (`SUPPORT` IN ("DEFAULT", "YES")) ' : '')
-                . 'GROUP BY `ENGINE`;';
+            . '`ENGINE` AS `Engine`, `SUPPORT` AS `Support`, `COMMENT` AS `Comment` '
+            . 'FROM `information_schema`.`ENGINES` '
+            . ($onlyActiveOnes ? 'WHERE (`SUPPORT` IN ("DEFAULT", "YES")) ' : '')
+            . 'GROUP BY `ENGINE`;';
     }
 
     /**
@@ -128,15 +128,16 @@ trait MySQLiByDanielGPqueriesBasic
     {
         $this->sCleanParameters($parameters);
         return 'SELECT * '
-                . 'FROM `' . $parameters[0] . '` '
-                . 'WHERE ' . $parameters[1] . ';';
+            . 'FROM `' . $parameters[0] . '` '
+            . 'WHERE ' . $parameters[1] . ';';
     }
 
     protected function sQueryToDeleteSingleIdentifier($parameters)
     {
         $this->sCleanParameters($parameters);
         return 'DELETE '
-                . 'FROM `' . $parameters[0] . '` '
-                . 'WHERE `' . $parameters[1] . '` = "' . $parameters[2] . '";';
+            . 'FROM `' . $parameters[0] . '` '
+            . 'WHERE `' . $parameters[1] . '` = "' . $parameters[2] . '";';
     }
+
 }

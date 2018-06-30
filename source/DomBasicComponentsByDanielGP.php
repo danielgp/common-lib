@@ -45,7 +45,7 @@ trait DomBasicComponentsByDanielGP
         }
         $attributes = '';
         foreach ($features as $key => $value) {
-            $val = $this->buildAttributesForTagValueArray($value);
+            $val        = $this->buildAttributesForTagValueArray($value);
             $attributes .= ' ' . $key . '="' . $val . '"';
         }
         return $attributes;
@@ -80,7 +80,7 @@ trait DomBasicComponentsByDanielGP
      * Cleans a string for certain internal rules
      *
      * @param type $urlString
-     * @return type
+     * @return stringw
      */
     protected function setCleanUrl($urlString)
     {
@@ -222,7 +222,7 @@ trait DomBasicComponentsByDanielGP
     protected function setStringIntoShortTag($sTag, $features = null)
     {
         return '<' . $sTag . $this->buildAttributesForTag($features)
-                . (isset($features['dont_close']) ? '' : '/') . '>';
+            . (isset($features['dont_close']) ? '' : '/') . '>';
     }
 
     /**
@@ -269,4 +269,5 @@ trait DomBasicComponentsByDanielGP
         }
         return $addingUrl;
     }
+
 }

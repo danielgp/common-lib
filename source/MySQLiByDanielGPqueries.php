@@ -60,7 +60,7 @@ trait MySQLiByDanielGPqueries
     /**
      * Internal function to manage concatenation for filters
      *
-     * @param type $filterValue
+     * @param array $filterValue
      * @return string
      */
     private function sGlueFilterValIntoWhereStr($filterValue)
@@ -92,7 +92,7 @@ trait MySQLiByDanielGPqueries
      * Internal function to concatenate filters
      *
      * @param array $filters
-     * @return type
+     * @return string
      */
     private function sGlueFiltersIntoWhereArrayFilter($filters)
     {
@@ -145,28 +145,28 @@ trait MySQLiByDanielGPqueries
     {
         $filterArray = (is_array($filterArray) ? $filterArray : ['' => '']);
         return 'SELECT '
-                . '`C`.`TABLE_SCHEMA`, '
-                . $this->sQueryMySqlColumnsColumns() . ' '
-                . 'FROM `information_schema`.`COLUMNS` `C` '
-                . 'LEFT JOIN `information_schema`.`KEY_COLUMN_USAGE` `KCU` ON ((' . implode(') AND (', [
-                    '`C`.`TABLE_SCHEMA` = `KCU`.`TABLE_SCHEMA`',
-                    '`C`.`TABLE_NAME` = `KCU`.`TABLE_NAME`',
-                    '`C`.`COLUMN_NAME` = `KCU`.`COLUMN_NAME`',
-                ]) . ')) '
-                . $this->sManageDynamicFilters($filterArray, 'C')
-                . 'GROUP BY `C`.`TABLE_SCHEMA`, `C`.`TABLE_NAME`, `C`.`COLUMN_NAME` '
-                . 'ORDER BY `C`.`TABLE_SCHEMA`, `C`.`TABLE_NAME`, `C`.`ORDINAL_POSITION` '
-                . $this->sManageLimit($filterArray)
-                . ';';
+            . '`C`.`TABLE_SCHEMA`, '
+            . $this->sQueryMySqlColumnsColumns() . ' '
+            . 'FROM `information_schema`.`COLUMNS` `C` '
+            . 'LEFT JOIN `information_schema`.`KEY_COLUMN_USAGE` `KCU` ON ((' . implode(') AND (', [
+                '`C`.`TABLE_SCHEMA` = `KCU`.`TABLE_SCHEMA`',
+                '`C`.`TABLE_NAME` = `KCU`.`TABLE_NAME`',
+                '`C`.`COLUMN_NAME` = `KCU`.`COLUMN_NAME`',
+            ]) . ')) '
+            . $this->sManageDynamicFilters($filterArray, 'C')
+            . 'GROUP BY `C`.`TABLE_SCHEMA`, `C`.`TABLE_NAME`, `C`.`COLUMN_NAME` '
+            . 'ORDER BY `C`.`TABLE_SCHEMA`, `C`.`TABLE_NAME`, `C`.`ORDINAL_POSITION` '
+            . $this->sManageLimit($filterArray)
+            . ';';
     }
 
     private function sQueryMySqlColumnsColumns()
     {
         return '`C`.`TABLE_NAME`, `C`.`COLUMN_NAME`, `C`.`ORDINAL_POSITION` '
-                . ', `C`.`COLUMN_DEFAULT`, `C`.`IS_NULLABLE`, `C`.`DATA_TYPE`, `C`.`CHARACTER_MAXIMUM_LENGTH` '
-                . ', `C`.`NUMERIC_PRECISION`, `C`.`NUMERIC_SCALE`, `C`.`DATETIME_PRECISION` '
-                . ', `C`.`CHARACTER_SET_NAME`, `C`.`COLLATION_NAME`, `C`.`COLUMN_TYPE` '
-                . ', `C`.`COLUMN_KEY`, `C`.`COLUMN_COMMENT`, `C`.`EXTRA`';
+            . ', `C`.`COLUMN_DEFAULT`, `C`.`IS_NULLABLE`, `C`.`DATA_TYPE`, `C`.`CHARACTER_MAXIMUM_LENGTH` '
+            . ', `C`.`NUMERIC_PRECISION`, `C`.`NUMERIC_SCALE`, `C`.`DATETIME_PRECISION` '
+            . ', `C`.`CHARACTER_SET_NAME`, `C`.`COLLATION_NAME`, `C`.`COLUMN_TYPE` '
+            . ', `C`.`COLUMN_KEY`, `C`.`COLUMN_COMMENT`, `C`.`EXTRA`';
     }
 
     /**
@@ -178,30 +178,30 @@ trait MySQLiByDanielGPqueries
     protected function sQueryMySqlIndexes($filterArray = null)
     {
         return 'SELECT '
-                . '`KCU`.`CONSTRAINT_SCHEMA`, '
-                . $this->sQueryMySqlIndexesColumns() . ' '
-                . 'FROM `information_schema`.`KEY_COLUMN_USAGE` `KCU` '
-                . 'INNER JOIN `information_schema`.`COLUMNS` `C` ON ((' . implode(') AND (', [
-                    '`C`.`TABLE_SCHEMA` = `KCU`.`TABLE_SCHEMA`',
-                    '`C`.`TABLE_NAME` = `KCU`.`TABLE_NAME`',
-                    '`C`.`COLUMN_NAME` = `KCU`.`COLUMN_NAME`',
-                ]) . ')) '
-                . 'LEFT JOIN `information_schema`.`REFERENTIAL_CONSTRAINTS` `RC` ON ((' . implode(') AND (', [
-                    '`KCU`.`CONSTRAINT_SCHEMA` = `RC`.`CONSTRAINT_SCHEMA`',
-                    '`KCU`.`CONSTRAINT_NAME` = `RC`.`CONSTRAINT_NAME`',
-                ]) . ')) '
-                . $this->sManageDynamicFilters($filterArray, 'KCU')
-                . 'ORDER BY `KCU`.`TABLE_SCHEMA`, `KCU`.`TABLE_NAME`'
-                . $this->xtraSoring($filterArray, 'COLUMN_NAME') . ';';
+            . '`KCU`.`CONSTRAINT_SCHEMA`, '
+            . $this->sQueryMySqlIndexesColumns() . ' '
+            . 'FROM `information_schema`.`KEY_COLUMN_USAGE` `KCU` '
+            . 'INNER JOIN `information_schema`.`COLUMNS` `C` ON ((' . implode(') AND (', [
+                '`C`.`TABLE_SCHEMA` = `KCU`.`TABLE_SCHEMA`',
+                '`C`.`TABLE_NAME` = `KCU`.`TABLE_NAME`',
+                '`C`.`COLUMN_NAME` = `KCU`.`COLUMN_NAME`',
+            ]) . ')) '
+            . 'LEFT JOIN `information_schema`.`REFERENTIAL_CONSTRAINTS` `RC` ON ((' . implode(') AND (', [
+                '`KCU`.`CONSTRAINT_SCHEMA` = `RC`.`CONSTRAINT_SCHEMA`',
+                '`KCU`.`CONSTRAINT_NAME` = `RC`.`CONSTRAINT_NAME`',
+            ]) . ')) '
+            . $this->sManageDynamicFilters($filterArray, 'KCU')
+            . 'ORDER BY `KCU`.`TABLE_SCHEMA`, `KCU`.`TABLE_NAME`'
+            . $this->xtraSoring($filterArray, 'COLUMN_NAME') . ';';
     }
 
     private function sQueryMySqlIndexesColumns()
     {
         return '`KCU`.`CONSTRAINT_NAME`, `KCU`.`TABLE_SCHEMA`, `KCU`.`TABLE_NAME`, '
-                . '`KCU`.`COLUMN_NAME`, `C`.`ORDINAL_POSITION` AS `COLUMN_POSITION`, `KCU`.`ORDINAL_POSITION`, '
-                . '`KCU`.`POSITION_IN_UNIQUE_CONSTRAINT`, `KCU`.`REFERENCED_TABLE_SCHEMA`, '
-                . '`KCU`.`REFERENCED_TABLE_NAME`, `KCU`.`REFERENCED_COLUMN_NAME`, '
-                . '`RC`.`UPDATE_RULE`, `RC`.`DELETE_RULE`';
+            . '`KCU`.`COLUMN_NAME`, `C`.`ORDINAL_POSITION` AS `COLUMN_POSITION`, `KCU`.`ORDINAL_POSITION`, '
+            . '`KCU`.`POSITION_IN_UNIQUE_CONSTRAINT`, `KCU`.`REFERENCED_TABLE_SCHEMA`, '
+            . '`KCU`.`REFERENCED_TABLE_NAME`, `KCU`.`REFERENCED_COLUMN_NAME`, '
+            . '`RC`.`UPDATE_RULE`, `RC`.`DELETE_RULE`';
     }
 
     private function sQueryMySqlStatisticPattern($tblName, $lnkDbCol, $adtnlCol = null, $adtnlFltr = null)
@@ -209,43 +209,43 @@ trait MySQLiByDanielGPqueries
         $tblAls  = substr($tblName, 0, 1);
         $colName = (is_null($adtnlCol) ? $tblName : $adtnlFltr);
         return '(SELECT COUNT(*) AS `No. of records` FROM `information_schema`.`' . $tblName . '` `' . $tblAls . '` '
-                . 'WHERE (`' . $tblAls . '`.`' . $lnkDbCol . '` = `S`.`SCHEMA_NAME`)'
-                . (!is_null($adtnlCol) ? ' AND (`' . $tblAls . '`.`' . $adtnlCol . '` = "' . $adtnlFltr . '")' : '')
-                . ') AS `' . ucwords(strtolower($colName)) . '`';
+            . 'WHERE (`' . $tblAls . '`.`' . $lnkDbCol . '` = `S`.`SCHEMA_NAME`)'
+            . (!is_null($adtnlCol) ? ' AND (`' . $tblAls . '`.`' . $adtnlCol . '` = "' . $adtnlFltr . '")' : '')
+            . ') AS `' . ucwords(strtolower($colName)) . '`';
     }
 
     protected function sQueryMySqlStatistics($filterArray = null)
     {
         return 'SELECT '
-                . '`S`.`SCHEMA_NAME`, '
-                . $this->sQueryMySqlStatisticPattern('TABLES', 'TABLE_SCHEMA', 'TABLE_TYPE', 'BASE TABLE') . ', '
-                . $this->sQueryMySqlStatisticPattern('TABLES', 'TABLE_SCHEMA', 'TABLE_TYPE', 'VIEW') . ', '
-                . $this->sQueryMySqlStatisticPattern('COLUMNS', 'TABLE_SCHEMA') . ', '
-                . $this->sQueryMySqlStatisticPattern('TRIGGERS', 'EVENT_OBJECT_SCHEMA') . ', '
-                . $this->sQueryMySqlStatisticPattern('ROUTINES', 'ROUTINE_SCHEMA', 'ROUTINE_TYPE', 'Function') . ', '
-                . $this->sQueryMySqlStatisticPattern('ROUTINES', 'ROUTINE_SCHEMA', 'ROUTINE_TYPE', 'Procedure') . ', '
-                . $this->sQueryMySqlStatisticPattern('EVENTS', 'EVENT_SCHEMA') . ' '
-                . 'FROM `information_schema`.`SCHEMATA` `S` '
-                . 'WHERE (`S`.`SCHEMA_NAME` NOT IN ("information_schema", "mysql", "performance_schema", "sys")) '
-                . str_replace('WHERE', 'AND', $this->sManageDynamicFilters($filterArray, 'S'))
-                . 'ORDER BY `S`.`SCHEMA_NAME`;';
+            . '`S`.`SCHEMA_NAME`, '
+            . $this->sQueryMySqlStatisticPattern('TABLES', 'TABLE_SCHEMA', 'TABLE_TYPE', 'BASE TABLE') . ', '
+            . $this->sQueryMySqlStatisticPattern('TABLES', 'TABLE_SCHEMA', 'TABLE_TYPE', 'VIEW') . ', '
+            . $this->sQueryMySqlStatisticPattern('COLUMNS', 'TABLE_SCHEMA') . ', '
+            . $this->sQueryMySqlStatisticPattern('TRIGGERS', 'EVENT_OBJECT_SCHEMA') . ', '
+            . $this->sQueryMySqlStatisticPattern('ROUTINES', 'ROUTINE_SCHEMA', 'ROUTINE_TYPE', 'Function') . ', '
+            . $this->sQueryMySqlStatisticPattern('ROUTINES', 'ROUTINE_SCHEMA', 'ROUTINE_TYPE', 'Procedure') . ', '
+            . $this->sQueryMySqlStatisticPattern('EVENTS', 'EVENT_SCHEMA') . ' '
+            . 'FROM `information_schema`.`SCHEMATA` `S` '
+            . 'WHERE (`S`.`SCHEMA_NAME` NOT IN ("information_schema", "mysql", "performance_schema", "sys")) '
+            . str_replace('WHERE', 'AND', $this->sManageDynamicFilters($filterArray, 'S'))
+            . 'ORDER BY `S`.`SCHEMA_NAME`;';
     }
 
     /**
      * Query to get list of tables
      *
-     * @param type $filterArray
+     * @param array $filterArray
      * @return string
      */
     protected function sQueryMySqlTables($filterArray = null)
     {
         return 'SELECT '
-                . '`T`.`TABLE_SCHEMA`, `T`.`TABLE_NAME`, `T`.`TABLE_TYPE`, `T`.`ENGINE`, `T`.`VERSION` '
-                . ', `T`.`ROW_FORMAT`, `T`.`AUTO_INCREMENT`, `T`.`TABLE_COLLATION`, `T`.`CREATE_TIME` '
-                . ', `T`.`CREATE_OPTIONS`, `T`.`TABLE_COMMENT` '
-                . 'FROM `information_schema`.`TABLES` `T` '
-                . $this->sManageDynamicFilters($filterArray, 'T')
-                . $this->xtraSoring($filterArray, 'TABLE_SCHEMA') . ';';
+            . '`T`.`TABLE_SCHEMA`, `T`.`TABLE_NAME`, `T`.`TABLE_TYPE`, `T`.`ENGINE`, `T`.`VERSION` '
+            . ', `T`.`ROW_FORMAT`, `T`.`AUTO_INCREMENT`, `T`.`TABLE_COLLATION`, `T`.`CREATE_TIME` '
+            . ', `T`.`CREATE_OPTIONS`, `T`.`TABLE_COMMENT` '
+            . 'FROM `information_schema`.`TABLES` `T` '
+            . $this->sManageDynamicFilters($filterArray, 'T')
+            . $this->xtraSoring($filterArray, 'TABLE_SCHEMA') . ';';
     }
 
     private function xtraSoring($filterArray, $filterValueToDecide)
@@ -265,4 +265,5 @@ trait MySQLiByDanielGPqueries
         }
         return $defaults[$filterValueToDecide][0];
     }
+
 }
