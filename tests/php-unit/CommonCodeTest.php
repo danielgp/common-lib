@@ -136,7 +136,7 @@ class CommonCodeTest extends \PHPUnit\Framework\TestCase
         ]);
         $fileToCheck = str_replace('/', DIRECTORY_SEPARATOR, implode(DIRECTORY_SEPARATOR, [
             dirname(ini_get('error_log')),
-            path_info(ini_get('error_log'), PATHINFO_FILENAME),
+            'php_error_log',
         ]));
         $this->assertFileNotExists($fileToCheck);
     }
