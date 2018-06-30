@@ -131,11 +131,11 @@ class CommonCodeTest extends \PHPUnit\Framework\TestCase
     public function testRemoveFilesOlderThanGivenRule()
     {
         $this->removeFilesOlderThanGivenRule([
-            'path'     => '/',
-            'dateRule' => strtotime('now'),
+            'path'     => dirname($_SERVER[PHP_SELF]),
+            'dateRule' => strtotime('10 years ago'),
         ]);
         $fileToCheck = str_replace('/', DIRECTORY_SEPARATOR, implode(DIRECTORY_SEPARATOR, [
-            '/',
+            dirname($_SERVER[PHP_SELF]),
             'php_error_log',
         ]));
         $this->assertFileNotExists($fileToCheck);
@@ -144,7 +144,7 @@ class CommonCodeTest extends \PHPUnit\Framework\TestCase
     public function testRemoveFilesOlderThanGivenRuleNoDateRule()
     {
         $actual = $this->removeFilesOlderThanGivenRule([
-            'path' => '/',
+            'path' => dirname($_SERVER[PHP_SELF]),
         ]);
         $this->assertEquals('`dateRule` has not been provided', $actual);
     }
