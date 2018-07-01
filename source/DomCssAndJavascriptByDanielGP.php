@@ -183,7 +183,8 @@ trait DomCssAndJavascriptByDanielGP
             $hostsWithoutCDNrq = [];
         }
         if (in_array($this->getClientRealIpAddress(), $hostsWithoutCDNrq)) {
-            return '<script type="text/javascript" src="' . $jsFileName . '"></script>';
+            return '<script type="text/javascript" src="' . filter_var($jsFileName, FILTER_SANITIZE_STRING)
+                . '"></script>';
         }
         $patternFound = $this->setJavascriptFileCDN($jsFileName);
         return '<script type="text/javascript" src="' . $patternFound[1] . '"></script>' . $patternFound[2];
