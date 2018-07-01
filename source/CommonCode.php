@@ -29,7 +29,7 @@
 namespace danielgp\common_lib;
 
 /**
- * usefull functions to get quick results
+ * Useful functions to get quick results
  *
  * @author Daniel Popiniuc
  */
@@ -207,7 +207,7 @@ trait CommonCode
         if ($postingUrl === false) {
             throw new \Exception('Invalid URL in ' . __FUNCTION__);
         }
-        if (is_array($params)) {
+        if ($params !== []) {
             $cntFailErrMsg = $this->lclMsgCmn('i18n_Error_FailedToConnect');
             $this->sendBackgroundPostData($postingUrl, $params, $cntFailErrMsg);
             return '';

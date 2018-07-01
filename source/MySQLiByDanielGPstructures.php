@@ -131,7 +131,7 @@ trait MySQLiByDanielGPstructures
     /**
      * Return the list of Tables from the MySQL server
      *
-     * @return array
+     * @return array|null
      */
     protected function getMySQLStatistics($filterArray = null)
     {
@@ -161,7 +161,7 @@ trait MySQLiByDanielGPstructures
     /**
      * returns the list of all MySQL global variables
      *
-     * @return array
+     * @return array|null
      */
     protected function getMySQLglobalVariables()
     {
@@ -171,7 +171,7 @@ trait MySQLiByDanielGPstructures
     /**
      * returns a list of MySQL indexes (w. choice of to choose any combination of db/table/column)
      *
-     * @return array
+     * @return array|null
      */
     protected function getMySQLlistColumns($filterArray = null)
     {
@@ -181,7 +181,7 @@ trait MySQLiByDanielGPstructures
     /**
      * returns a list of MySQL databases (w. choice of exclude/include the system ones)
      *
-     * @return array
+     * @return array|null
      */
     protected function getMySQLlistDatabases($excludeSystemDbs = true)
     {
@@ -191,7 +191,7 @@ trait MySQLiByDanielGPstructures
     /**
      * returns a list of MySQL engines (w. choice of return only the active ones)
      *
-     * @return array
+     * @return array|null
      */
     protected function getMySQLlistEngines($onlyActiveOnes = true)
     {
@@ -201,7 +201,7 @@ trait MySQLiByDanielGPstructures
     /**
      * returns a list of MySQL indexes (w. choice of to choose any combination of db/table/column)
      *
-     * @return array
+     * @return array|null
      */
     protected function getMySQLlistIndexes($filterArray = null)
     {
@@ -211,7 +211,7 @@ trait MySQLiByDanielGPstructures
     /**
      * Return various information (from predefined list) from the MySQL server
      *
-     * @return int|null|array
+     * @return array|null
      */
     private function getMySQLlistMultiple($returnChoice, $returnType, $additionalFeatures = null)
     {

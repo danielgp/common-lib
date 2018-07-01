@@ -50,6 +50,7 @@
             "source/MySQLiByDanielGP.php",
             "source/MySQLiByDanielGPnumbers.php",
             "source/MySQLiByDanielGPstructures.php",
+            "source/MySQLiByDanielGPtables.php",
             "source/MySQLiByDanielGPtypes.php"
         ]
     },
