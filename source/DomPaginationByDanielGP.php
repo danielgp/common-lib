@@ -40,29 +40,21 @@ trait DomPaginationByDanielGP
      * Returns a pagination bar
      *
      * @param int $iCrtPgNo
-     * @param int $iRecPrPg
+     * @param int $inRecPrPg
      * @param int $iAllRec
      * @param boolean $bKpFlPg
      * returns string
      */
-    protected function setPagination($iCrtPgNo, $iRecPrPg, $iAllRec, $bKpFlPg = true)
+    protected function setPagination($iCrtPgNo, $inRecPrPg, $iAllRec, $bKpFlPg = true)
     {
         $sReturn             = null;
         $iRecPrPg            = min($iRecPrPg, $iAllRec);
-        $iStartingPageRecord = $this->setStartingPageRecord(
-            $iCrtPgNo, $iRecPrPg, $iAllRec, $bKpFlPg);
-        if (APP_INDICATIVE == 'cs') {
-            $prvMsg = 'Previous';
-        } else {
-            $prvMsg = 'Anterioara';
-        }
-        $sReturn .= '<span style="float:left;font-size:smaller; '
-            . 'margin-top:1px; margin-right:1px;">'
+        $iStartingPageRecord = $this->setStartingPageRecord($iCrtPgNo, $iRecPrPg, $iAllRec, $bKpFlPg);
+        $sReturn             .= '<span style="float:left;font-size:smaller;margin-top:1px; margin-right:1px;">'
             . $this->setStringIntoTag($iAllRec, 'b')
-            . $this->lclMsgCntrl('i18n_RecordsAvailableNowDisplaying')
+            . $this->lclMsgCmn('i18n_RecordsAvailableNowDisplaying')
             . $this->setStringIntoTag(($iStartingPageRecord + 1), 'b')
-            . ' - ' . $this->setStringIntoTag(
-                min($iAllRec, ($iStartingPageRecord + $iRecPrPg)), 'b')
+            . ' - ' . $this->setStringIntoTag(min($iAllRec, ($iStartingPageRecord + $iRecPrPg)), 'b')
             . ' </span>';
         switch ($iCrtPgNo) {
             case 'first':
@@ -72,35 +64,33 @@ trait DomPaginationByDanielGP
                 $iCrtPgNo = ceil($iAllRec / $iRecPrPg);
                 break;
         }
-        $sReturn              .= '<span style="float:right;font-size:smaller; '
-            . 'margin-top:1px; margin-right:1px;">';
+        $sReturn              .= '<span style="float:right;font-size:smaller;margin-top:1px; margin-right:1px;">';
         $iNumberOfPages       = ceil($iAllRec / $iRecPrPg);
         $sAdditionalArguments = '';
         if (isset($_GET)) {
             if ($_GET != ['page' => @$_GET['page']]) {
                 $sAdditionalArguments = '&amp;'
-                    . $this->setArrayToStringForUrl('&amp;'
-                        , $_GET, ['page', 'action', 'server_action']);
+                    . $this->setArrayToStringForUrl('&amp;', $_GET, ['page', 'action', 'server_action']);
             }
             if (isset($_GET['page'])) {
                 $iCrtPgNo = $_GET['page'];
             }
         }
         if ($iCrtPgNo != 1) {
-            $sReturn .= $this->setStringIntoTag($this->lclMsgCntrl('i18n_Previous'), 'a', [
+            $sReturn .= $this->setStringIntoTag($this->lclMsgCmn('i18n_Previous'), 'a', [
                 'href'  => ('?page=' . ($iCrtPgNo - 1 ) . $sAdditionalArguments ),
                 'class' => 'pagination'
             ]);
         } else {
-            $sReturn .= $this->setStringIntoTag($this->lclMsgCntrl('i18n_Previous'), 'span', [
+            $sReturn .= $this->setStringIntoTag($this->lclMsgCmn('i18n_Previous'), 'span', [
                 'class' => 'pagination_inactive'
             ]);
         }
+        $pages2display = [];
         for ($counter = 1; $counter <= $iNumberOfPages; $counter++) {
             $pages2display[$counter] = $counter;
         }
-        $sReturn .= '<span class="pagination"><form method="get" action="'
-            . $_SERVER['SCRIPT_NAME'] . '">';
+        $sReturn .= '<span class="pagination"><form method="get" action="' . $_SERVER['SCRIPT_NAME'] . '">';
         $sReturn .= $this->setArrayToSelect($pages2display, @$_REQUEST['page']
             , 'page', ['size' => 1, 'autosubmit', 'id_no' => mt_rand()]);
         if (isset($_GET)) {
@@ -108,28 +98,31 @@ trait DomPaginationByDanielGP
                 if ($key != 'page') {
                     if (is_array($value)) {
                         foreach ($value as $value2) {
-                            $sReturn .= $this->setStringIntoShortTag('input'
-                                , ['type'  => 'hidden'
-                                , 'name'  => $key . '[]'
-                                , 'value' => $value2]);
+                            $sReturn .= $this->setStringIntoShortTag('input', [
+                                'type'  => 'hidden',
+                                'name'  => $key . '[]',
+                                'value' => $value2,
+                            ]);
                         }
                     } else {
-                        $sReturn .= $this->setStringIntoShortTag('input'
-                            , ['type'  => 'hidden', 'name'  => $key
-                            , 'value' => $value]);
+                        $sReturn .= $this->setStringIntoShortTag('input', [
+                            'type'  => 'hidden',
+                            'name'  => $key,
+                            'value' => $value,
+                        ]);
                     }
                 }
             }
         }
         $sReturn .= '</form></span>';
         if ($iCrtPgNo != $iNumberOfPages) {
-            $sReturn .= $this->setStringIntoTag($this->lclMsgCntrl('i18n_Next'), 'a', [
+            $sReturn .= $this->setStringIntoTag($this->lclMsgCmn('i18n_Next'), 'a', [
                 'href'  => ('?page=' . ($iCrtPgNo + 1 ) . $sAdditionalArguments ),
-                'class' => 'pagination'
+                'class' => 'pagination',
             ]);
         } else {
-            $sReturn .= $this->setStringIntoTag($this->lclMsgCntrl('i18n_Next'), 'span', [
-                'class' => 'pagination_inactive'
+            $sReturn .= $this->setStringIntoTag($this->lclMsgCmn('i18n_Next'), 'span', [
+                'class' => 'pagination_inactive',
             ]);
         }
         $sReturn .= '</span>';
@@ -146,7 +139,7 @@ trait DomPaginationByDanielGP
      * @param boolean $bKeepFullPage
      * @return int
      */
-    protected function setStartingPageRecord($sDefaultPageNo, $iRecordsPerPage
+    private function setStartingPageRecord($sDefaultPageNo, $iRecordsPerPage
         , $iAllRecords, $bKeepFullPage = true)
     {
         if (isset($_REQUEST['page'])) {

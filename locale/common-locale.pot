@@ -1,0 +1,163 @@
+# English translations for structure-validated package.
+# Copyright (C) 2015-2017 Daniel Popiniuc
+# This file is distributed under the same license as the PACKAGE package.
+# Daniel Popiniuc <danielpopiniuc@gmail.com>, 2017
+#
+#,fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: structure-validated\n"
+"POT-Creation-Date: 2017-03-05 17:09+0200\n"
+"PO-Revision-Date: 2018-07-01 00:09+0200\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "i18n_Action_Confirmation"
+msgstr ""
+
+msgid "i18n_Action_Failed"
+msgstr ""
+
+msgid "i18n_Action_Successful"
+msgstr ""
+
+msgid "i18n_ActionAdd_Failed"
+msgstr ""
+
+msgid "i18n_ActionAdd_RestrictionDetails"
+msgstr ""
+
+msgid "i18n_ActionAdd_RestrictionTitle"
+msgstr ""
+
+msgid "i18n_ActionAdd_Successful"
+msgstr ""
+
+msgid "i18n_ActionDelete_ConfirmationQuestion"
+msgstr ""
+
+msgid "i18n_ActionDelete_Failed"
+msgstr ""
+
+msgid "i18n_ActionDelete_Impossible"
+msgstr ""
+
+msgid "i18n_ActionDelete_Success"
+msgstr ""
+
+msgid "i18n_ActionUpdate_Failed"
+msgstr ""
+
+msgid "i18n_ActionUpdate_Successful"
+msgstr ""
+
+msgid "i18n_AddNewRecord"
+msgstr ""
+
+msgid "i18n_Error_ExtensionNotLoaded"
+msgstr ""
+
+msgid "i18n_Error_FailedToConnect"
+msgstr ""
+
+msgid "i18n_Error_GivenFileDoesNotExist"
+msgstr ""
+
+msgid "i18n_Error_GivenInputIsNotArray"
+msgstr ""
+
+msgid "i18n_Error_GivenInputIsNotJson"
+msgstr ""
+
+msgid "i18n_Error_GivenParameterIsNotAnArray"
+msgstr ""
+
+msgid "i18n_Error_GivenPathDoesNotExist"
+msgstr ""
+
+msgid "i18n_Error_GivenPathIsNotValid"
+msgstr ""
+
+msgid "i18n_Error_GivenPathIsNotFolder"
+msgstr ""
+
+msgid "i18n_Error_GivenUrlIsNotValid"
+msgstr ""
+
+msgid "i18n_Error_UnknownReturnType"
+msgstr ""
+
+msgid "i18n_Form_ButtonSave"
+msgstr ""
+
+msgid "i18n_Form_ButtonSaving"
+msgstr ""
+
+msgid "i18n_Generic_Unknown"
+msgstr ""
+
+msgid "i18n_Generic_Limitation"
+msgstr ""
+
+msgid "i18n_Generic_Limitation10Parameters"
+msgstr ""
+
+msgid "i18n_MySQL_ConnectionError"
+msgstr ""
+
+msgid "i18n_MySQL_ConnectionNotExisting"
+msgstr ""
+
+msgid "i18n_MySQL_QueryError"
+msgstr ""
+
+msgid "i18n_MySQL_QueryInvalidReturnTypeSpecified"
+msgstr ""
+
+msgid "i18n_MySQL_QueryNoReturnTypeSpecified"
+msgstr ""
+
+msgid "i18n_MySQL_QueryResultExpected1ColumnResultedOther"
+msgstr ""
+
+msgid "i18n_MySQL_QueryResultExpected1ResultedOther"
+msgstr ""
+
+msgid "i18n_MySQL_QueryResultExpected1OrMoreRows0Resulted"
+msgstr ""
+
+msgid "i18n_MySQL_QueryResultExpected1RowManyColumnsResultedOther"
+msgstr ""
+
+msgid "i18n_MySQL_QueryResultExpected2ColumnsResultedOther"
+msgstr ""
+
+msgid "i18n_MySQL_QueryResultExpectedAtLeast2ColsResultedOther"
+msgstr ""
+
+msgid "i18n_Next"
+msgstr ""
+
+msgid "i18n_NoData"
+msgstr ""
+
+msgid "i18n_NowYouAreInTheEditingModeOfExistingInformations"
+msgstr ""
+
+msgid "i18n_NowYouAreInTheNewInformationAddingMode"
+msgstr ""
+
+msgid "i18n_Previous"
+msgstr ""
+
+msgid "i18n_Record"
+msgid_plural "i18n_Records"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "i18n_RecordsAvailableNowDisplaying"
+msgstr ""

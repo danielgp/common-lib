@@ -65,7 +65,7 @@ trait DomBasicComponentsByDanielGP
     }
 
     /**
-     * Capatalize first letter of each word
+     * Capitalize first letter of each word
      * AND filters only letters and numbers
      *
      * @param string $givenString

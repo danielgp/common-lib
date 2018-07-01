@@ -139,6 +139,9 @@ msgstr "The MySQL query returned %d columns although 2 were expected..."
 msgid "i18n_MySQL_QueryResultExpectedAtLeast2ColsResultedOther"
 msgstr "The MySQL query returned %d columns although at least 2 were expected..."
 
+msgid "i18n_Next"
+msgstr "Next"
+
 msgid "i18n_NoData"
 msgstr "In this very moment there is no record... (taking account applied filters, if any)"
 
@@ -148,7 +151,13 @@ msgstr "Now you are in the editing mode of existing information"
 msgid "i18n_NowYouAreInTheNewInformationAddingMode"
 msgstr "Now you are in the new information adding mode"
 
+msgid "i18n_Previous"
+msgstr "Previous"
+
 msgid "i18n_Record"
 msgid_plural "i18n_Records"
 msgstr[0] "%d record"
 msgstr[1] "%d records"
+
+msgid "i18n_RecordsAvailableNowDisplaying"
+msgstr "records available<br/>now displaying"
