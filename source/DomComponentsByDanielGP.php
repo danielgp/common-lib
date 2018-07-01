@@ -262,18 +262,18 @@ trait DomComponentsByDanielGP
                             $sReturn       .= '&nbsp;<input type="checkbox" name="' . $checkboxName
                                 . '" id="n' . $aElements[$rCntr][$value]
                                 . '" value="' . $aElements[$rCntr][$value] . '" ';
-                            if (isset($_REQUEST[$checkboxNameS])) {
-                                if (is_array($_REQUEST[$checkboxNameS])) {
-                                    if (in_array($aElements[$rCntr][$value], $_REQUEST[$checkboxNameS])) {
+                            if (!is_null($this->tCmnSuperGlobals->get($checkboxNameS))) {
+                                if (is_array($this->tCmnSuperGlobals->get($checkboxNameS))) {
+                                    if (in_array($aElements[$rCntr][$value], $this->tCmnSuperGlobals->get($checkboxNameS))) {
                                         $sReturn .= 'checked="checked" ';
                                     }
                                 } else {
-                                    if ($aElements[$rCntr][$value] == $_REQUEST[$checkboxNameS]) {
+                                    if ($aElements[$rCntr][$value] == $this->tCmnSuperGlobals->get($checkboxNameS)) {
                                         $sReturn .= 'checked="checked" ';
                                     }
                                 }
                             }
-                            if (strpos($_REQUEST['view'], 'multiEdit') !== false) {
+                            if (strpos($this->tCmnSuperGlobals->get('view'), 'multiEdit') !== false) {
                                 $sReturn .= 'disabled="disabled" ';
                             }
                             $sReturn       .= '/>';
@@ -377,7 +377,7 @@ trait DomComponentsByDanielGP
             }
         }
         if (isset($ftrs['actions']['checkbox'])) {
-            if (strpos($_REQUEST['view'], 'multiEdit') === false) {
+            if (strpos($this->tCmnSuperGlobals->get('view'), 'multiEdit') === false) {
                 $sReturn .= '<a href="#" onclick="javascript:checking(\'' . $checkboxFormId
                     . '\',\'' . $checkboxName . '\',true);">Check All</a>&nbsp;&nbsp;'
                     . '<a href="#" onclick="javascript:checking(\'' . $checkboxFormId
@@ -387,11 +387,11 @@ trait DomComponentsByDanielGP
                     if (is_array($ftrs['hiddenInput'])) {
                         foreach ($ftrs['hiddenInput'] as $valueF) {
                             $sReturn .= '<input type="hidden" name="' . $valueF
-                                . '" value="' . $_REQUEST[$valueF] . '" />';
+                                . '" value="' . $this->tCmnSuperGlobals->get($valueF) . '" />';
                         }
                     } else {
                         $sReturn .= '<input type="hidden" name="' . $ftrs['hiddenInput']
-                            . '" value="' . $_REQUEST[$ftrs['hiddenInput']] . '" />';
+                            . '" value="' . $this->tCmnSuperGlobals->get($ftrs['hiddenInput']) . '" />';
                     }
                 }
                 $sReturn .= '<input style="margin: 0 3em 0 3em;" type="submit" ' . 'value="Edit selected" />';
@@ -410,11 +410,12 @@ trait DomComponentsByDanielGP
             if (isset($ftrs['hiddenInput'])) {
                 if (is_array($ftrs['hiddenInput'])) {
                     foreach ($ftrs['hiddenInput'] as $valueF) {
-                        $sReturn .= '<input type="hidden" name="' . $valueF . '" value="' . $_REQUEST[$valueF] . '" />';
+                        $sReturn .= '<input type="hidden" name="' . $valueF . '" value="'
+                            . $this->tCmnSuperGlobals->get($valueF) . '" />';
                     }
                 } else {
                     $sReturn .= '<input type="hidden" name="' . $ftrs['hiddenInput']
-                        . '" value="' . $_REQUEST[$ftrs['hiddenInput']] . '" />';
+                        . '" value="' . $this->tCmnSuperGlobals->get($ftrs['hiddenInput']) . '" />';
                 }
             }
             $sReturn .= '<input style="margin: 0 3em 0 3em;" type="submit" value="Store the modification" />';
