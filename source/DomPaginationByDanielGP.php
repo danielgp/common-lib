@@ -140,12 +140,12 @@ trait DomPaginationByDanielGP
         $iNumberOfPages       = ceil($iAllRec / $iRecPrPg);
         $sAdditionalArguments = '';
         if (isset($_GET)) {
-            if ($_GET != ['page' => @$_GET['page']]) {
+            if ($_GET != ['page' => $_GET['page']]) {
                 $sAdditionalArguments = '&amp;'
                     . $this->setArrayToStringForUrl('&amp;', $_GET, ['page', 'action', 'server_action']);
             }
-            if (isset($_GET['page'])) {
-                $iCrtPgNo = $_GET['page'];
+            if (!is_null($this->tCmnSuperGlobals->get('page'))) {
+                $iCrtPgNo = $this->tCmnSuperGlobals->get('page');
             }
         }
         if ($iCrtPgNo != 1) {
@@ -162,8 +162,8 @@ trait DomPaginationByDanielGP
         for ($counter = 1; $counter <= $iNumberOfPages; $counter++) {
             $pages2display[$counter] = $counter;
         }
-        $sReturn .= '<span class="pagination"><form method="get" action="' . $_SERVER['SCRIPT_NAME'] . '">';
-        $sReturn .= $this->setArrayToSelect($pages2display, @$_REQUEST['page']
+        $sReturn .= '<span class="pagination"><form method="get" action="' . $this->tCmnSuperGlobals->getScriptName() . '">';
+        $sReturn .= $this->setArrayToSelect($pages2display, $this->tCmnSuperGlobals->get('page')
             , 'page', ['size' => 1, 'autosubmit', 'id_no' => mt_rand()]);
         if (isset($_GET)) {
             foreach ($_GET as $key => $value) {
@@ -214,9 +214,7 @@ trait DomPaginationByDanielGP
     private function setStartingPageRecord($sDefaultPageNo, $iRecordsPerPage
         , $iAllRecords, $bKeepFullPage = true)
     {
-        if (isset($_REQUEST['page'])) {
-            $iStartingPageRecord = ($_REQUEST['page'] - 1 ) * $iRecordsPerPage;
-        } else {
+        if (is_null($this->tCmnSuperGlobals->get('page'))) {
             switch ($sDefaultPageNo) {
                 case 'last':
                     $iStartingPageRecord = $iAllRecords - $iRecordsPerPage;
@@ -226,6 +224,8 @@ trait DomPaginationByDanielGP
                     $iStartingPageRecord = 0;
                     break;
             }
+        } else {
+            $iStartingPageRecord = ($this->tCmnSuperGlobals->get('page') - 1 ) * $iRecordsPerPage;
         }
         if (($bKeepFullPage ) && (($iStartingPageRecord + $iRecordsPerPage ) > $iAllRecords)) {
             $iStartingPageRecord = $iAllRecords - $iRecordsPerPage;
