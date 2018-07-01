@@ -514,7 +514,7 @@ trait DomComponentsByDanielGP
      * @param array $headerFeatures
      * @return string
      */
-    protected function setHeaderCommon($headerFeatures = null)
+    protected function setHeaderCommon($headerFeatures = [])
     {
         $sReturn = [];
         $sHK     = $this->tCmnSuperGlobals->get('specialHook');
@@ -532,53 +532,51 @@ trait DomComponentsByDanielGP
                     'initial-scale=1',
                 ]) . '" />',
             ];
-            if (!is_null($headerFeatures)) {
-                if (is_array($headerFeatures)) {
-                    $aFeatures = [];
-                    foreach ($headerFeatures as $key => $value) {
-                        switch ($key) {
-                            case 'css':
-                                if (is_array($value)) {
-                                    foreach ($value as $value2) {
-                                        $aFeatures[] = $this->setCssFile(filter_var($value2, FILTER_SANITIZE_URL));
-                                    }
-                                } else {
-                                    $aFeatures[] = $this->setCssFile(filter_var($value, FILTER_SANITIZE_URL));
+            if ($headerFeatures !== []) {
+                $aFeatures = [];
+                foreach ($headerFeatures as $key => $value) {
+                    switch ($key) {
+                        case 'css':
+                            if (is_array($value)) {
+                                foreach ($value as $value2) {
+                                    $aFeatures[] = $this->setCssFile(filter_var($value2, FILTER_SANITIZE_URL));
                                 }
-                                break;
-                            case 'javascript':
-                                if (is_array($value)) {
-                                    foreach ($value as $value2) {
-                                        $vl          = filter_var($value2, FILTER_SANITIZE_URL);
-                                        $aFeatures[] = $this->setJavascriptFile($vl);
-                                    }
-                                } else {
-                                    $aFeatures[] = $this->setJavascriptFile(filter_var($value, FILTER_SANITIZE_URL));
+                            } else {
+                                $aFeatures[] = $this->setCssFile(filter_var($value, FILTER_SANITIZE_URL));
+                            }
+                            break;
+                        case 'javascript':
+                            if (is_array($value)) {
+                                foreach ($value as $value2) {
+                                    $vl          = filter_var($value2, FILTER_SANITIZE_URL);
+                                    $aFeatures[] = $this->setJavascriptFile($vl);
                                 }
-                                break;
-                            case 'lang':
-                                $fixedHeaderElements['lang'] = '<html lang="'
-                                    . filter_var($value, FILTER_SANITIZE_STRING) . '">';
-                                break;
-                            case 'title':
-                                $aFeatures[]                 = '<title>'
-                                    . filter_var($value, FILTER_SANITIZE_STRING) . '</title>';
-                                break;
-                        }
+                            } else {
+                                $aFeatures[] = $this->setJavascriptFile(filter_var($value, FILTER_SANITIZE_URL));
+                            }
+                            break;
+                        case 'lang':
+                            $fixedHeaderElements['lang'] = '<html lang="'
+                                . filter_var($value, FILTER_SANITIZE_STRING) . '">';
+                            break;
+                        case 'title':
+                            $aFeatures[]                 = '<title>'
+                                . filter_var($value, FILTER_SANITIZE_STRING) . '</title>';
+                            break;
                     }
-                    $sReturn[] = implode('', $fixedHeaderElements)
-                        . implode('', $aFeatures)
-                        . '</head>'
-                        . '<body>';
-                } else {
-                    $sReturn[] = implode('', $fixedHeaderElements)
-                        . '</head>'
-                        . '<body>'
-                        . '<p style="background-color:red;color:#FFF;">The parameter sent to '
-                        . __FUNCTION__ . ' must be an array</p>'
-                        . $this->setFooterCommon();
-                    throw new \Exception($sReturn);
                 }
+                $sReturn[] = implode('', $fixedHeaderElements)
+                    . implode('', $aFeatures)
+                    . '</head>'
+                    . '<body>';
+            } else {
+                $sReturn[] = implode('', $fixedHeaderElements)
+                    . '</head>'
+                    . '<body>'
+                    . '<p style="background-color:red;color:#FFF;">The parameter sent to '
+                    . __FUNCTION__ . ' must be a non-empty array</p>'
+                    . $this->setFooterCommon();
+                throw new \Exception($sReturn);
             }
         }
         return implode('', $sReturn);

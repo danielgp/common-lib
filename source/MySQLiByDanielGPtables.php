@@ -189,7 +189,7 @@ trait MySQLiByDanielGPtables
             'TABLE_NAME'            => $tblName,
             'REFERENCED_TABLE_NAME' => 'NOT NULL',
         ]);
-        if (is_array($frgnKs)) {
+        if ($frgnKs != []) {
             $this->advCache['tableFKs'][$dbName][$tblName] = $frgnKs;
             $this->advCache['FKcol'][$dbName][$tblName]    = array_column($frgnKs, 'COLUMN_NAME', 'CONSTRAINT_NAME');
         }
