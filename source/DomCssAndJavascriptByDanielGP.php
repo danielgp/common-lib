@@ -37,7 +37,7 @@ trait DomCssAndJavascriptByDanielGP
 {
 
     use \danielgp\browser_agent_info\BrowserAgentInfosByDanielGP,
-        DomBasicComponentsByDanielGP,
+        DomPaginationByDanielGP,
         DomCssAndJavascriptByDanielGPwithCDN;
 
     /**
@@ -76,7 +76,7 @@ trait DomCssAndJavascriptByDanielGP
             }
         }
         return '<style type="text/css" media="' . $attr['media'] . '">'
-                . $cssContent . '</style>';
+            . $cssContent . '</style>';
     }
 
     /**
@@ -92,11 +92,11 @@ trait DomCssAndJavascriptByDanielGP
         }
         if (in_array($this->getClientRealIpAddress(), $hostsWithoutCDNrq)) {
             return '<link rel="stylesheet" type="text/css" href="'
-                    . filter_var($cssFileName, FILTER_SANITIZE_STRING) . '" />';
+                . filter_var($cssFileName, FILTER_SANITIZE_STRING) . '" />';
         }
         $patternFound = $this->setCssFileCDN($cssFileName);
         return '<link rel="stylesheet" type="text/css" href="'
-                . filter_var($patternFound[1], FILTER_SANITIZE_STRING) . '" />';
+            . filter_var($patternFound[1], FILTER_SANITIZE_STRING) . '" />';
     }
 
     /**
@@ -132,15 +132,15 @@ trait DomCssAndJavascriptByDanielGP
     protected function setJavascriptAddEditByAjax($tabName = 'tabStandard')
     {
         return $this->setJavascriptContent(implode('', [
-                    'function loadAE(action) {',
-                    'document.getElementById("' . $tabName . '").tabber.tabShow(1);',
-                    '$("#DynamicAddEditSpacer").load(action',
-                    '+"&specialHook[]=noHeader"',
-                    '+"&specialHook[]=noMenu"',
-                    '+"&specialHook[]=noContainer"',
-                    '+"&specialHook[]=noFooter"',
-                    ');',
-                    '}',
+                'function loadAE(action) {',
+                'document.getElementById("' . $tabName . '").tabber.tabShow(1);',
+                '$("#DynamicAddEditSpacer").load(action',
+                '+"&specialHook[]=noHeader"',
+                '+"&specialHook[]=noMenu"',
+                '+"&specialHook[]=noContainer"',
+                '+"&specialHook[]=noFooter"',
+                ');',
+                '}',
         ]));
     }
 
@@ -163,12 +163,12 @@ trait DomCssAndJavascriptByDanielGP
     protected function setJavascriptDeleteWithConfirmation()
     {
         return $this->setJavascriptContent('function setQuest(a, b) { '
-                        . 'c = a.indexOf("_"); switch(a.slice(0, c)) { '
-                        . 'case \'delete\': '
-                        . 'if (confirm(\'' . $this->lclMsgCmn('i18n_ActionDelete_ConfirmationQuestion') . '\')) { '
-                        . 'window.location = document.location.protocol + "//" + '
-                        . 'document.location.host + document.location.pathname + '
-                        . '"?view=" + a + "&" + b; } break; } }');
+                . 'c = a.indexOf("_"); switch(a.slice(0, c)) { '
+                . 'case \'delete\': '
+                . 'if (confirm(\'' . $this->lclMsgCmn('i18n_ActionDelete_ConfirmationQuestion') . '\')) { '
+                . 'window.location = document.location.protocol + "//" + '
+                . 'document.location.host + document.location.pathname + '
+                . '"?view=" + a + "&" + b; } break; } }');
     }
 
     /**
@@ -203,8 +203,9 @@ trait DomCssAndJavascriptByDanielGP
     protected function updateDivTitleName($rememberGroupVal, $groupCounter)
     {
         $jsContent = '$(document).ready(function() { $("#tab_'
-                . $this->cleanStringForId($rememberGroupVal) . '").attr("title", "'
-                . $rememberGroupVal . ' (' . $groupCounter . ')"); });';
+            . $this->cleanStringForId($rememberGroupVal) . '").attr("title", "'
+            . $rememberGroupVal . ' (' . $groupCounter . ')"); });';
         return $this->setJavascriptContent($jsContent);
     }
+
 }
