@@ -87,7 +87,7 @@ trait DomDynamicSelectByDanielGP
     /**
      *
      * @param array $featArray
-     * @return null|string
+     * @return string
      */
     private function eventOnChange($featArray)
     {
@@ -101,7 +101,7 @@ trait DomDynamicSelectByDanielGP
         if (is_array($sReturn)) {
             return ' onchange="javascript:' . implode('', $sReturn) . '"';
         }
-        return $sReturn;
+        return '';
     }
 
     private function featureArraySimpleTranslated($featArray, $identifier)
