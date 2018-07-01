@@ -39,6 +39,21 @@ trait MySQLiByDanielGPqueries
     use MySQLiByDanielGPqueriesBasic;
 
     /**
+     * Ensures table has special quotes and DOT as final char
+     * (if not empty, of course)
+     *
+     * @param string $referenceTable
+     * @return string
+     */
+    private function correctTableWithQuotesAsFieldPrefix($referenceTable)
+    {
+        if ($referenceTable != '') {
+            return '`' . str_replace('`', '', $referenceTable) . '`.';
+        }
+        return '';
+    }
+
+    /**
      * prepares the query to detect FKs
      *
      * @param array $value
@@ -244,6 +259,40 @@ trait MySQLiByDanielGPqueries
             . 'FROM `information_schema`.`TABLES` `T` '
             . $this->sManageDynamicFilters($filterArray, 'T')
             . $this->xtraSoring($filterArray, 'TABLE_SCHEMA') . ';';
+    }
+
+    /**
+     * Builds an filter string from pair of key and value, where value is array
+     *
+     * @param string $key
+     * @param array $value
+     * @param string $referenceTable
+     * @return string
+     */
+    private function setArrayLineArrayToFilter($key, $value, $referenceTable)
+    {
+        $filters2 = implode(', ', array_diff($value, ['']));
+        if ($filters2 != '') {
+            return '(' . $referenceTable . '`' . $key . '` IN ("'
+                . str_replace(',', '","', str_replace(["'", '"'], '', $filters2)) . '"))';
+        }
+        return '';
+    }
+
+    /**
+     * Builds an filter string from pair of key and value, none array
+     *
+     * @param string $key
+     * @param int|float|string $value
+     * @return string
+     */
+    private function setArrayLineToFilter($key, $value)
+    {
+        $fTemp = '=';
+        if ((substr($value, 0, 1) == '%') && (substr($value, -1) == '%')) {
+            $fTemp = 'LIKE';
+        }
+        return '(`' . $key . '` ' . $fTemp . '"' . $value . '")';
     }
 
     private function xtraSoring($filterArray, $filterValueToDecide)
