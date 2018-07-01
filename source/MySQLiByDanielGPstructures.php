@@ -188,9 +188,9 @@ trait MySQLiByDanielGPstructures
     }
 
     /**
-     * Return various informations (from predefined list) from the MySQL server
+     * Return various information (from predefined list) from the MySQL server
      *
-     * @return int|array
+     * @return int|null|array
      */
     private function getMySQLlistMultiple($returnChoice, $returnType, $additionalFeatures = null)
     {

@@ -112,11 +112,9 @@ trait MySQLiByDanielGPqueries
             return '';
         }
         $fltr = [];
-        if (is_array($filterArray)) {
-            unset($filterArray['LIMIT']);
-            foreach ($filterArray as $key => $value) {
-                $fltr[] = '`' . $tableToApplyFilterTo . '`.`' . $key . '` ' . $this->sGlueFilterValIntoWhereStr($value);
-            }
+        unset($filterArray['LIMIT']);
+        foreach ($filterArray as $key => $value) {
+            $fltr[] = '`' . $tableToApplyFilterTo . '`.`' . $key . '` ' . $this->sGlueFilterValIntoWhereStr($value);
         }
         return $this->sManageDynamicFiltersFinal($fltr);
     }

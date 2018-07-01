@@ -174,7 +174,7 @@ trait CommonCode
     /**
      * Tests if given string has a valid Json format
      *
-     * @param string $inputJson
+     * @param string|null|array $inputJson
      * @return boolean|string
      */
     protected function isJsonByDanielGP($inputJson)

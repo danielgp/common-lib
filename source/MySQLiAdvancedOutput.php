@@ -112,7 +112,7 @@ trait MySQLiAdvancedOutput
             return $this->getFieldOutputNumericAI($value, $iar);
         }
         $fkArray = $this->getForeignKeysToArray($this->advCache['workingDatabase'], $tblSrc, $value['COLUMN_NAME']);
-        if (is_null($fkArray)) {
+        if ($fkArray === []) {
             $fldNos = $this->setFieldNumbers($value);
             return $this->getFieldOutputTT($value, min(50, (array_key_exists('l', $fldNos) ? $fldNos['l'] : 99)), $iar);
         }
@@ -186,7 +186,7 @@ trait MySQLiAdvancedOutput
             return '';
         }
         $foreignKeysArray = $this->getFieldOutputTextPrerequisites($tbl, $value);
-        if (!is_null($foreignKeysArray)) {
+        if ($foreignKeysArray !== []) {
             return $this->getFieldOutputTextFK($foreignKeysArray, $value, $iar);
         }
         return $this->getFieldOutputTextNonFK($value, $iar);
@@ -222,11 +222,11 @@ trait MySQLiAdvancedOutput
      *
      * @param string $tbl
      * @param array $value
-     * @return null|array
+     * @return array
      */
     private function getFieldOutputTextPrerequisites($tbl, $value)
     {
-        $foreignKeysArray = null;
+        $foreignKeysArray = [];
         if (($tbl != 'user_rights') && ($value['COLUMN_NAME'] != 'eid')) {
             $database = $this->advCache['workingDatabase'];
             if (strpos($tbl, '`.`')) {
@@ -289,7 +289,7 @@ trait MySQLiAdvancedOutput
         if (!isset($this->advCache['tableFKs'][$database][$tblName])) {
             $this->setTableForeignKeyCache($database, $this->fixTableSource($tblName));
         }
-        $aRt = null;
+        $aRt = [];
         if (isset($this->advCache['tableFKs'][$database][$tblName])) {
             $cnm = ['COLUMN_NAME', 'full_array_key_numbered', 'REFERENCED_TABLE_SCHEMA', 'REFERENCED_TABLE_NAME'];
             foreach ($this->advCache['tableFKs'][$database][$tblName] as $val) {
