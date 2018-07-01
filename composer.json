@@ -42,6 +42,7 @@
             "source/DomCssAndJavascriptByDanielGP.php",
             "source/DomDynamicSelectByDanielGP.php",
             "source/DomComponentsByDanielGP.php",
+            "source/DomPaginationByDanielGP.php",
             "source/MySQLiAdvancedOutput.php",
             "source/MySQLiByDanielGPqueriesBasic.php",
             "source/MySQLiByDanielGPqueries.php",
