@@ -66,7 +66,7 @@ trait DomPaginationByDanielGP
      * Builds a <select> based on a given array
      *
      * @version 20080618
-     * @param array $aElements
+     * @param array|null $aElements
      * @param mixed $sDefaultValue
      * @param string $selectName
      * @param array $featArray
@@ -120,7 +120,7 @@ trait DomPaginationByDanielGP
     protected function setPagination($iCrtPgNo, $inRecPrPg, $iAllRec, $bKpFlPg = true)
     {
         $sReturn             = null;
-        $iRecPrPg            = min($iRecPrPg, $iAllRec);
+        $iRecPrPg            = min($inRecPrPg, $iAllRec);
         $iStartingPageRecord = $this->setStartingPageRecord($iCrtPgNo, $iRecPrPg, $iAllRec, $bKpFlPg);
         $sReturn             .= '<span style="float:left;font-size:smaller;margin-top:1px; margin-right:1px;">'
             . $this->setStringIntoTag($iAllRec, 'b')

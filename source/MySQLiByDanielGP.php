@@ -40,7 +40,7 @@ trait MySQLiByDanielGP
         MySQLiMultipleExecution;
 
     /**
-     * Intiates connection to MySQL
+     * Initiates connection to MySQL
      *
      * @param array $mySQLconfig
      *
@@ -51,20 +51,22 @@ trait MySQLiByDanielGP
      * 'password' => MYSQL_PASSWORD,
      * 'database' => MYSQL_DATABASE,
      * ];
+     *
+     * @return string
      */
     protected function connectToMySql($mySQLconfig)
     {
         if (is_null($this->mySQLconnection)) {
             extract($mySQLconfig);
             $this->mySQLconnection = new \mysqli($host, $username, $password, $database, $port);
-            if (is_null($this->mySQLconnection->connect_error)) {
-                return '';
+            if ($this->mySQLconnection->connect_error) {
+                $this->mySQLconnection = null;
+                $erNo                  = $this->mySQLconnection->connect_errno;
+                $erMsg                 = $this->mySQLconnection->connect_error;
+                $msg                   = $this->lclMsgCmn('i18n_Feedback_ConnectionError');
+                return sprintf($msg, $erNo, $erMsg, $host, $port, $username, $database);
             }
-            $this->mySQLconnection = null;
-            $erNo                  = $this->mySQLconnection->connect_errno;
-            $erMsg                 = $this->mySQLconnection->connect_error;
-            $msg                   = $this->lclMsgCmn('i18n_Feedback_ConnectionError');
-            return sprintf($msg, $erNo, $erMsg, $host, $port, $username, $database);
+            return '';
         }
     }
 
@@ -77,7 +79,7 @@ trait MySQLiByDanielGP
     protected function getFieldOutputDate($value)
     {
         $defaultValue = $this->getFieldValue($value);
-        if (is_null($defaultValue)) {
+        if ($defaultValue == 'NULL') {
             $defaultValue = date('Y-m-d');
         }
         $inA = [
@@ -246,4 +248,5 @@ trait MySQLiByDanielGP
         }
         return $this->setMySQLquery2ServerByPattern($parameters);
     }
+
 }

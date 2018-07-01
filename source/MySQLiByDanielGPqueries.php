@@ -102,7 +102,7 @@ trait MySQLiByDanielGPqueries
     /**
      * Internal function to manage the filters passed to the query
      *
-     * @param array $filterArray
+     * @param null|array $filterArray
      * @param string $tableToApplyFilterTo
      * @return string
      */

@@ -148,10 +148,8 @@ trait MySQLiByDanielGPnumbers
     {
         $sRtrn = $this->setFieldSpecific($fieldDetails);
         if ($outputFormated) {
-            if (is_array($sRtrn)) {
-                foreach ($sRtrn as $key => $value) {
-                    $sRtrn[$key] = $this->setNumberFormat($value);
-                }
+            foreach ($sRtrn as $key => $value) {
+                $sRtrn[$key] = $this->setNumberFormat($value);
             }
         }
         return $sRtrn;
@@ -175,6 +173,11 @@ trait MySQLiByDanielGPnumbers
         return $this->setFieldSpecificElse($fieldDetails);
     }
 
+    /**
+     *
+     * @param array $fieldDetails
+     * @return array
+     */
     private function setFieldSpecificElse($fieldDetails)
     {
         $map = ['date' => 10, 'datetime' => 19, 'enum' => 65536, 'set' => 64, 'time' => 8, 'timestamp' => 19];

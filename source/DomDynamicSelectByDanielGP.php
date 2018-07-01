@@ -91,14 +91,14 @@ trait DomDynamicSelectByDanielGP
      */
     private function eventOnChange($featArray)
     {
-        $sReturn = null;
+        $sReturn = [];
         if (array_key_exists('additional_javascript_action', $featArray)) {
             $sReturn[] = $featArray['additional_javascript_action'];
         }
         if (array_key_exists('autosubmit', $featArray)) {
             $sReturn[] = 'submit();';
         }
-        if (is_array($sReturn)) {
+        if ($sReturn != []) {
             return ' onchange="javascript:' . implode('', $sReturn) . '"';
         }
         return '';
