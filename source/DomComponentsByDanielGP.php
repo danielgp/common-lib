@@ -576,7 +576,7 @@ trait DomComponentsByDanielGP
                     . '<p style="background-color:red;color:#FFF;">The parameter sent to '
                     . __FUNCTION__ . ' must be a non-empty array</p>'
                     . $this->setFooterCommon();
-                throw new \Exception($sReturn);
+                throw new \Exception(implode('', $sReturn));
             }
         }
         return implode('', $sReturn);
