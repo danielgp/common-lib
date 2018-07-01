@@ -40,34 +40,6 @@ trait DomComponentsByDanielGP
         DomCssAndJavascriptByDanielGP;
 
     /**
-     * Builds a <select> based on a given array
-     *
-     * @version 20080618
-     * @param array $aElements
-     * @param mixed $sDefaultValue
-     * @param string $selectName
-     * @param array $featArray
-     * @return string
-     */
-    protected function setArrayToSelect($aElements, $sDefaultValue, $selectName, $featArray = null)
-    {
-        if (!is_array($aElements)) {
-            return '';
-        }
-        if (isset($featArray['readonly'])) {
-            $inputFeatures = [
-                'name'     => $selectName,
-                'id'       => $this->buildSelectId($selectName, $featArray),
-                'readonly' => 'readonly',
-                'class'    => 'input_readonly',
-                'value'    => $sDefaultValue,
-            ];
-            return $this->setStringIntoShortTag('input', $inputFeatures) . $aElements[$sDefaultValue];
-        }
-        return $this->setArrayToSelectNotReadOnly($aElements, $sDefaultValue, $selectName, $featArray);
-    }
-
-    /**
      * Returns a table from an query
      *
      * @param array $aElements

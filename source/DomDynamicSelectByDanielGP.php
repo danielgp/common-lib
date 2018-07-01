@@ -125,14 +125,14 @@ trait DomDynamicSelectByDanielGP
         }
         $featArray = $this->normalizeFeatureArray($ftArray);
         return '<select name="' . $selectName . '" '
-                . 'id="' . $this->buildSelectId($selectName, $featArray) . '" '
-                . 'size="' . $this->calculateSelectOptionsSize($aElements, $featArray) . '"'
-                . $this->eventOnChange($featArray)
-                . $this->featureArraySimpleTranslated($featArray, 'disabled')
-                . $this->featureArraySimpleTranslated($featArray, 'hidden')
-                . $this->featureArraySimpleTranslated($featArray, 'multiselect')
-                . $this->featureArraySimpleTranslated($featArray, 'style')
-                . '>' . $this->setOptionsForSelect($aElements, $sDefaultValue, $featArray) . '</select>';
+            . 'id="' . $this->buildSelectId($selectName, $featArray) . '" '
+            . 'size="' . $this->calculateSelectOptionsSize($aElements, $featArray) . '"'
+            . $this->eventOnChange($featArray)
+            . $this->featureArraySimpleTranslated($featArray, 'disabled')
+            . $this->featureArraySimpleTranslated($featArray, 'hidden')
+            . $this->featureArraySimpleTranslated($featArray, 'multiselect')
+            . $this->featureArraySimpleTranslated($featArray, 'style')
+            . '>' . $this->setOptionsForSelect($aElements, $sDefaultValue, $featArray) . '</select>';
     }
 
     private function setOptionGroupEnd($crtGroup, $featArray)
@@ -190,11 +190,12 @@ trait DomDynamicSelectByDanielGP
             $aFH       = $this->setOptionGroupFooterHeader($featArray, $value, $crtGroup);
             $crtGroup  = $aFH['crtGroup'];
             $sReturn[] = $aFH['groupFooterHeader']
-                    . '<option value="' . $key . '"' . $this->setOptionSelected($key, $sDefaultValue)
-                    . $this->featureArraySimpleTranslated($featArray, 'styleForOption') . '>'
-                    . str_replace(['&', $crtGroup], ['&amp;', ''], $value) . '</option>';
+                . '<option value="' . $key . '"' . $this->setOptionSelected($key, $sDefaultValue)
+                . $this->featureArraySimpleTranslated($featArray, 'styleForOption') . '>'
+                . str_replace(['&', $crtGroup], ['&amp;', ''], $value) . '</option>';
         }
         $sReturn[] = $this->setOptionGroupEnd($crtGroup, $featArray);
         return $this->featureArraySimpleTranslated($featArray, 'include_null') . implode('', $sReturn);
     }
+
 }
