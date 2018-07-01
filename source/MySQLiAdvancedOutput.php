@@ -381,7 +381,7 @@ trait MySQLiAdvancedOutput
     /**
      *
      * @param string $tblName
-     * @param string $dtls
+     * @param array $dtls
      * @param array $iar
      * @return string
      */

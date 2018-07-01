@@ -233,22 +233,23 @@ trait MySQLiByDanielGPnumbers
      */
     protected function setMySQLqueryValidateInputs($prm)
     {
-        $rMap          = $this->setMySQLqueryValidationMap();
-        $strReturnType = $prm['returnType'];
-        if (array_key_exists($strReturnType, $rMap)) {
-            $elC = [$prm['NoOfRows'], $rMap[$strReturnType]['r'][0], $rMap[$strReturnType]['r'][1]];
+        $rMap = $this->setMySQLqueryValidationMap();
+        if (array_key_exists($prm['returnType'], $rMap)) {
+            $elC = [$prm['NoOfRows'], $rMap[$prm['returnType']]['r'][0], $rMap[$prm['returnType']]['r'][1]];
             if (filter_var($elC[0], FILTER_VALIDATE_INT, ['min_range' => $elC[1], 'max_range' => $elC[2]]) === false) {
-                $msg = $this->lclMsgCmn('i18n_MySQL_QueryResultExpected' . $rMap[$strReturnType][2]);
+                $suffix2 = (string) $rMap[$prm['returnType']][2];
+                $msg     = $this->lclMsgCmn('i18n_MySQL_QueryResultExpected' . $suffix2);
                 return [false, sprintf($msg, $prm['NoOfColumns'])];
             }
-            $elR = [$prm['NoOfColumns'], $rMap[$strReturnType]['c'][0], $rMap[$strReturnType]['c'][1]];
+            $elR = [$prm['NoOfColumns'], $rMap[$prm['returnType']]['c'][0], $rMap[$prm['returnType']]['c'][1]];
             if (filter_var($elR[0], FILTER_VALIDATE_INT, ['min_range' => $elR[1], 'max_range' => $elR[2]])) {
                 return [true, ''];
             }
-            $msg = $this->lclMsgCmn('i18n_MySQL_QueryResultExpected' . $rMap[$strReturnType][1]);
+            $suffix1 = (string) $rMap[$prm['returnType']][1];
+            $msg     = $this->lclMsgCmn('i18n_MySQL_QueryResultExpected' . $suffix1);
             return [false, sprintf($msg, $prm['NoOfColumns'])];
         }
-        return [false, $strReturnType . ' is not defined!'];
+        return [false, $prm['returnType'] . ' is not defined!'];
     }
 
     private function setMySQLqueryValidationMap()

@@ -95,6 +95,11 @@ trait MySQLiByDanielGPtypes
         ];
     }
 
+    /**
+     *
+     * @param string $fileBaseName
+     * @return array
+     */
     private function readTypeFromJsonFile($fileBaseName)
     {
         $fName = __DIR__ . DIRECTORY_SEPARATOR . 'json' . DIRECTORY_SEPARATOR . $fileBaseName . '.min.json';
@@ -103,9 +108,9 @@ trait MySQLiByDanielGPtypes
             $jSonContent = fread($fJson, filesize($fName));
             fclose($fJson);
             return json_decode($jSonContent, true);
-        } catch (Exception $error) {
+        } catch (\Exception $error) {
             echo "\n" . $error->getMessage() . "\n";
-            return '';
+            return [];
         }
     }
 
