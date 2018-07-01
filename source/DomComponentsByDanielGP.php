@@ -37,21 +37,7 @@ trait DomComponentsByDanielGP
 {
 
     use CommonBasic,
-        DomCssAndJavascriptByDanielGP,
-        DomDynamicSelectByDanielGP;
-
-    private function normalizeArrayForUrl($featArray)
-    {
-        $outArray = [];
-        foreach ($featArray as $key => $value) {
-            if (is_numeric($key)) {
-                $outArray[$value] = 1;
-            } else {
-                $outArray[$key] = $value;
-            }
-        }
-        return $outArray;
-    }
+        DomCssAndJavascriptByDanielGP;
 
     /**
      * Builds a <select> based on a given array
@@ -79,24 +65,6 @@ trait DomComponentsByDanielGP
             return $this->setStringIntoShortTag('input', $inputFeatures) . $aElements[$sDefaultValue];
         }
         return $this->setArrayToSelectNotReadOnly($aElements, $sDefaultValue, $selectName, $featArray);
-    }
-
-    /**
-     * Converts an array to string
-     *
-     * @param string $sSeparator
-     * @param array $aElements
-     * @return string
-     */
-    protected function setArrayToStringForUrl($sSeparator, $aElements, $aExceptedElements = [''])
-    {
-        $outArray = $this->normalizeArrayForUrl($aElements);
-        if (count($outArray) < 1) {
-            return '';
-        }
-        $xptArray   = $this->normalizeArrayForUrl($aExceptedElements);
-        $finalArray = array_diff_key($outArray, $xptArray);
-        return http_build_query($finalArray, '', $sSeparator);
     }
 
     /**
@@ -134,8 +102,8 @@ trait DomComponentsByDanielGP
                 }
             }
             return $divTab['start']
-                    . $this->setFeedbackModern('error', 'Error', $this->lclMsgCmn('i18n_NoData'))
-                    . $divTab['end'];
+                . $this->setFeedbackModern('error', 'Error', $this->lclMsgCmn('i18n_NoData'))
+                . $divTab['end'];
         }
         if (isset($ftrs['limits'])) {
             $ftrs['limits'][1] = min($ftrs['limits'][1], $ftrs['limits'][2]);
@@ -153,13 +121,13 @@ trait DomComponentsByDanielGP
         if ((isset($ftrs['actions']['checkbox_inlineEdit'])) || (isset($ftrs['actions']['checkbox']))) {
             $checkboxFormId = 'frm' . date('YmdHis');
             $sReturn        .= '<form id="' . $checkboxFormId . '" name="' . $checkboxFormId
-                    . '" method="post" ' . ' action="' . $this->tCmnRequest->server->get('PHP_SELF') . '" >';
+                . '" method="post" ' . ' action="' . $this->tCmnRequest->server->get('PHP_SELF') . '" >';
         }
         $tbl        = [];
         $tbl['Def'] = '<table'
-                . (isset($ftrs['table_style']) ? ' style="' . $ftrs['table_style'] . '"' : '')
-                . (isset($ftrs['table_class']) ? ' class="' . $ftrs['table_class'] . '"' : '')
-                . '>';
+            . (isset($ftrs['table_style']) ? ' style="' . $ftrs['table_style'] . '"' : '')
+            . (isset($ftrs['table_class']) ? ' class="' . $ftrs['table_class'] . '"' : '')
+            . '>';
         if (!isset($ftrs['grouping_cell_type'])) {
             $ftrs['grouping_cell_type'] = 'row';
         }
@@ -201,8 +169,8 @@ trait DomComponentsByDanielGP
                 if (isset($iStartingPageRecord)) {
                     $pgn     = $this->setPagination($ftrs['limits'][0], $ftrs['limits'][1], $ftrs['limits'][2], $bKpFlPge);
                     $sReturn .= $this->setStringIntoTag($this->setStringIntoTag($pgn, 'th', [
-                                'colspan' => $iTableColumns
-                            ]), 'tr');
+                            'colspan' => $iTableColumns
+                        ]), 'tr');
                 }
                 $tbl['Header'] = '<tr>';
                 if (isset($ftrs['grouping_cell'])) { // Grouping columns
@@ -257,8 +225,8 @@ trait DomComponentsByDanielGP
                         switch ($ftrs['grouping_cell_type']) {
                             case 'row':
                                 $sReturn .= $tbl['tr_Color'] . '<td ' . 'colspan="' . $iTableColumns . '">'
-                                        . $this->setStringIntoTag($value, 'div', ['class' => 'rowGroup rounded'])
-                                        . '</td></tr>';
+                                    . $this->setStringIntoTag($value, 'div', ['class' => 'rowGroup rounded'])
+                                    . '</td></tr>';
                                 break;
                             case 'tab':
                                 if (is_null($remindGroupValue)) {
@@ -278,8 +246,8 @@ trait DomComponentsByDanielGP
                                     $sReturn .= ($ftrs['grouping_default_tab'] == $value ? ' tabbertabdefault' : '');
                                 }
                                 $sReturn .= '" id="tab_' . $this->cleanStringForId($value) . '" '
-                                        . 'title="' . $value . '">'
-                                        . $tbl['Def'] . $tbl['Head'] . $tbl['Header'];
+                                    . 'title="' . $value . '">'
+                                    . $tbl['Def'] . $tbl['Head'] . $tbl['Header'];
                                 break;
                         }
                         $remindGroupValue = $value;
@@ -320,8 +288,8 @@ trait DomComponentsByDanielGP
                             $checkboxName  = $value . '[]';
                             $checkboxNameS = $value;
                             $sReturn       .= '&nbsp;<input type="checkbox" name="' . $checkboxName
-                                    . '" id="n' . $aElements[$rCntr][$value]
-                                    . '" value="' . $aElements[$rCntr][$value] . '" ';
+                                . '" id="n' . $aElements[$rCntr][$value]
+                                . '" value="' . $aElements[$rCntr][$value] . '" ';
                             if (isset($_REQUEST[$checkboxNameS])) {
                                 if (is_array($_REQUEST[$checkboxNameS])) {
                                     if (in_array($aElements[$rCntr][$value], $_REQUEST[$checkboxNameS])) {
@@ -342,8 +310,8 @@ trait DomComponentsByDanielGP
                             $checkboxName  = $value . '[]';
                             $checkboxNameS = $value;
                             $sReturn       .= '&nbsp;<input type="checkbox" name="' . $checkboxName
-                                    . '" id="n' . $aElements[$rCntr][$value] . '" value="'
-                                    . $aElements[$rCntr][$value] . '"/>';
+                                . '" id="n' . $aElements[$rCntr][$value] . '" value="'
+                                . $aElements[$rCntr][$value] . '"/>';
                             break;
                         case 'delete':
                             $sReturn       .= '<a href="#" onclick="javascript:setQuest(\'' . $value[0] . '\',\'';
@@ -439,19 +407,19 @@ trait DomComponentsByDanielGP
         if (isset($ftrs['actions']['checkbox'])) {
             if (strpos($_REQUEST['view'], 'multiEdit') === false) {
                 $sReturn .= '<a href="#" onclick="javascript:checking(\'' . $checkboxFormId
-                        . '\',\'' . $checkboxName . '\',true);">Check All</a>&nbsp;&nbsp;'
-                        . '<a href="#" onclick="javascript:checking(\'' . $checkboxFormId
-                        . '\',\'' . $checkboxName . '\',false);">Uncheck All</a>&nbsp;&nbsp;'
-                        . '<input type="hidden" name="action" value="multiEdit_' . $checkboxNameS . '" />';
+                    . '\',\'' . $checkboxName . '\',true);">Check All</a>&nbsp;&nbsp;'
+                    . '<a href="#" onclick="javascript:checking(\'' . $checkboxFormId
+                    . '\',\'' . $checkboxName . '\',false);">Uncheck All</a>&nbsp;&nbsp;'
+                    . '<input type="hidden" name="action" value="multiEdit_' . $checkboxNameS . '" />';
                 if (isset($ftrs['hiddenInput'])) {
                     if (is_array($ftrs['hiddenInput'])) {
                         foreach ($ftrs['hiddenInput'] as $valueF) {
                             $sReturn .= '<input type="hidden" name="' . $valueF
-                                    . '" value="' . $_REQUEST[$valueF] . '" />';
+                                . '" value="' . $_REQUEST[$valueF] . '" />';
                         }
                     } else {
                         $sReturn .= '<input type="hidden" name="' . $ftrs['hiddenInput']
-                                . '" value="' . $_REQUEST[$ftrs['hiddenInput']] . '" />';
+                            . '" value="' . $_REQUEST[$ftrs['hiddenInput']] . '" />';
                     }
                 }
                 $sReturn .= '<input style="margin: 0 3em 0 3em;" type="submit" ' . 'value="Edit selected" />';
@@ -460,9 +428,9 @@ trait DomComponentsByDanielGP
         }
         if (isset($ftrs['actions']['checkbox_inlineEdit'])) {
             $sReturn .= '<a href="#" onclick="javascript:checking(\'' . $checkboxFormId
-                    . '\',\'' . $checkboxName . '\',true);">Check All</a>&nbsp;&nbsp;'
-                    . '<a href="#" onclick="javascript:checking(\'' . $checkboxFormId
-                    . '\',\'' . $checkboxName . '\',false);">Uncheck All</a>&nbsp;&nbsp;';
+                . '\',\'' . $checkboxName . '\',true);">Check All</a>&nbsp;&nbsp;'
+                . '<a href="#" onclick="javascript:checking(\'' . $checkboxFormId
+                . '\',\'' . $checkboxName . '\',false);">Uncheck All</a>&nbsp;&nbsp;';
             if (isset($ftrs['visibleInput'])) {
                 $sReturn .= $ftrs['visibleInput'];
             }
@@ -471,11 +439,11 @@ trait DomComponentsByDanielGP
                 if (is_array($ftrs['hiddenInput'])) {
                     foreach ($ftrs['hiddenInput'] as $valueF) {
                         $sReturn .= '<input type="hidden" name="' . $valueF
-                                . '" value="' . $_REQUEST[$valueF] . '" />';
+                            . '" value="' . $_REQUEST[$valueF] . '" />';
                     }
                 } else {
                     $sReturn .= '<input type="hidden" name="' . $ftrs['hiddenInput']
-                            . '" value="' . $_REQUEST[$ftrs['hiddenInput']] . '" />';
+                        . '" value="' . $_REQUEST[$ftrs['hiddenInput']] . '" />';
                 }
             }
             $sReturn .= '<input style="margin: 0 3em 0 3em;" type="submit" value="Store the modification" />';
@@ -494,13 +462,13 @@ trait DomComponentsByDanielGP
     public function setCalendarControl($controlName, $additionalStyle = '')
     {
         return $this->setStringIntoTag('&nbsp;', 'span', [
-                    'onclick' => implode('', [
-                        'javascript:NewCssCal(\'' . $controlName,
-                        '\',\'yyyyMMdd\',\'dropdown\',false,\'24\',false);',
-                    ]),
-                    'class'   => 'fa fa-calendar',
-                    'id'      => $controlName . '_picker',
-                    'style'   => 'cursor:pointer;' . $additionalStyle,
+                'onclick' => implode('', [
+                    'javascript:NewCssCal(\'' . $controlName,
+                    '\',\'yyyyMMdd\',\'dropdown\',false,\'24\',false);',
+                ]),
+                'class'   => 'fa fa-calendar',
+                'id'      => $controlName . '_picker',
+                'style'   => 'cursor:pointer;' . $additionalStyle,
         ]);
     }
 
@@ -514,13 +482,13 @@ trait DomComponentsByDanielGP
     public function setCalendarControlWithTime($controlName, $additionalStyle = '')
     {
         return $this->setStringIntoTag('&nbsp;', 'span', [
-                    'onclick' => implode('', [
-                        'javascript:NewCssCal(\'' . $controlName,
-                        '\',\'yyyyMMdd\',\'dropdown\',true,\'24\',true);',
-                    ]),
-                    'class'   => 'fa fa-calendar',
-                    'id'      => $controlName . '_picker',
-                    'style'   => 'cursor:pointer;' . $additionalStyle,
+                'onclick' => implode('', [
+                    'javascript:NewCssCal(\'' . $controlName,
+                    '\',\'yyyyMMdd\',\'dropdown\',true,\'24\',true);',
+                ]),
+                'class'   => 'fa fa-calendar',
+                'id'      => $controlName . '_picker',
+                'style'   => 'cursor:pointer;' . $additionalStyle,
         ]);
     }
 
@@ -535,10 +503,10 @@ trait DomComponentsByDanielGP
         $id = $inP['key'] . $inP['rCounter'];
         if (isset($inP['Features']['NoAjaxEditing'])) {
             return '<a href="' . implode('&amp;', $aArgumemts) . '" id="' . $id . '"><i class="'
-                    . $inP['vIcon'] . '">&nbsp;</i></a>';
+                . $inP['vIcon'] . '">&nbsp;</i></a>';
         }
         return '<a href="#" onclick="javascript:loadAE(\'' . implode('&amp;', $aArgumemts) . '\');"'
-                . ' id="' . $id . '"><i class="' . $inP['vIcon'] . '">&nbsp;</i></a>';
+            . ' id="' . $id . '"><i class="' . $inP['vIcon'] . '">&nbsp;</i></a>';
     }
 
     /**
@@ -618,25 +586,25 @@ trait DomComponentsByDanielGP
                                 break;
                             case 'lang':
                                 $fixedHeaderElements['lang'] = '<html lang="'
-                                        . filter_var($value, FILTER_SANITIZE_STRING) . '">';
+                                    . filter_var($value, FILTER_SANITIZE_STRING) . '">';
                                 break;
                             case 'title':
                                 $aFeatures[]                 = '<title>'
-                                        . filter_var($value, FILTER_SANITIZE_STRING) . '</title>';
+                                    . filter_var($value, FILTER_SANITIZE_STRING) . '</title>';
                                 break;
                         }
                     }
                     $sReturn[] = implode('', $fixedHeaderElements)
-                            . implode('', $aFeatures)
-                            . '</head>'
-                            . '<body>';
+                        . implode('', $aFeatures)
+                        . '</head>'
+                        . '<body>';
                 } else {
                     $sReturn[] = implode('', $fixedHeaderElements)
-                            . '</head>'
-                            . '<body>'
-                            . '<p style="background-color:red;color:#FFF;">The parameter sent to '
-                            . __FUNCTION__ . ' must be an array</p>'
-                            . $this->setFooterCommon();
+                        . '</head>'
+                        . '<body>'
+                        . '<p style="background-color:red;color:#FFF;">The parameter sent to '
+                        . __FUNCTION__ . ' must be an array</p>'
+                        . $this->setFooterCommon();
                     throw new \Exception($sReturn);
                 }
             }
@@ -681,7 +649,7 @@ trait DomComponentsByDanielGP
                             if (preg_match("([0-9]{4})-([0-9]{1,2})-([0-9]{1,2})", $value, $regs)) {
                                 $outputet = true;
                                 $sReturn  .= 'style="text-align:right;width: 10px;">'
-                                        . $regs[3] . '.' . $regs[2] . '.' . $regs[1];
+                                    . $regs[3] . '.' . $regs[2] . '.' . $regs[1];
                             }
                         }
                         if (!$outputet) {
@@ -750,13 +718,13 @@ trait DomComponentsByDanielGP
     {
         $this->handleLanguageIntoSession();
         return '<div class="upperRightBox">'
-                . '<div style="text-align:right;">'
-                . '<span class="flag-icon flag-icon-' . strtolower(substr($this->tCmnSession->get('lang'), -2))
-                . '" style="margin-right:2px;">&nbsp;</span>'
-                . $aAvailableLanguages[$this->tCmnSession->get('lang')]
-                . '</div><!-- default Language -->'
-                . $this->setUpperRightVisibleOnHoverLanguages($aAvailableLanguages)
-                . '</div><!-- upperRightBox end -->';
+            . '<div style="text-align:right;">'
+            . '<span class="flag-icon flag-icon-' . strtolower(substr($this->tCmnSession->get('lang'), -2))
+            . '" style="margin-right:2px;">&nbsp;</span>'
+            . $aAvailableLanguages[$this->tCmnSession->get('lang')]
+            . '</div><!-- default Language -->'
+            . $this->setUpperRightVisibleOnHoverLanguages($aAvailableLanguages)
+            . '</div><!-- upperRightBox end -->';
     }
 
     private function setUpperRightVisibleOnHoverLanguages($aAvailableLanguages)
@@ -770,8 +738,8 @@ trait DomComponentsByDanielGP
         foreach ($aAvailableLanguages as $key => $value) {
             if ($this->tCmnSession->get('lang') !== $key) {
                 $sReturn[] = '<a href="?' . $linkWithoutLanguage . 'lang=' . $key . '" style="display:block;">'
-                        . '<span class="flag-icon flag-icon-' . strtolower(substr($key, -2))
-                        . '" style="margin-right:2px;">&nbsp;</span>' . $value . '</a>';
+                    . '<span class="flag-icon flag-icon-' . strtolower(substr($key, -2))
+                    . '" style="margin-right:2px;">&nbsp;</span>' . $value . '</a>';
             }
         }
         return '<div id="visibleOnHover">' . implode('', $sReturn) . '</div><!-- visibleOnHover end -->';

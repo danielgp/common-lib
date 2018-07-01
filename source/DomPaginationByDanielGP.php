@@ -34,7 +34,51 @@ namespace danielgp\common_lib;
 trait DomPaginationByDanielGP
 {
 
-    use DomBasicComponentsByDanielGP;
+    use DomBasicComponentsByDanielGP,
+        DomDynamicSelectByDanielGP;
+
+    private function normalizeArrayForUrl($featArray)
+    {
+        $outArray = [];
+        foreach ($featArray as $key => $value) {
+            if (is_numeric($key)) {
+                $outArray[$value] = 1;
+            } else {
+                $outArray[$key] = $value;
+            }
+        }
+        return $outArray;
+    }
+
+    private function normalizeFeatureArray($featArray)
+    {
+        $nonAsociative = ['autosubmit', 'disabled', 'hidden', 'include_null', 'multiselect'];
+        foreach ($featArray as $key => $value) {
+            if (in_array($value, $nonAsociative)) {
+                $featArray[$value] = $value;
+                unset($featArray[$key]);
+            }
+        }
+        return $featArray;
+    }
+
+    /**
+     * Converts an array to string
+     *
+     * @param string $sSeparator
+     * @param array $aElements
+     * @return string
+     */
+    protected function setArrayToStringForUrl($sSeparator, $aElements, $aExceptedElements = [''])
+    {
+        $outArray = $this->normalizeArrayForUrl($aElements);
+        if (count($outArray) < 1) {
+            return '';
+        }
+        $xptArray   = $this->normalizeArrayForUrl($aExceptedElements);
+        $finalArray = array_diff_key($outArray, $xptArray);
+        return http_build_query($finalArray, '', $sSeparator);
+    }
 
     /**
      * Returns a pagination bar
