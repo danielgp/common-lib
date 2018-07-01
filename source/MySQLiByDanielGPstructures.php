@@ -39,6 +39,8 @@ trait MySQLiByDanielGPstructures
     use MySQLiByDanielGP,
         MySQLiByDanielGPqueries;
 
+    protected $advCache = null;
+
     /**
      * Ensures table has special quotes and DOT as final char
      * (if not empty, of course)
@@ -52,6 +54,40 @@ trait MySQLiByDanielGPstructures
             return '`' . str_replace('`', '', $referenceTable) . '`.';
         }
         return '';
+    }
+
+    /**
+     * Establish Database and Table intended to work with
+     * (in case the DB is omitted get the default one)
+     *
+     * @param string $tblSrc
+     */
+    private function establishDatabaseAndTable($tblSrc)
+    {
+        if (strpos($tblSrc, '.') === false) {
+            if (!array_key_exists('workingDatabase', $this->advCache)) {
+                $this->advCache['workingDatabase'] = $this->getMySqlCurrentDatabase();
+            }
+            return [$this->advCache['workingDatabase'], $tblSrc];
+        }
+        return explode('.', str_replace('`', '', $tblSrc));
+    }
+
+    /**
+     * Returns the name of a field for displaying
+     *
+     * @param array $details
+     * @return string
+     */
+    protected function getFieldNameForDisplay($details)
+    {
+        $tableUniqueId = $details['TABLE_SCHEMA'] . '.' . $details['TABLE_NAME'];
+        if ($details['COLUMN_COMMENT'] != '') {
+            return $details['COLUMN_COMMENT'];
+        } elseif (isset($this->advCache['tableStructureLocales'][$tableUniqueId][$details['COLUMN_NAME']])) {
+            return $this->advCache['tableStructureLocales'][$tableUniqueId][$details['COLUMN_NAME']];
+        }
+        return $details['COLUMN_NAME'];
     }
 
     /**
