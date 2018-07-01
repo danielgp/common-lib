@@ -97,11 +97,16 @@ trait MySQLiByDanielGPtypes
 
     private function readTypeFromJsonFile($fileBaseName)
     {
-        $fName       = __DIR__ . DIRECTORY_SEPARATOR . 'json' . DIRECTORY_SEPARATOR . $fileBaseName . '.min.json';
-        $fJson       = fopen($fName, 'r');
-        $jSonContent = fread($fJson, filesize($fName));
-        fclose($fJson);
-        return json_decode($jSonContent, true);
+        $fName = __DIR__ . DIRECTORY_SEPARATOR . 'json' . DIRECTORY_SEPARATOR . $fileBaseName . '.min.json';
+        try {
+            $fJson       = fopen($fName, 'r');
+            $jSonContent = fread($fJson, filesize($fName));
+            fclose($fJson);
+            return json_decode($jSonContent, true);
+        } catch (Exception $error) {
+            echo "\n" . $error->getMessage() . "\n";
+            return '';
+        }
     }
 
 }

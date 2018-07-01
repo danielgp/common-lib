@@ -29,7 +29,7 @@
 namespace danielgp\common_lib;
 
 /**
- * Usefull functions to get quick MySQL content
+ * Useful functions to get quick MySQL content
  *
  * @author Daniel Popiniuc
  */
@@ -39,7 +39,7 @@ trait MySQLiByDanielGPnumbers
     use DomComponentsByDanielGP;
 
     /**
-     * Creats an input for ENUM or SET if marked Read-Only
+     * Creates an input for ENUM or SET if marked Read-Only
      *
      * @param array $val
      * @param array $adnlThings
@@ -226,23 +226,29 @@ trait MySQLiByDanielGPnumbers
         return '<div>' . implode('', $btn) . '</div>';
     }
 
+    /**
+     *
+     * @param array $prm
+     * @return array
+     */
     protected function setMySQLqueryValidateInputs($prm)
     {
-        $rMap = $this->setMySQLqueryValidationMap();
-        if (array_key_exists($prm['returnType'], $rMap)) {
-            $elC = [$prm['NoOfRows'], $rMap[$prm['returnType']]['r'][0], $rMap[$prm['returnType']]['r'][1]];
+        $rMap          = $this->setMySQLqueryValidationMap();
+        $strReturnType = $prm['returnType'];
+        if (array_key_exists($strReturnType, $rMap)) {
+            $elC = [$prm['NoOfRows'], $rMap[$strReturnType]['r'][0], $rMap[$strReturnType]['r'][1]];
             if (filter_var($elC[0], FILTER_VALIDATE_INT, ['min_range' => $elC[1], 'max_range' => $elC[2]]) === false) {
-                $msg = $this->lclMsgCmn('i18n_MySQL_QueryResultExpected' . $rMap[$prm['returnType']][2]);
+                $msg = $this->lclMsgCmn('i18n_MySQL_QueryResultExpected' . $rMap[$strReturnType][2]);
                 return [false, sprintf($msg, $prm['NoOfColumns'])];
             }
-            $elR = [$prm['NoOfColumns'], $rMap[$prm['returnType']]['c'][0], $rMap[$prm['returnType']]['c'][1]];
+            $elR = [$prm['NoOfColumns'], $rMap[$strReturnType]['c'][0], $rMap[$strReturnType]['c'][1]];
             if (filter_var($elR[0], FILTER_VALIDATE_INT, ['min_range' => $elR[1], 'max_range' => $elR[2]])) {
                 return [true, ''];
             }
-            $msg = $this->lclMsgCmn('i18n_MySQL_QueryResultExpected' . $rMap[$prm['returnType']][1]);
+            $msg = $this->lclMsgCmn('i18n_MySQL_QueryResultExpected' . $rMap[$strReturnType][1]);
             return [false, sprintf($msg, $prm['NoOfColumns'])];
         }
-        return [false, $prm['returnType'] . ' is not defined!'];
+        return [false, $strReturnType . ' is not defined!'];
     }
 
     private function setMySQLqueryValidationMap()
@@ -261,4 +267,5 @@ trait MySQLiByDanielGPnumbers
             'value'                               => ['r' => [1, 1], 'c' => [1, 1], '1ResultedOther'],
         ];
     }
+
 }

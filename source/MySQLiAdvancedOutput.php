@@ -29,7 +29,7 @@
 namespace danielgp\common_lib;
 
 /**
- * usefull functions to get quick results
+ * useful functions to get quick results
  *
  * @author Daniel Popiniuc
  */
@@ -42,7 +42,7 @@ trait MySQLiAdvancedOutput
 
     /**
      * Establish Database and Table intended to work with
-     * (in case the DB is ommited get the default one)
+     * (in case the DB is omitted get the default one)
      *
      * @param string $tblSrc
      */
@@ -378,6 +378,13 @@ trait MySQLiAdvancedOutput
         return $this->getFieldOutputYear($tblName, $dtls, $iar);
     }
 
+    /**
+     *
+     * @param string $tblName
+     * @param string $dtls
+     * @param array $iar
+     * @return string
+     */
     private function setNeededFieldTextRelated($tblName, $dtls, $iar)
     {
         if (in_array($dtls['DATA_TYPE'], ['char', 'tinytext', 'varchar'])) {
@@ -406,6 +413,11 @@ trait MySQLiAdvancedOutput
         }
     }
 
+    /**
+     *
+     * @param string $dbName
+     * @param string $tblName
+     */
     private function setTableForeignKeyCache($dbName, $tblName)
     {
         $frgnKs = $this->getMySQLlistIndexes([
@@ -418,4 +430,5 @@ trait MySQLiAdvancedOutput
             $this->advCache['FKcol'][$dbName][$tblName]    = array_column($frgnKs, 'COLUMN_NAME', 'CONSTRAINT_NAME');
         }
     }
+
 }

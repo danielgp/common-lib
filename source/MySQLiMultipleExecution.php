@@ -131,7 +131,7 @@ trait MySQLiMultipleExecution
      *
      * @param string $fieldName
      * @param array $features
-     * @return string
+     * @return array
      */
     protected function handleFeatures($fieldName, $features)
     {
@@ -171,10 +171,9 @@ trait MySQLiMultipleExecution
     }
 
     /**
-     * Detects what kind of variable has been transmited
+     * Detects what kind of variable has been transmitted
      * to return the identifier needed by MySQL statement preparing
      *
-     * @param integer|float|string $variabaleValue
      * @return string
      */
     protected function setVariableTypeForMySqlStatements($variabaleValue)

@@ -47,7 +47,7 @@ trait DomComponentsByDanielGP
      * @param boolean $bKpFlPge
      * @return string
      */
-    protected function setArrayToTable($aElements, $ftrs = null, $bKpFlPge = true)
+    protected function setArrayToTable($aElements, $ftrs = [], $bKpFlPge = true)
     {
         $rows = count($aElements);
         if ($rows == 0) {

@@ -36,6 +36,12 @@ namespace danielgp\common_lib;
 trait DomDynamicSelectByDanielGP
 {
 
+    /**
+     *
+     * @param string $selectName
+     * @param array $featArray
+     * @return string
+     */
     protected function buildSelectId($selectName, $featArray)
     {
         $selectId = str_replace(['[', ']'], ['', ''], $selectName);
@@ -61,6 +67,12 @@ trait DomDynamicSelectByDanielGP
         return $selectSize;
     }
 
+    /**
+     *
+     * @param array $aElements
+     * @param array $aFeatures
+     * @return int
+     */
     private function calculateSelectOptionsSizeForced($aElements, $aFeatures = [])
     {
         if (isset($aFeatures['size'])) {
@@ -72,6 +84,11 @@ trait DomDynamicSelectByDanielGP
         return 1;
     }
 
+    /**
+     *
+     * @param array $featArray
+     * @return null|string
+     */
     private function eventOnChange($featArray)
     {
         $sReturn = null;
