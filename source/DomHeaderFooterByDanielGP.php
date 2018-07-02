@@ -101,6 +101,7 @@ trait DomHeaderFooterByDanielGP
     protected function setHeaderCommon($headerFeatures = [])
     {
         $sReturn = [];
+        $this->initializeSprGlbAndSession();
         $sHK     = $this->tCmnSuperGlobals->get('specialHook');
         if (!is_null($sHK) && (in_array('noHeader', $sHK))) {
             return ''; // no Header
