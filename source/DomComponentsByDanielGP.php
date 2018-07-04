@@ -528,7 +528,7 @@ trait DomComponentsByDanielGP
         if ($bHeadersBreaked) {
             $aTableHeader = $this->setArrayToArrayKbr($aElements);
         }
-        $sReturn[] = [];
+        $sReturn = [];
         foreach (array_keys($aTableHeader) as $value) {
             $sReturn[] = $this->setStringIntoTag($value, 'th');
         }
