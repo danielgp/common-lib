@@ -271,5 +271,4 @@ trait MySQLiByDanielGPnumbers
             'value'                               => ['r' => [1, 1], 'c' => [1, 1], '1ResultedOther'],
         ];
     }
-
 }

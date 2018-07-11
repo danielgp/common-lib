@@ -214,5 +214,4 @@ trait DomDynamicSelectByDanielGP
         $sReturn[] = $this->setOptionGroupEnd($crtGroup, $featArray);
         return $this->featureArraySimpleTranslated($featArray, 'include_null') . implode('', $sReturn);
     }
-
 }

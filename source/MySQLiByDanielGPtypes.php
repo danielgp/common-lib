@@ -111,5 +111,4 @@ trait MySQLiByDanielGPtypes
         fclose($fJson);
         return json_decode($jSonContent, true);
     }
-
 }

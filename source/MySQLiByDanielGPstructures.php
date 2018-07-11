@@ -323,5 +323,4 @@ trait MySQLiByDanielGPstructures
         }
         return $query;
     }
-
 }

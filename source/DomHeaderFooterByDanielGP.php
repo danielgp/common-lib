@@ -41,7 +41,8 @@ trait DomHeaderFooterByDanielGP
     public function setCalendarControl($controlName, $additionalStyle = '')
     {
         return $this->setStringIntoTag('&nbsp;', 'span', [
-                'onclick' => 'javascript:NewCssCal(\'' . $controlName . '\',\'yyyyMMdd\',\'dropdown\',false,\'24\',false);',
+                'onclick' => 'javascript:NewCssCal(\'' . $controlName
+                . '\',\'yyyyMMdd\',\'dropdown\',false,\'24\',false);',
                 'class'   => 'fa fa-calendar',
                 'id'      => $controlName . '_picker',
                 'style'   => 'cursor:pointer;' . $additionalStyle,
@@ -58,7 +59,8 @@ trait DomHeaderFooterByDanielGP
     public function setCalendarControlWithTime($controlName, $additionalStyle = '')
     {
         return $this->setStringIntoTag('&nbsp;', 'span', [
-                'onclick' => 'javascript:NewCssCal(\'' . $controlName . '\',\'yyyyMMdd\',\'dropdown\',true,\'24\',true);',
+                'onclick' => 'javascript:NewCssCal(\'' . $controlName
+                . '\',\'yyyyMMdd\',\'dropdown\',true,\'24\',true);',
                 'class'   => 'fa fa-calendar',
                 'id'      => $controlName . '_picker',
                 'style'   => 'cursor:pointer;' . $additionalStyle,
@@ -134,16 +136,16 @@ trait DomHeaderFooterByDanielGP
      */
     private function setHeaderCssOrJavascript($value, $sCssOrJavascript)
     {
-        $strFunctionToCall = (string) 'set' . ucwords($sCssOrJavascript) . 'File';
+        $strFnToCall = (string) 'set' . ucwords($sCssOrJavascript) . 'File';
         if (is_array($value)) {
             $aFeatures = [];
             foreach ($value as $value2) {
-                $fnResult    = call_user_func_array([$this, $strFunctionToCall], [$this->getSanitizedUrl($value2), null]);
+                $fnResult    = call_user_func_array([$this, $strFnToCall], [$this->getSanitizedUrl($value2), null]);
                 $aFeatures[] = $fnResult;
             }
             return implode('', $aFeatures);
         }
-        return call_user_func_array([$this, $strFunctionToCall], [$this->getSanitizedUrl($value), null]);
+        return call_user_func_array([$this, $strFnToCall], [$this->getSanitizedUrl($value), null]);
     }
 
     /**
@@ -225,5 +227,4 @@ trait DomHeaderFooterByDanielGP
         }
         return '<div id="visibleOnHover">' . implode('', $sReturn) . '</div><!-- visibleOnHover end -->';
     }
-
 }

@@ -244,5 +244,4 @@ trait CommonBasic
         ];
         return $knownErrors[json_last_error()];
     }
-
 }

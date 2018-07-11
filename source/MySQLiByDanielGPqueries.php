@@ -312,5 +312,4 @@ trait MySQLiByDanielGPqueries
         }
         return $defaults[$filterValueToDecide][0];
     }
-
 }

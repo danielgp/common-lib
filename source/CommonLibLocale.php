@@ -109,7 +109,7 @@ trait CommonLibLocale
         $localizationFile = $this->getCommonLocaleFolder() . '/locale/'
             . $this->tCmnSession->get('lang') . '/LC_MESSAGES/'
             . $this->commonLibFlags['localization_domain'] . '.mo';
-        $translations     = new \Gettext\Translations;
+        $translations     = new \Gettext\Translations();
         $translations->addFromMoFile($localizationFile);
         $this->tCmnLb     = new \Gettext\Translator();
         $this->tCmnLb->loadTranslations($translations);
@@ -118,7 +118,7 @@ trait CommonLibLocale
     protected function initializeSprGlbAndSession()
     {
         if (is_null($this->tCmnSuperGlobals)) {
-            $this->tCmnRequest      = new \Symfony\Component\HttpFoundation\Request;
+            $this->tCmnRequest      = new \Symfony\Component\HttpFoundation\Request();
             $this->tCmnSuperGlobals = $this->tCmnRequest->createFromGlobals();
         }
         if (is_null($this->tCmnSession)) {
@@ -232,5 +232,4 @@ trait CommonLibLocale
             'localization_domain' => 'common-locale'
         ];
     }
-
 }

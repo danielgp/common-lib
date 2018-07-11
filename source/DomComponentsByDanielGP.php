@@ -139,7 +139,8 @@ trait DomComponentsByDanielGP
                     $sReturn .= $tbl['Head'];
                 }
                 if (isset($iStartingPageRecord)) {
-                    $pgn     = $this->setPagination($ftrs['limits'][0], $ftrs['limits'][1], $ftrs['limits'][2], $bKpFlPge);
+                    $pgn     = ''
+                        . $this->setPagination($ftrs['limits'][0], $ftrs['limits'][1], $ftrs['limits'][2], $bKpFlPge);
                     $sReturn .= $this->setStringIntoTag($this->setStringIntoTag($pgn, 'th', [
                             'colspan' => $iTableColumns
                         ]), 'tr');
@@ -263,12 +264,13 @@ trait DomComponentsByDanielGP
                                 . '" id="n' . $aElements[$rCntr][$value]
                                 . '" value="' . $aElements[$rCntr][$value] . '" ';
                             if (!is_null($this->tCmnSuperGlobals->get($checkboxNameS))) {
-                                if (is_array($this->tCmnSuperGlobals->get($checkboxNameS))) {
-                                    if (in_array($aElements[$rCntr][$value], $this->tCmnSuperGlobals->get($checkboxNameS))) {
+                                $inputToCheck = $this->tCmnSuperGlobals->get($checkboxNameS);
+                                if (is_array($inputToCheck)) {
+                                    if (in_array($aElements[$rCntr][$value], $inputToCheck)) {
                                         $sReturn .= 'checked="checked" ';
                                     }
                                 } else {
-                                    if ($aElements[$rCntr][$value] == $this->tCmnSuperGlobals->get($checkboxNameS)) {
+                                    if ($aElements[$rCntr][$value] == $inputToCheck) {
                                         $sReturn .= 'checked="checked" ';
                                     }
                                 }
@@ -534,5 +536,4 @@ trait DomComponentsByDanielGP
         }
         return implode('', $sReturn);
     }
-
 }

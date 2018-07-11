@@ -263,5 +263,4 @@ trait CommonCode
         }
         return ['error' => $jsonError];
     }
-
 }

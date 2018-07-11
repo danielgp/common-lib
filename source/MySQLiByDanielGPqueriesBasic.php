@@ -139,5 +139,4 @@ trait MySQLiByDanielGPqueriesBasic
             . 'FROM `' . $parameters[0] . '` '
             . 'WHERE `' . $parameters[1] . '` = "' . $parameters[2] . '";';
     }
-
 }

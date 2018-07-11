@@ -235,5 +235,4 @@ trait DomCssAndJavascriptByDanielGPwithCDN
         }
         return null;
     }
-
 }

@@ -162,9 +162,13 @@ trait DomPaginationByDanielGP
         for ($counter = 1; $counter <= $iNumberOfPages; $counter++) {
             $pages2display[$counter] = $counter;
         }
-        $sReturn .= '<span class="pagination"><form method="get" action="' . $this->tCmnSuperGlobals->getScriptName() . '">';
-        $sReturn .= $this->setArrayToSelect($pages2display, $this->tCmnSuperGlobals->get('page')
-            , 'page', ['size' => 1, 'autosubmit', 'id_no' => mt_rand()]);
+        $sReturn .= '<span class="pagination"><form method="get" action="'
+            . $this->tCmnSuperGlobals->getScriptName() . '">';
+        $sReturn .= $this->setArrayToSelect($pages2display, $this->tCmnSuperGlobals->get('page'), 'page', [
+            'size'  => 1,
+            'autosubmit',
+            'id_no' => mt_rand()
+        ]);
         if (isset($_GET)) {
             foreach ($_GET as $key => $value) {
                 if ($key != 'page') {
@@ -211,8 +215,7 @@ trait DomPaginationByDanielGP
      * @param boolean $bKeepFullPage
      * @return int
      */
-    private function setStartingPageRecord($sDefaultPageNo, $iRecordsPerPage
-        , $iAllRecords, $bKeepFullPage = true)
+    private function setStartingPageRecord($sDefaultPageNo, $iRecordsPerPage, $iAllRecords, $bKeepFullPage = true)
     {
         if (is_null($this->tCmnSuperGlobals->get('page'))) {
             switch ($sDefaultPageNo) {
@@ -232,5 +235,4 @@ trait DomPaginationByDanielGP
         }
         return max(0, $iStartingPageRecord);
     }
-
 }

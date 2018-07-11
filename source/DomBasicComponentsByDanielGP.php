@@ -269,5 +269,4 @@ trait DomBasicComponentsByDanielGP
         }
         return $addingUrl;
     }
-
 }

@@ -248,5 +248,4 @@ trait MySQLiByDanielGP
         }
         return $this->setMySQLquery2ServerByPattern($parameters);
     }
-
 }

@@ -197,5 +197,4 @@ trait MySQLiMultipleExecution
         }
         return implode('', $types);
     }
-
 }

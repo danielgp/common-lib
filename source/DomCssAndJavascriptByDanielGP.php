@@ -208,5 +208,4 @@ trait DomCssAndJavascriptByDanielGP
             . $rememberGroupVal . ' (' . $groupCounter . ')"); });';
         return $this->setJavascriptContent($jsContent);
     }
-
 }

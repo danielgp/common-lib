@@ -237,5 +237,4 @@ trait MySQLiAdvancedOutput
         }
         return $this->getFieldOutputEnumSet($tblName, $dtls['DATA_TYPE'], $dtls, $iar);
     }
-
 }

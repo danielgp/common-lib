@@ -194,5 +194,4 @@ trait MySQLiByDanielGPtables
             $this->advCache['FKcol'][$dbName][$tblName]    = array_column($frgnKs, 'COLUMN_NAME', 'CONSTRAINT_NAME');
         }
     }
-
 }
