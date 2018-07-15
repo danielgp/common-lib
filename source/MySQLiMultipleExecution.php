@@ -96,7 +96,7 @@ trait MySQLiMultipleExecution
     }
 
     /**
-     * returns the list of all MySQL generic informations
+     * returns the list of all MySQL generic information
      *
      * @return array
      */
@@ -105,7 +105,7 @@ trait MySQLiMultipleExecution
         if (is_null($this->mySQLconnection)) {
             return [];
         }
-        return ['Info' => $this->mySQLconnection->server_info, 'Version' => $this->mySQLconnection->server_version];
+        return ['Info' => $this->mySQLconnection->server_info, 'Version' => $this->handleMySqlVersionConsistenly()];
     }
 
     protected function getMySqlCurrentDatabase()
@@ -168,6 +168,34 @@ trait MySQLiMultipleExecution
             }
         }
         return $aReturn;
+    }
+
+    /**
+     * Ensures a consistent output of version for MySQL as well as MariaDB
+     *
+     * @return string
+     */
+    private function handleMySqlVersionConsistenly()
+    {
+        if (substr($this->mySQLconnection->server_info, -7) === 'MariaDB') {
+            $strVersionParts = explode('.', explode('-', $this->mySQLconnection->server_info)[1]);
+            return $this->getTwoDecimalsNumber($strVersionParts[0]) . $this->getTwoDecimalsNumber($strVersionParts[1])
+                . $this->getTwoDecimalsNumber($strVersionParts[2]);
+        }
+        return $this->mySQLconnection->server_version;
+    }
+
+    /**
+     *
+     * @param type $inNumber
+     * @return string
+     */
+    private function getTwoDecimalsNumber($inNumber)
+    {
+        if ($inNumber < 10) {
+            return '0' . $inNumber;
+        }
+        return $inNumber;
     }
 
     /**
