@@ -187,7 +187,7 @@ trait MySQLiMultipleExecution
 
     /**
      *
-     * @param type $inNumber
+     * @param string|integer $inNumber
      * @return string
      */
     private function getTwoDecimalsNumber($inNumber)
