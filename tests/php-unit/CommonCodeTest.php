@@ -25,14 +25,50 @@
  * SOFTWARE.
  *
  */
+
+namespace danielgp\common_lib;
+
 class CommonCodeTest extends \PHPUnit\Framework\TestCase
 {
 
-    use \danielgp\common_lib\CommonCode;
+    public static function setUpBeforeClass()
+    {
+        require_once str_replace('tests' . DIRECTORY_SEPARATOR . 'php-unit', 'source', __DIR__)
+            . DIRECTORY_SEPARATOR . 'CommonLibLocale.php';
+        require_once str_replace('tests' . DIRECTORY_SEPARATOR . 'php-unit', 'source', __DIR__)
+            . DIRECTORY_SEPARATOR . 'CommonPermissions.php';
+        require_once str_replace('tests' . DIRECTORY_SEPARATOR . 'php-unit', 'source', __DIR__)
+            . DIRECTORY_SEPARATOR . 'DomBasicComponentsByDanielGP.php';
+        require_once str_replace('tests' . DIRECTORY_SEPARATOR . 'php-unit', 'source', __DIR__)
+            . DIRECTORY_SEPARATOR . 'MySQLiByDanielGPqueriesBasic.php';
+        require_once str_replace('tests' . DIRECTORY_SEPARATOR . 'php-unit', 'source', __DIR__)
+            . DIRECTORY_SEPARATOR . 'MySQLiByDanielGPqueries.php';
+        require_once str_replace('tests' . DIRECTORY_SEPARATOR . 'php-unit', 'source', __DIR__)
+            . DIRECTORY_SEPARATOR . 'CommonBasic.php';
+        require_once str_replace('tests' . DIRECTORY_SEPARATOR . 'php-unit', 'source', __DIR__)
+            . DIRECTORY_SEPARATOR . 'DomHeaderFooterByDanielGP.php';
+        require_once str_replace('tests' . DIRECTORY_SEPARATOR . 'php-unit', 'source', __DIR__)
+            . DIRECTORY_SEPARATOR . 'DomComponentsByDanielGP.php';
+        require_once str_replace('tests' . DIRECTORY_SEPARATOR . 'php-unit', 'source', __DIR__)
+            . DIRECTORY_SEPARATOR . 'MySQLiByDanielGPnumbers.php';
+        require_once str_replace('tests' . DIRECTORY_SEPARATOR . 'php-unit', 'source', __DIR__)
+            . DIRECTORY_SEPARATOR . 'MySQLiByDanielGP.php';
+        require_once str_replace('tests' . DIRECTORY_SEPARATOR . 'php-unit', 'source', __DIR__)
+            . DIRECTORY_SEPARATOR . 'MySQLiByDanielGPstructures.php';
+        require_once str_replace('tests' . DIRECTORY_SEPARATOR . 'php-unit', 'source', __DIR__)
+            . DIRECTORY_SEPARATOR . 'MySQLiByDanielGPtables.php';
+        require_once str_replace('tests' . DIRECTORY_SEPARATOR . 'php-unit', 'source', __DIR__)
+            . DIRECTORY_SEPARATOR . 'MySQLiAdvancedOutput.php';
+        require_once str_replace('tests' . DIRECTORY_SEPARATOR . 'php-unit', 'source', __DIR__)
+            . DIRECTORY_SEPARATOR . 'CommonViews.php';
+        require_once str_replace('tests' . DIRECTORY_SEPARATOR . 'php-unit', 'source', __DIR__)
+            . DIRECTORY_SEPARATOR . 'CommonCode.php';
+    }
 
     public function testExplainPermissions()
     {
-        $actual = $this->explainPerms('0666');
+        $mock = $this->getMockForTrait(CommonCode::class);
+        $actual = $mock->explainPerms('0666');
         $this->assertArrayHasKey('Code', $actual);
         $this->assertArrayHasKey('Overall', $actual);
         $this->assertArrayHasKey('First', $actual);
@@ -42,7 +78,8 @@ class CommonCodeTest extends \PHPUnit\Framework\TestCase
 
     public function testFileDetailsExisting()
     {
-        $actual = $this->getFileDetails(__FILE__);
+        $mock = $this->getMockForTrait(CommonCode::class);
+        $actual = $mock->getFileDetails(__FILE__);
         $this->assertArrayHasKey('File Name w. Extension', $actual);
         $this->assertArrayHasKey('Timestamp Modified', $actual);
         $this->assertArrayHasKey('Type', $actual);
@@ -50,88 +87,102 @@ class CommonCodeTest extends \PHPUnit\Framework\TestCase
 
     public function testFileDetaiNotExisting()
     {
-        $actual = $this->getFileDetails('not existing file');
+        $mock = $this->getMockForTrait(CommonCode::class);
+        $actual = $mock->getFileDetails('not existing file');
         $this->assertArrayHasKey('error', $actual);
     }
 
     public function testGetContentFromUrlThroughCurl()
     {
-        $actual = $this->getContentFromUrlThroughCurl('http://127.0.0.1/informator/?Label=Client+Info');
+        $mock = $this->getMockForTrait(CommonCode::class);
+        $actual = $mock->getContentFromUrlThroughCurl('http://127.0.0.1/informator/?Label=Client+Info');
         $this->assertJson($actual);
     }
 
     public function testGetContentFromUrlThroughCurlAsArrayIfJson()
     {
-        $actual = $this->getContentFromUrlThroughCurlAsArrayIfJson('https://danielgp.000webhostapp.com/apps/informator/?Label=Client+Info')['response'];
+        $mock = $this->getMockForTrait(CommonCode::class);
+        $actual = $mock->getContentFromUrlThroughCurlAsArrayIfJson(''
+            . 'https://danielgp.000webhostapp.com/apps/informator/?Label=Client+Info')['response'];
         $this->assertArrayHasKey('Browser', $actual);
     }
 
     public function testGetContentFromUrlThroughCurlInvalid()
     {
-        $actual = $this->getContentFromUrlThroughCurl('danielgp.000webhostapp.com/apps/informator/?Label=Client+Info');
+        $mock = $this->getMockForTrait(CommonCode::class);
+        $actual = $mock->getContentFromUrlThroughCurl('danielgp.000webhostapp.com/apps/informator/?Label=Client+Info');
         $this->assertJson($actual);
     }
 
     public function testGetContentFromUrlThroughCurlSecure()
     {
-        $actual = $this->getContentFromUrlThroughCurl('http://danielgp.000webhostapp.com/apps/informator/?Label=Client+Info', [
-            'forceSSLverification'
-        ]);
+        $mock = $this->getMockForTrait(CommonCode::class);
+        $actual = $mock->getContentFromUrlThroughCurl(''
+            . 'http://danielgp.000webhostapp.com/apps/informator/?Label=Client+Info', ['forceSSLverification']);
         $this->assertJson($actual);
     }
 
     public function testListOfFilesExisting()
     {
-        $actual = $this->getListOfFiles(__DIR__);
+        $mock = $this->getMockForTrait(CommonCode::class);
+        $actual = $mock->getListOfFiles(__DIR__);
         $this->assertArrayHasKey(__FILE__, $actual);
     }
 
     public function testListOfFilesNotExisting()
     {
-        $actual = $this->getListOfFiles('not existing file');
+        $mock = $this->getMockForTrait(CommonCode::class);
+        $actual = $mock->getListOfFiles('not existing file');
         $this->assertArrayHasKey('error', $actual);
     }
 
     public function testListOfFilesNotFolder()
     {
-        $actual = $this->getListOfFiles(__FILE__);
+        $mock = $this->getMockForTrait(CommonCode::class);
+        $actual = $mock->getListOfFiles(__FILE__);
         $this->assertArrayHasKey('error', $actual);
     }
 
     public function testGetTimestampArray()
     {
-        $actual = $this->getTimestamp('array');
+        $mock = $this->getMockForTrait(CommonCode::class);
+        $actual = $mock->getTimestamp('array');
         $this->assertArrayHasKey('float', $actual);
     }
 
     public function testGetTimestampFloat()
     {
-        $actual = $this->getTimestamp('float');
+        $mock = $this->getMockForTrait(CommonCode::class);
+        $actual = $mock->getTimestamp('float');
         $this->assertGreaterThan(strtotime('now'), $actual);
     }
 
     public function testGetTimestampString()
     {
-        $actual = $this->getTimestamp('string');
+        $mock = $this->getMockForTrait(CommonCode::class);
+        $actual = $mock->getTimestamp('string');
         $this->assertEquals(date('[Y-m-d H:i:s', strtotime('now')), substr(strip_tags($actual), 0, 20));
     }
 
     public function testGetTimestampUnknownReturnType()
     {
-        $actual = $this->getTimestamp('just time');
-        $this->assertEquals(sprintf($this->lclMsgCmn('i18n_Error_UnknownReturnType'), 'just time'), $actual);
+        $mock = $this->getMockForTrait(CommonCode::class);
+        $actual = $mock->getTimestamp('just time');
+        $this->assertEquals(sprintf($mock->lclMsgCmn('i18n_Error_UnknownReturnType'), 'just time'), $actual);
     }
 
     public function testIsJsonByDanielGP()
     {
-        $actual = $this->isJsonByDanielGP(['array']);
-        $this->assertEquals($this->lclMsgCmn('i18n_Error_GivenInputIsNotJson'), $actual);
+        $mock = $this->getMockForTrait(CommonCode::class);
+        $actual = $mock->isJsonByDanielGP(['array']);
+        $this->assertEquals($mock->lclMsgCmn('i18n_Error_GivenInputIsNotJson'), $actual);
     }
 
     public function testRemoveFilesOlderThanGivenRule()
     {
+        $mock = $this->getMockForTrait(CommonCode::class);
         $where       = getcwd();
-        $this->removeFilesOlderThanGivenRule([
+        $mock->removeFilesOlderThanGivenRule([
             'path'     => $where,
             'dateRule' => strtotime('10 years ago'),
         ]);
@@ -144,7 +195,8 @@ class CommonCodeTest extends \PHPUnit\Framework\TestCase
 
     public function testRemoveFilesOlderThanGivenRuleNoDateRule()
     {
-        $actual = $this->removeFilesOlderThanGivenRule([
+        $mock = $this->getMockForTrait(CommonCode::class);
+        $actual = $mock->removeFilesOlderThanGivenRule([
             'path' => dirname(ini_get('error_log')),
         ]);
         $this->assertEquals('`dateRule` has not been provided', $actual);
@@ -152,7 +204,8 @@ class CommonCodeTest extends \PHPUnit\Framework\TestCase
 
     public function testRemoveFilesOlderThanGivenRuleNoPath()
     {
-        $actual = $this->removeFilesOlderThanGivenRule([
+        $mock = $this->getMockForTrait(CommonCode::class);
+        $actual = $mock->removeFilesOlderThanGivenRule([
             'dateRule' => strtotime('1 sec ago'),
         ]);
         $this->assertEquals('`path` has not been provided', $actual);
@@ -160,13 +213,15 @@ class CommonCodeTest extends \PHPUnit\Framework\TestCase
 
     public function testRemoveFilesOlderThanGivenRuleStringInputs()
     {
-        $actual = $this->removeFilesOlderThanGivenRule('given rule');
+        $mock = $this->getMockForTrait(CommonCode::class);
+        $actual = $mock->removeFilesOlderThanGivenRule('given rule');
         $this->assertEquals(false, $actual);
     }
 
     public function testSetArrayToJsonInvalid()
     {
-        $actual        = $this->setArrayToJson(['string']);
+        $mock = $this->getMockForTrait(CommonCode::class);
+        $actual        = $mock->setArrayToJson(['string']);
         $jsn           = ['string'];
         $valueToReturn = utf8_encode(json_encode($jsn, JSON_FORCE_OBJECT | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
         $this->assertEquals($valueToReturn, $actual);
@@ -174,36 +229,40 @@ class CommonCodeTest extends \PHPUnit\Framework\TestCase
 
     public function testSetArrayValuesAsKey()
     {
-        $actual = $this->setArrayValuesAsKey(['one', 'two']);
+        $mock = $this->getMockForTrait(CommonCode::class);
+        $actual = $mock->setArrayValuesAsKey(['one', 'two']);
         $this->assertArrayHasKey('one', $actual);
     }
 
     public function testSetJsonToArrayInvalidJson()
     {
-        $actual = $this->setJsonToArray("['Item']['systemSku']");
+        $mock = $this->getMockForTrait(CommonCode::class);
+        $actual = $mock->setJsonToArray("['Item']['systemSku']");
         $this->assertArrayHasKey('error', $actual);
     }
 
     public function testSetJsonToArrayString()
     {
-        $actual = $this->setJsonToArray('one');
+        $mock = $this->getMockForTrait(CommonCode::class);
+        $actual = $mock->setJsonToArray('one');
         $this->assertArrayHasKey('error', $actual);
     }
 
     public function testSetJsonToArrayValid()
     {
-        $actual = $this->setJsonToArray('{ "minion": "banana" }');
+        $mock = $this->getMockForTrait(CommonCode::class);
+        $actual = $mock->setJsonToArray('{ "minion": "banana" }');
         $this->assertArrayHasKey('minion', $actual);
     }
 
     public function testUpperRightBoxLanguages()
     {
-        $actual = $this->setUpperRightBoxLanguages([
+        $mock = $this->getMockForTrait(CommonCode::class);
+        $actual = $mock->setUpperRightBoxLanguages([
             'en_US' => 'US English',
             'ro_RO' => 'Română',
             'it_IT' => 'Italiano',
         ]);
         $this->assertContains('Română', $actual);
     }
-
 }
