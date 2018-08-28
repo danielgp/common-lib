@@ -42,7 +42,7 @@ trait CommonPermissions
      * @param int $permissionNumber
      * @return array
      */
-    protected function explainPerms($permissionNumber)
+    public function explainPerms($permissionNumber)
     {
         $firstFlag            = $this->matchFirstFlagSingle($permissionNumber);
         $permissionsString    = substr(sprintf('%o', $permissionNumber), -4);

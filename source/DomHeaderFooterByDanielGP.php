@@ -192,7 +192,7 @@ trait DomHeaderFooterByDanielGP
      * @param array $aAvailableLanguages
      * @return string
      */
-    protected function setUpperRightBoxLanguages($aAvailableLanguages)
+    public function setUpperRightBoxLanguages($aAvailableLanguages)
     {
         $this->handleLanguageIntoSession();
         return '<div class="upperRightBox">'

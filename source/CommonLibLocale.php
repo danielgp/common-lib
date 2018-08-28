@@ -39,8 +39,8 @@ trait CommonLibLocale
     protected $commonLibFlags   = null;
     protected $tCmnLb           = null;
     protected $tCmnRequest      = null;
-    protected $tCmnSession      = null;
-    protected $tCmnSuperGlobals = null;
+    public $tCmnSession      = null;
+    public $tCmnSuperGlobals = null;
 
     private function getCommonLocaleFolder()
     {
@@ -86,7 +86,7 @@ trait CommonLibLocale
      * to the default language if application one is not among the one are not supported here)
      *
      */
-    private function handleLanguageIntoSession()
+    public function handleLanguageIntoSession()
     {
         $this->settingsCommonLib();
         $this->initializeSprGlbAndSession();
@@ -115,7 +115,7 @@ trait CommonLibLocale
         $this->tCmnLb->loadTranslations($translations);
     }
 
-    protected function initializeSprGlbAndSession()
+    public function initializeSprGlbAndSession()
     {
         if (is_null($this->tCmnSuperGlobals)) {
             $this->tCmnRequest      = new \Symfony\Component\HttpFoundation\Request();
@@ -142,13 +142,13 @@ trait CommonLibLocale
      * @param string $localizedStringCode
      * @return string
      */
-    protected function lclMsgCmn($localizedStringCode)
+    public function lclMsgCmn($localizedStringCode)
     {
         $this->lclManagePrerequisites();
         return $this->tCmnLb->gettext($localizedStringCode);
     }
 
-    protected function lclMsgCmnNumber($singularString, $pluralString, $numberToEvaluate)
+    public function lclMsgCmnNumber($singularString, $pluralString, $numberToEvaluate)
     {
         $this->lclManagePrerequisites();
         return sprintf($this->tCmnLb->ngettext($singularString, $pluralString, $numberToEvaluate), 1);
@@ -170,7 +170,7 @@ trait CommonLibLocale
      * @param mixed $mArguments
      * @return string
      */
-    protected function setDividedResult($fAbove, $fBelow, $mArguments = null)
+    public function setDividedResult($fAbove, $fBelow, $mArguments = null)
     {
         if (($fAbove == 0) || ($fBelow == 0)) { // prevent infinite result AND division by 0
             return 0;

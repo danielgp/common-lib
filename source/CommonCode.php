@@ -46,7 +46,7 @@ trait CommonCode
      * @param array $features
      * @return string
      */
-    protected function getContentFromUrlThroughCurl($fullURL, $features = null)
+    public function getContentFromUrlThroughCurl($fullURL, $features = null)
     {
         if (!function_exists('curl_init')) {
             $aReturn = ['info' => $this->lclMsgCmn('i18n_Error_ExtensionNotLoaded'), 'response' => ''];
@@ -67,7 +67,7 @@ trait CommonCode
      * @param array $features
      * @return array
      */
-    protected function getContentFromUrlThroughCurlAsArrayIfJson($fullURL, $features = null)
+    public function getContentFromUrlThroughCurlAsArrayIfJson($fullURL, $features = null)
     {
         $result = $this->setJsonToArray($this->getContentFromUrlThroughCurl($fullURL, $features));
         if (is_array($result['info'])) {
@@ -126,7 +126,7 @@ trait CommonCode
      * @param string $fileGiven
      * @return array
      */
-    protected function getFileDetails($fileGiven)
+    public function getFileDetails($fileGiven)
     {
         if (!file_exists($fileGiven)) {
             return ['error' => sprintf($this->lclMsgCmn('i18n_Error_GivenFileDoesNotExist'), $fileGiven)];
@@ -141,7 +141,7 @@ trait CommonCode
      * @param  string $pathAnalised
      * @return array
      */
-    protected function getListOfFiles($pathAnalised)
+    public function getListOfFiles($pathAnalised)
     {
         if (realpath($pathAnalised) === false) {
             return ['error' => sprintf($this->lclMsgCmn('i18n_Error_GivenPathIsNotValid'), $pathAnalised)];
@@ -163,7 +163,7 @@ trait CommonCode
      * @param string $returnType
      * @return string
      */
-    protected function getTimestamp($returnType = 'string')
+    public function getTimestamp($returnType = 'string')
     {
         if (in_array($returnType, ['array', 'float', 'string'])) {
             return $this->getTimestampRaw($returnType);
@@ -177,7 +177,7 @@ trait CommonCode
      * @param string|null|array $inputJson
      * @return boolean|string
      */
-    protected function isJsonByDanielGP($inputJson)
+    public function isJsonByDanielGP($inputJson)
     {
         if (is_string($inputJson)) {
             json_decode($inputJson);
@@ -251,7 +251,7 @@ trait CommonCode
      * @param string $inputJson
      * @return array
      */
-    protected function setJsonToArray($inputJson)
+    public function setJsonToArray($inputJson)
     {
         if (!$this->isJsonByDanielGP($inputJson)) {
             return ['error' => $this->lclMsgCmn('i18n_Error_GivenInputIsNotJson')];

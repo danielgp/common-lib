@@ -155,7 +155,7 @@ trait CommonBasic
      * @param array $inputArray
      * @return string
      */
-    protected function removeFilesOlderThanGivenRule($inputArray)
+    public function removeFilesOlderThanGivenRule($inputArray)
     {
         $aFiles = $this->retrieveFilesOlderThanGivenRule($inputArray);
         if (is_array($aFiles)) {
@@ -204,7 +204,7 @@ trait CommonBasic
      * @param array $inArray
      * @return array
      */
-    protected function setArrayValuesAsKey(array $inArray)
+    public function setArrayValuesAsKey(array $inArray)
     {
         $outArray = array_combine($inArray, $inArray);
         ksort($outArray);
@@ -217,7 +217,7 @@ trait CommonBasic
      * @param array $inArray
      * @return string
      */
-    protected function setArrayToJson(array $inArray)
+    public function setArrayToJson(array $inArray)
     {
         $rtrn      = utf8_encode(json_encode($inArray, JSON_FORCE_OBJECT | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
         $jsonError = $this->setJsonErrorInPlainEnglish();
