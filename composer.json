@@ -21,7 +21,7 @@
         "gettext/gettext": "^5",
         "symfony/finder": "^5",
         "symfony/filesystem": "^5",
-        "symfony/http-foundation": "^5"
+        "symfony/http-foundation": ">=5.0.7"
     },
     "autoload": {
         "classmap": [
