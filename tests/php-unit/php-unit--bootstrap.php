@@ -25,6 +25,7 @@
  * SOFTWARE.
  *
  */
+
 session_start();
 
 $_SERVER['HTTP_USER_AGENT']      = 'Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:39.0) Gecko/20100101 Firefox/39.0';

@@ -31,22 +31,22 @@ namespace danielgp\common_lib;
 class CommonLibLocaleTest extends \PHPUnit\Framework\TestCase
 {
 
-    public static function setUpBeforeClass()
+    protected function setUp()
     {
         require_once str_replace('tests' . DIRECTORY_SEPARATOR . 'php-unit', 'source', __DIR__)
-            . DIRECTORY_SEPARATOR . 'CommonLibLocale.php';
+                . DIRECTORY_SEPARATOR . 'CommonLibLocale.php';
     }
 
     public function testLocalMessage()
     {
-        $mock = $this->getMockForTrait(CommonLibLocale::class);
+        $mock   = $this->getMockForTrait(CommonLibLocale::class);
         $actual = $mock->lclMsgCmn('i18n_Generic_Unknown');
         $this->assertEquals('unknown', $actual);
     }
 
     public function testlclMsgCmnNumber()
     {
-        $mock = $this->getMockForTrait(CommonLibLocale::class);
+        $mock       = $this->getMockForTrait(CommonLibLocale::class);
         $mock->initializeSprGlbAndSession();
         $mock->tCmnSuperGlobals->request->set('lang', 'ro_RO');
         $numberZero = $mock->lclMsgCmnNumber($mock->lclMsgCmn('i18n_Record'), $mock->lclMsgCmn('i18n_Records'), 0);
@@ -77,7 +77,7 @@ class CommonLibLocaleTest extends \PHPUnit\Framework\TestCase
 
     public function testsetDividedResult()
     {
-        $mock = $this->getMockForTrait(CommonLibLocale::class);
+        $mock                         = $this->getMockForTrait(CommonLibLocale::class);
         $mock->initializeSprGlbAndSession();
         $mock->tCmnSuperGlobals->request->set('lang', 'en_US');
         $numberZero                   = $mock->setDividedResult(0, 1);
