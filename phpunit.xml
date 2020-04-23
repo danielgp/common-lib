@@ -61,7 +61,7 @@ THE SOFTWARE.
     <logging>
         <log type="coverage-html" target="results/php-unit/coverage.html"/>
         <log type="coverage-clover" target="results/php-unit/coverage-clover.xml" />
-        <log type="coverage-php" target="results/php-unit/coverage-serialized" />
+        <log type="coverage-php" target="results/php-unit/coverage-serialized.php" />
         <log type="junit" target="results/php-unit/junit.xml"/>
         <log type="testdox-html" target="results/php-unit/testdox.html"/>
         <log type="testdox-text" target="results/php-unit/testdox.txt"/>
