@@ -18,9 +18,9 @@
         "components/jquery": "^3",
         "danielgp/browser-agent-info": "^1",
         "danielgp/network-components": "^1",
-        "gettext/gettext": "^5",
-        "symfony/finder": "^7",
-        "symfony/filesystem": "^7",
+        "gettext/gettext": "*",
+        "symfony/finder": "*",
+        "symfony/filesystem": "*",
         "symfony/http-foundation": "*"
     },
     "autoload": {
