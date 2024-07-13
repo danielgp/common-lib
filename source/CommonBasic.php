@@ -4,7 +4,7 @@
  *
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Daniel Popiniuc
+ * Copyright (c) 2015 - 2024 Daniel Popiniuc
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -35,7 +35,6 @@ namespace danielgp\common_lib;
  */
 trait CommonBasic
 {
-
     use CommonPermissions;
 
     protected function arrayDiffAssocRecursive($array1, $array2)
@@ -219,7 +218,8 @@ trait CommonBasic
      */
     public function setArrayToJson(array $inArray)
     {
-        $rtrn      = utf8_encode(json_encode($inArray, JSON_FORCE_OBJECT | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+        $flags     = (JSON_FORCE_OBJECT | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT | JSON_INVALID_UTF8_IGNORE);
+        $rtrn      = json_encode($inArray, $flags);
         $jsonError = $this->setJsonErrorInPlainEnglish();
         if ($jsonError == '') {
             $jsonError = $rtrn;

@@ -4,7 +4,7 @@
  *
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Daniel Popiniuc
+ * Copyright (c) 2015 - 2024 Daniel Popiniuc
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -35,7 +35,6 @@ namespace danielgp\common_lib;
  */
 trait DomBasicComponentsByDanielGP
 {
-
     use CommonLibLocale;
 
     private function buildAttributesForTag($features)
@@ -167,7 +166,7 @@ trait DomBasicComponentsByDanielGP
     private function setGZipedUnsafe($outputType)
     {
         $this->initializeSprGlbAndSession();
-        if (!is_null($this->tCmnRequest->server->get('HTTP_ACCEPT_ENCODING'))) {
+        if (is_null($this->tCmnRequest->server->get('HTTP_ACCEPT_ENCODING'))) {
             return '';
         } elseif (strstr($this->tCmnRequest->server->get('HTTP_ACCEPT_ENCODING'), 'gzip')) {
             $this->setGZipedUnsafeWithGzipEnabled($outputType);
