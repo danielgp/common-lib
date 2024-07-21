@@ -16,7 +16,7 @@
         "ext-mysqli": "*",
         "components/flag-icon-css": "^3",
         "components/jquery": "^3",
-        "danielgp/browser-agent-info": "^1",
+        "danielgp/io-operations": "^1",
         "gettext/gettext": "*",
         "symfony/finder": "*",
         "symfony/filesystem": "*",
